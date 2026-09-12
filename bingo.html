@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>냥빙고 — ROOF CAT ME PLAY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    html{color-scheme:light;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --red:#E8392A; --bg:#FFF8F2; --surface:#fff;
+      --text:#2A1A14; --muted:#9E7C70; --green:#4CAF50;
+    }
+    body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:60px;}
+
+    /* 헤더 */
+    .hdr{width:100%;background:var(--red);color:#fff;padding:20px 20px 18px;text-align:center;}
+    .hdr-brand{font-size:11px;letter-spacing:.15em;opacity:.75;margin-bottom:4px;}
+    .hdr-title{font-size:26px;font-weight:900;}
+    .hdr-nick{font-size:13px;opacity:.85;margin-top:3px;}
+
+    /* 진행 */
+    .prog{display:flex;justify-content:space-between;width:100%;max-width:360px;padding:14px 20px 4px;font-size:13px;font-weight:700;color:var(--muted);}
+    .prog-bingo{color:var(--red);}
+
+    /* 그리드 */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 16px 0;width:100%;max-width:360px;}
+    .cell{background:#fff;border-radius:14px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:8px 5px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.07);transition:transform .15s;position:relative;overflow:hidden;border:2px solid transparent;-webkit-tap-highlight-color:transparent;}
+    .cell:active{transform:scale(.93);}
+    .cell.done{background:#f0fbf0;border-color:#4CAF50;cursor:default;}
+    .cell-emoji{font-size:26px;line-height:1;}
+    .cell-name{font-size:10px;text-align:center;color:var(--text);line-height:1.3;font-weight:700;}
+    .cell-check{position:absolute;inset:0;background:rgba(76,175,80,.12);display:flex;align-items:center;justify-content:center;font-size:34px;}
+    @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+    .cell.just-done{animation:pop .4s ease;}
+
+    /* 리셋 */
+    .reset-btn{margin-top:22px;background:none;border:1.5px solid rgba(158,124,112,.3);border-radius:20px;color:var(--muted);font-size:12px;padding:8px 20px;cursor:pointer;font-family:inherit;}
+
+    /* 오버레이 */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:flex-end;justify-content:center;}
+    .overlay.open{display:flex;}
+    .sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 24px 44px;display:flex;flex-direction:column;gap:14px;}
+    .sheet-handle{width:36px;height:4px;background:#e0d8d4;border-radius:2px;align-self:center;}
+    .sheet-emoji{font-size:40px;text-align:center;}
+    .sheet-name{font-size:18px;font-weight:900;color:var(--text);text-align:center;}
+
+    /* 업로드 */
+    .upload-wrap{position:relative;border:2px dashed rgba(232,57,42,.3);border-radius:14px;padding:28px;text-align:center;background:#FFF8F2;cursor:pointer;}
+    .upload-wrap input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .upload-ico{font-size:32px;display:block;margin-bottom:6px;}
+    .upload-lbl{font-size:13px;color:var(--muted);}
+    #photo-preview{width:100%;border-radius:12px;display:none;max-height:200px;object-fit:cover;}
+    .judge-btn{background:var(--red);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:none;}
+    .loading{text-align:center;color:var(--muted);font-size:14px;display:none;}
+    .result{text-align:center;font-size:17px;font-weight:700;display:none;padding:8px;}
+    .result.ok{color:#4CAF50;}
+    .result.ng{color:var(--red);}
+    .close-btn{background:none;border:1.5px solid #e0d8d4;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;color:var(--muted);font-family:inherit;}
+
+    /* 토스트 */
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#2A1A14;color:#fff;padding:14px 24px;border-radius:24px;font-size:15px;font-weight:700;z-index:2000;transition:transform .4s;white-space:nowrap;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand">ROOF CAT ME PLAY</div>
+  <div class="hdr-title">🎯 냥빙고</div>
+  <div class="hdr-nick" id="hdr-nick"></div>
+</div>
+
+<div class="prog">
+  <span id="prog-done">0 / 9 완료</span>
+  <span class="prog-bingo" id="prog-bingo">빙고 0줄</span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-emoji" id="sh-emoji"></div>
+    <div class="sheet-name" id="sh-name"></div>
+    <div class="upload-wrap" id="upload-wrap">
+      <input type="file" accept="image/*" capture="environment" id="photo-input" onchange="handlePhoto(this)">
+      <span class="upload-ico">📸</span>
+      <div class="upload-lbl">여기를 눌러 사진을 업로드하세요</div>
+    </div>
+    <div style="font-size:11px;color:#9E7C70;text-align:center;line-height:1.6;padding:0 4px;">
+      AI 판정을 위해 선택한 사진이 분석 서버로 전송됩니다.<br>다른 고객의 얼굴이 나오지 않도록 촬영해주세요.
+    </div>
+    <img id="photo-preview" alt="">
+    <button class="judge-btn" id="judge-btn" onclick="judgePhoto()">✨ AI 집사에게 판정받기</button>
+    <div class="loading" id="loading">🐱 AI 집사가 확인 중…</div>
+    <div class="result" id="result"></div>
+    <button class="close-btn" onclick="closeModal()">닫기</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Worker URL: Cloudflare Worker 배포 후 실제 주소로 교체
+const WORKER_URL = 'https://super-mouse-c9f8.eom732.workers.dev';
+
+const ALL = [
+  {id:1, emoji:'🍞', name:'식빵 자세',           desc:'고양이가 앞발을 몸 아래에 접고 네모나게 웅크려 앉아있다'},
+  {id:2, emoji:'🧼', name:'그루밍 중',            desc:'고양이가 자신의 몸을 핥거나 앞발로 얼굴을 닦으며 그루밍하고 있다'},
+  {id:3, emoji:'😮', name:'하품하는 고양이',       desc:'고양이가 입을 크게 벌리고 하품하고 있다'},
+  {id:4, emoji:'😴', name:'자고 있는 고양이',      desc:'고양이가 눈을 감고 잠들어 있다'},
+  {id:5, emoji:'🏔️',name:'높은 곳의 고양이',      desc:'고양이가 선반, 냉장고 위, 캣타워 등 높은 곳에 있다'},
+  {id:6, emoji:'🐱', name:'배 보이고 누운 고양이', desc:'고양이가 배를 위로 향하게 하여 드러누워 있다'},
+  {id:7, emoji:'🐈', name:'2마리 붙어있음',        desc:'두 마리의 고양이가 서로 붙어서 앉아있거나 누워있다'},
+  {id:8, emoji:'🐈‍⬛',name:'3마리 이상 한 컷',    desc:'사진 한 장에 고양이가 3마리 이상 보인다'},
+  {id:9, emoji:'🖤', name:'까만 고양이',           desc:'검은색 털의 고양이가 사진에 있다'},
+  {id:10,emoji:'🤍', name:'흰 고양이',             desc:'흰색 털의 고양이가 사진에 있다'},
+  {id:11,emoji:'🐯', name:'줄무늬 고양이',         desc:'줄무늬(타비) 패턴의 고양이가 사진에 있다'},
+  {id:12,emoji:'🪟', name:'창문 옆 고양이',        desc:'고양이가 창문 근처에 있거나 창문을 바라보고 있다'},
+  {id:13,emoji:'📡', name:'꼬리 세운 고양이',      desc:'고양이 꼬리가 위로 곧게 바짝 세워져 있다'},
+  {id:14,emoji:'🐾', name:'젤리 보이는 고양이',    desc:'고양이의 발바닥(젤리)이 카메라에 보인다'},
+  {id:15,emoji:'🦵', name:'무릎 위 고양이',        desc:'고양이가 사람의 무릎이나 다리 위에 앉아있거나 누워있다'},
+  {id:16,emoji:'📦', name:'박스 속 고양이',        desc:'고양이가 박스, 가방, 용기 등의 안에 들어가 있다'},
+  {id:17,emoji:'📸', name:'카메라 정면 고양이',    desc:'고양이가 카메라를 정면으로 바라보고 있다'},
+  {id:18,emoji:'🌀', name:'꼬리 감은 고양이',      desc:'고양이가 꼬리를 몸 주위로 감싸며 앉아있다'},
+  {id:19,emoji:'🙆', name:'기지개 켜는 고양이',    desc:'고양이가 앞발을 앞으로 쭉 뻗고 기지개를 켜고 있다'},
+  {id:20,emoji:'👆', name:'발로 누르는 고양이',    desc:'고양이가 앞발로 물체를 누르거나 건드리고 있다'},
+  {id:21,emoji:'👃', name:'코 맞대는 고양이',      desc:'두 고양이가 서로 코를 맞대고 있다'},
+  {id:22,emoji:'🗼', name:'캣타워 고양이',         desc:'고양이가 캣타워에 올라가 있다'},
+  {id:23,emoji:'🔄', name:'뒤돌아 앉은 고양이',   desc:'고양이가 뒤를 향해 앉아서 등이나 뒷모습이 보인다'},
+  {id:24,emoji:'😌', name:'눈 가늘게 뜬 고양이',  desc:'고양이가 눈을 반쯤 감고 가늘게 뜨고 있다'},
+  {id:25,emoji:'💫', name:'꼬리 탁탁 치는 고양이',desc:'고양이가 앉아서 꼬리를 바닥에 탁탁 치고 있다'},
+  {id:26,emoji:'👀', name:'눈 마주친 고양이',      desc:'고양이가 카메라나 사람을 직접 바라보며 눈이 마주쳤다'},
+];
+
+const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const K_M='rcm_bingo_missions', K_S='rcm_bingo_state', K_D='rcm_bingo_date', K_L='rcm_bingo_lines';
+
+let missions=[], state=[], doneLines=new Set(), curCell=-1, curPhoto=null;
+
+function today(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+
+function init(){
+  const nick = localStorage.getItem('rcm_nickname') || '손님';
+  document.getElementById('hdr-nick').textContent = nick + '님의 빙고판';
+  if(localStorage.getItem(K_D) === today()){
+    missions = JSON.parse(localStorage.getItem(K_M));
+    state    = JSON.parse(localStorage.getItem(K_S));
+    const dl = localStorage.getItem(K_L);
+    doneLines = new Set(dl ? JSON.parse(dl) : []);
+  } else {
+    newBoard();
+  }
+  render();
+}
+
+function newBoard(){
+  const sh = [...ALL].sort(()=>Math.random()-.5);
+  missions = sh.slice(0,9);
+  state    = Array(9).fill(false);
+  doneLines = new Set();
+  localStorage.setItem(K_D, today());
+  localStorage.setItem(K_M, JSON.stringify(missions));
+  localStorage.setItem(K_S, JSON.stringify(state));
+  localStorage.setItem(K_L, JSON.stringify([]));
+}
+
+function save(){
+  localStorage.setItem(K_S, JSON.stringify(state));
+  localStorage.setItem(K_L, JSON.stringify([...doneLines]));
+}
+
+function render(){
+  const g = document.getElementById('grid');
+  g.innerHTML = '';
+  missions.forEach((m,i)=>{
+    const c = document.createElement('div');
+    c.className = 'cell' + (state[i] ? ' done' : '');
+    c.innerHTML = `<div class="cell-emoji">${m.emoji}</div><div class="cell-name">${m.name}</div>${state[i]?'<div class="cell-check">✓</div>':''}`;
+    if(!state[i]) c.addEventListener('click', ()=>openModal(i));
+    g.appendChild(c);
+  });
+  updateProg();
+}
+
+function updateProg(){
+  document.getElementById('prog-done').textContent = state.filter(Boolean).length + ' / 9 완료';
+  document.getElementById('prog-bingo').textContent = '빙고 ' + doneLines.size + '줄';
+}
+
+function openModal(i){
+  curCell=i; curPhoto=null;
+  const m=missions[i];
+  document.getElementById('sh-emoji').textContent = m.emoji;
+  document.getElementById('sh-name').textContent  = m.name;
+  document.getElementById('upload-wrap').style.display = 'block';
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('judge-btn').style.display = 'none';
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('photo-input').value = '';
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  curCell=-1; curPhoto=null;
+}
+
+function overlayClick(e){ if(e.target===document.getElementById('overlay')) closeModal(); }
+
+function handlePhoto(input){
+  if(!input.files||!input.files[0]) return;
+  compressImage(input.files[0]).then(b64=>{
+    curPhoto = b64;
+    const p = document.getElementById('photo-preview');
+    p.src = 'data:image/jpeg;base64,'+b64;
+    p.style.display = 'block';
+    document.getElementById('upload-wrap').style.display = 'none';
+    document.getElementById('judge-btn').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+  });
+}
+
+function compressImage(file){
+  return new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=800;
+        let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+        if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+        const cv=document.createElement('canvas');
+        cv.width=w;cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(cv.toDataURL('image/jpeg',.8).split(',')[1]);
+      };
+      img.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+async function judgePhoto(){
+  if(!curPhoto||curCell<0) return;
+  const m=missions[curCell];
+  document.getElementById('judge-btn').style.display='none';
+  document.getElementById('loading').style.display='block';
+  document.getElementById('result').style.display='none';
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ missionId:m.id, image:curPhoto })
+    });
+    if(!res.ok) throw new Error('WORKER_ERROR');
+    const data = await res.json();
+    const txt  = (data.result || '').trim().toUpperCase();
+    const ok   = txt === 'YES';
+
+    document.getElementById('loading').style.display='none';
+    const el=document.getElementById('result');
+    el.style.display='block';
+
+    if(ok){
+      el.className='result ok';
+      el.textContent='✓ 미션 달성!';
+      markDone(curCell);
+      setTimeout(closeModal, 1200);
+    } else {
+      el.className='result ng';
+      el.textContent='✗ 아직 아닌 것 같아요. 다시 도전!';
+      setTimeout(()=>{
+        document.getElementById('upload-wrap').style.display='block';
+        document.getElementById('photo-preview').style.display='none';
+        document.getElementById('judge-btn').style.display='none';
+        document.getElementById('photo-input').value='';
+        el.style.display='none';
+        curPhoto=null;
+      }, 1500);
+    }
+  } catch(err){
+    document.getElementById('loading').style.display='none';
+    const el=document.getElementById('result');
+    el.style.display='block';
+    el.className='result ng';
+    el.textContent='네트워크 오류. 다시 시도해주세요.';
+    document.getElementById('judge-btn').style.display='block';
+  }
+}
+
+function markDone(idx){
+  state[idx]=true; save();
+  const cells=document.querySelectorAll('.cell');
+  cells[idx].className='cell done just-done';
+  cells[idx].innerHTML=`<div class="cell-emoji">${missions[idx].emoji}</div><div class="cell-name">${missions[idx].name}</div><div class="cell-check">✓</div>`;
+  updateProg(); checkBingo();
+}
+
+function checkBingo(){
+  let newLineCount=0;
+  LINES.forEach((line,i)=>{
+    if(!doneLines.has(i) && line.every(idx=>state[idx])){
+      doneLines.add(i); newLineCount++;
+    }
+  });
+  if(newLineCount > 0){
+    save();
+    // 가챠권 적립 (새로 완성된 줄 수만큼)
+    var t = parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
+    var added = newLineCount;
+    localStorage.setItem('rcm_gacha_tickets', t + added);
+    updateProg();
+    showToast('🎉 빙고 '+newLineCount+'줄! 가챠권 '+added+'개 획득! (보유 '+(t+added)+'개)');
+  }
+  if(state.every(Boolean)) setTimeout(()=>showToast('🏆 빙고 완성! 최고예요!'), 900);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+function resetBingo(){
+  if(!confirm('새 게임을 시작할까요? 현재 진행이 초기화돼요.')) return;
+  newBoard(); render();
+}
+
+init();
+</script>
+</body>
+</html>
