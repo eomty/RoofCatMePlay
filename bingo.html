@@ -297,7 +297,7 @@ async function judgePhoto(){
     const el=document.getElementById('result');
     el.style.display='block';
     el.className='result ng';
-    el.textContent='네트워크 오류. 다시 시도해주세요.';
+    el.textContent='오류: ' + err.message;
     document.getElementById('judge-btn').style.display='block';
   }
 }
