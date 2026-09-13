@@ -223,7 +223,7 @@
       <div class="card-sub">QR로 개체 해금<br>몇 마리 만났어?</div>
     </a>
 
-    <a class="card gacha" href="#">
+    <a class="card gacha" href="gacha.html">
       <div class="icon">🎰</div>
       <div class="card-label">냥가챠</div>
       <div class="card-sub">카드 뽑고<br>수집하기</div>
@@ -262,6 +262,28 @@ function saveNick(){
 document.getElementById('nick-input').addEventListener('keydown', function(e){
   if(e.key==='Enter') saveNick();
 });
+</script>
+
+
+<script>
+// 매일 첫 접속 시 가챠권 5개
+(function(){
+  var d=new Date();
+  var today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  if(localStorage.getItem('rcm_daily_login') !== today){
+    localStorage.setItem('rcm_daily_login', today);
+    var t=parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
+    localStorage.setItem('rcm_gacha_tickets', t+5);
+    // 출석 보상 토스트
+    document.addEventListener('DOMContentLoaded', function(){
+      var toast = document.createElement('div');
+      toast.textContent = '🎁 오늘의 출석 보상! 가챠권 5개';
+      toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#2A1A14;color:#fff;padding:14px 24px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;white-space:nowrap;font-family:inherit;';
+      document.body.appendChild(toast);
+      setTimeout(function(){ toast.style.transition='opacity .4s'; toast.style.opacity='0'; setTimeout(function(){ toast.remove(); }, 400); }, 3000);
+    });
+  }
+})();
 </script>
 
 </body>

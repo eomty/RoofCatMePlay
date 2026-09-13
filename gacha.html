@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>냥가챠 — ROOF CAT ME PLAY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    html{color-scheme:light;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--red:#E8392A;--bg:#FFF8F2;--text:#2A1A14;--muted:#9E7C70;}
+    body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:60px;}
+
+    .hdr{width:100%;background:var(--red);color:#fff;padding:20px;text-align:center;}
+    .hdr-brand{font-size:11px;letter-spacing:.15em;opacity:.75;margin-bottom:4px;}
+    .hdr-title{font-size:26px;font-weight:900;}
+    .hdr-nick{font-size:13px;opacity:.85;margin-top:3px;}
+
+    .ticket-box{margin:24px 0 8px;text-align:center;}
+    .ticket-label{font-size:13px;color:var(--muted);margin-bottom:6px;}
+    .ticket-count{font-size:40px;font-weight:900;color:var(--text);}
+    .ticket-unit{font-size:14px;color:var(--muted);margin-left:4px;}
+
+    .pull-btns{display:flex;gap:12px;padding:16px;width:100%;max-width:360px;}
+    .pull-btn{flex:1;padding:18px 0;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s;-webkit-tap-highlight-color:transparent;}
+    .pull-btn:active{transform:scale(.96);}
+    .pull-btn.one{background:#fff;color:var(--red);border:2px solid var(--red);}
+    .pull-btn.ten{background:var(--red);color:#fff;}
+    .pull-btn .cost{font-size:11px;font-weight:400;opacity:.7;display:block;margin-top:2px;}
+
+    .divider{width:100%;max-width:360px;border:none;border-top:1px solid rgba(158,124,112,.15);margin:8px 16px;}
+
+    .rates-box{width:100%;max-width:360px;padding:16px;}
+    .rates-title{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:700;}
+    .rates{display:flex;gap:8px;flex-wrap:wrap;}
+    .rate-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;color:#fff;}
+
+    .coll-btn{margin-top:8px;background:none;border:1.5px solid rgba(158,124,112,.3);border-radius:20px;color:var(--muted);font-size:13px;padding:10px 24px;cursor:pointer;font-family:inherit;}
+
+    /* 결과 오버레이 */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:16px;}
+    .overlay.open{display:flex;}
+    .result-title{color:#fff;font-size:18px;font-weight:900;}
+
+    /* 단일 카드 */
+    .single-card{width:160px;height:220px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:popIn .4s ease;}
+    @keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+    .card-emoji{font-size:48px;}
+    .card-name{font-size:20px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3);}
+    .card-grade{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.25);color:#fff;font-size:13px;font-weight:900;padding:3px 8px;border-radius:10px;}
+    .card-new{position:absolute;top:12px;left:12px;background:#FF6B6B;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;}
+
+    /* 10연 그리드 */
+    .multi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:400px;}
+    .mini-card{border-radius:12px;aspect-ratio:.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;animation:popIn .3s ease both;}
+    .mini-emoji{font-size:24px;}
+    .mini-name{font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.2;}
+    .mini-grade{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.25);color:#fff;font-size:9px;font-weight:900;padding:1px 4px;border-radius:6px;}
+    .mini-new{position:absolute;top:4px;left:4px;width:8px;height:8px;background:#FF6B6B;border-radius:50%;}
+
+    .close-btn{background:#fff;border:none;border-radius:12px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;color:var(--text);font-family:inherit;}
+
+    /* 토스트 */
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#2A1A14;color:#fff;padding:14px 24px;border-radius:24px;font-size:14px;font-weight:700;z-index:2000;transition:transform .4s;white-space:nowrap;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+
+    /* 합성 섹션 */
+    .merge-box{width:100%;max-width:360px;padding:16px;}
+    .merge-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;}
+    .merge-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
+    .merge-grade-btns{display:flex;gap:8px;flex-wrap:wrap;}
+    .merge-grade-btn{padding:8px 14px;border-radius:12px;border:none;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;}
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand">ROOF CAT ME PLAY</div>
+  <div class="hdr-title">🎰 냥가챠</div>
+  <div class="hdr-nick" id="hdr-nick"></div>
+</div>
+
+<div class="ticket-box">
+  <div class="ticket-label">보유 가챠권</div>
+  <div><span class="ticket-count" id="ticket-count">0</span><span class="ticket-unit">장</span></div>
+</div>
+
+<div class="pull-btns">
+  <button class="pull-btn one" onclick="doPull(1)">
+    1회 뽑기
+    <span class="cost">가챠권 1장</span>
+  </button>
+  <button class="pull-btn ten" onclick="doPull(10)">
+    10회 뽑기
+    <span class="cost">가챠권 10장</span>
+  </button>
+</div>
+
+<div class="rates-box">
+  <div class="rates-title">📊 등급별 확률</div>
+  <div class="rates">
+    <span class="rate-chip" style="background:#9E9E9E;">C 50%</span>
+    <span class="rate-chip" style="background:#4CAF50;">B 30%</span>
+    <span class="rate-chip" style="background:#2196F3;">A 15%</span>
+    <span class="rate-chip" style="background:#9C27B0;">S 4%</span>
+    <span class="rate-chip" style="background:linear-gradient(135deg,#F57F17,#FFD54F);color:#2A1A14;">SS 1%</span>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="merge-box">
+  <div class="merge-title">🔮 카드 합성</div>
+  <div class="merge-desc">같은 등급 카드 3장 → 상위 등급 카드 1장 (랜덤)<br>합성할 등급을 선택하세요.</div>
+  <div class="merge-grade-btns">
+    <button class="merge-grade-btn" style="background:#9E9E9E;" onclick="doMerge('C')">C → B</button>
+    <button class="merge-grade-btn" style="background:#4CAF50;" onclick="doMerge('B')">B → A</button>
+    <button class="merge-grade-btn" style="background:#2196F3;" onclick="doMerge('A')">A → S</button>
+    <button class="merge-grade-btn" style="background:#9C27B0;" onclick="doMerge('S')">S → SS</button>
+  </div>
+</div>
+
+<hr class="divider">
+
+<button class="coll-btn" onclick="location.href='collection.html'">📖 내 컬렉션 보기</button>
+
+<!-- 결과 오버레이 -->
+<div class="overlay" id="overlay">
+  <div class="result-title" id="result-title"></div>
+  <div id="result-area"></div>
+  <button class="close-btn" onclick="closeResult()">확인</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = ['금동', '금별', '금실', '낑깡', '닉', '달이', '랑이', '랭이', '레오', '레첼', '먼지', '모아', '모찌', '무디', '뭉이', '백설', '버즈', '베리', '부엉', '블루', '비니', '샤인', '소고', '시니', '실버', '써클', '앤디', '엘크', '여비', '절미', '주디', '지니', '치즈', '콩떡', '쿠미', '티코', '파인', '페너', '플래시', '호떡', '호시'];
+
+const GRADES = ['C','B','A','S','SS'];
+const GRADE_COLORS = {
+  C:'linear-gradient(135deg,#757575,#9E9E9E)',
+  B:'linear-gradient(135deg,#388E3C,#66BB6A)',
+  A:'linear-gradient(135deg,#1565C0,#42A5F5)',
+  S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',
+  SS:'linear-gradient(135deg,#F57F17,#FFD54F)'
+};
+const GRADE_TEXT_COLOR = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+
+const K_TICKETS  = 'rcm_gacha_tickets';
+const K_COLL     = 'rcm_gacha_collection';
+
+let tickets    = 0;
+let collection = {};
+
+function init(){
+  const nick = localStorage.getItem('rcm_nickname') || '손님';
+  document.getElementById('hdr-nick').textContent = nick + '님의 가챠';
+  tickets    = parseInt(localStorage.getItem(K_TICKETS)||'0');
+  collection = JSON.parse(localStorage.getItem(K_COLL)||'{}');
+  updateTicketUI();
+}
+
+function updateTicketUI(){
+  document.getElementById('ticket-count').textContent = tickets;
+}
+
+function saveAll(){
+  localStorage.setItem(K_TICKETS, tickets);
+  localStorage.setItem(K_COLL, JSON.stringify(collection));
+}
+
+function drawOne(){
+  const r = Math.random() * 100;
+  let grade;
+  if(r < 1)       grade = 'SS';
+  else if(r < 5)  grade = 'S';
+  else if(r < 20) grade = 'A';
+  else if(r < 50) grade = 'B';
+  else             grade = 'C';
+  const cat = CATS[Math.floor(Math.random() * CATS.length)];
+  return {cat, grade};
+}
+
+function isNew(cat, grade){
+  return !collection[cat + '_' + grade];
+}
+
+function addToCollection(results){
+  results.forEach(r => {
+    const key = r.cat + '_' + r.grade;
+    collection[key] = (collection[key] || 0) + 1;
+  });
+}
+
+function doPull(count){
+  if(tickets < count){ showToast('가챠권이 부족해요! 냥빙고를 도전해보세요 🎯'); return; }
+  tickets -= count;
+
+  const results = [];
+  for(let i=0;i<count;i++) results.push(drawOne());
+
+  // 10연차 내에서도 같은 cat_grade 첫 등장만 NEW
+  const seenThisPull = new Set();
+  const newFlags = results.map(r => {
+    const key = r.cat + '_' + r.grade;
+    const isN = !collection[key] && !seenThisPull.has(key);
+    seenThisPull.add(key);
+    return isN;
+  });
+  addToCollection(results);
+  saveAll();
+  updateTicketUI();
+  showResults(results, newFlags, count);
+}
+
+function showResults(results, newFlags, count){
+  const area  = document.getElementById('result-area');
+  const title = document.getElementById('result-title');
+
+  if(count === 1){
+    const r = results[0];
+    const isN = newFlags[0];
+    title.textContent = gradeLabel(r.grade);
+    area.innerHTML = `
+      <div class="single-card" style="background:${GRADE_COLORS[r.grade]}">
+        ${isN ? '<div class="card-new">NEW</div>' : ''}
+        <div class="card-grade">${r.grade}</div>
+        <div class="card-emoji">🐱</div>
+        <div class="card-name" style="color:${GRADE_TEXT_COLOR[r.grade]}">${r.cat}</div>
+      </div>`;
+  } else {
+    const hasSpecial = results.some(r => r.grade === 'S' || r.grade === 'SS');
+    title.textContent = hasSpecial ? '✨ 특별한 카드 등장!' : `${count}장 획득!`;
+    area.innerHTML = `<div class="multi-grid">${
+      results.map((r,i) => `
+        <div class="mini-card" style="background:${GRADE_COLORS[r.grade]};animation-delay:${i*0.05}s">
+          ${newFlags[i] ? '<div class="mini-new"></div>' : ''}
+          <div class="mini-grade">${r.grade}</div>
+          <div class="mini-emoji">🐱</div>
+          <div class="mini-name" style="color:${GRADE_TEXT_COLOR[r.grade]}">${r.cat}</div>
+        </div>`).join('')
+    }</div>`;
+  }
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function gradeLabel(g){
+  const labels = {C:'일반 카드 획득',B:'희귀 카드 획득!',A:'✨ 레어 카드!',S:'💜 슈퍼 레어!',SS:'🌟 초희귀 등장!!'};
+  return labels[g];
+}
+
+function closeResult(){
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function doMerge(grade){
+  const nextGrade = GRADES[GRADES.indexOf(grade) + 1];
+  if(!nextGrade){ showToast('이미 최고 등급이에요!'); return; }
+
+  // 해당 등급 보유 카드 수 합산
+  const total = CATS.reduce((sum, cat) => sum + (collection[cat+'_'+grade] || 0), 0);
+  if(total < 3){ showToast(grade + '등급 카드가 3장 필요해요! (현재 '+total+'장)'); return; }
+
+  // 3장 소모 — 보유 수 많은 것부터
+  let toConsume = 3;
+  CATS.forEach(cat => {
+    if(toConsume <= 0) return;
+    const key = cat + '_' + grade;
+    const has = collection[key] || 0;
+    const use = Math.min(has, toConsume);
+    collection[key] = has - use;
+    if(collection[key] === 0) delete collection[key];
+    toConsume -= use;
+  });
+
+  // 랜덤 상위 등급 카드 지급
+  const cat = CATS[Math.floor(Math.random() * CATS.length)];
+  const key = cat + '_' + nextGrade;
+  const isN = !collection[key];
+  collection[key] = (collection[key] || 0) + 1;
+  saveAll();
+
+  showResults([{cat, grade:nextGrade}], [isN], 1);
+  document.getElementById('result-title').textContent = '🔮 합성 성공! ' + gradeLabel(nextGrade);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>

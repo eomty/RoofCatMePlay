@@ -138,6 +138,11 @@ const ALL = [
 ];
 
 const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+// ── 가챠권 보상량 상수 (조정 시 여기만 수정) ──
+const REWARD_CELL  = 2;   // 칸 1개 완성 시
+const REWARD_LINE  = 5;   // 줄 1줄 완성 시 (칸 보상과 별도)
+const REWARD_CLEAR = 30;  // 빙고판 전체 완성 시
+
 const K_M='rcm_bingo_missions', K_S='rcm_bingo_state', K_D='rcm_bingo_date', K_L='rcm_bingo_lines';
 
 let missions=[], state=[], doneLines=new Set(), curCell=-1, curPhoto=null;
@@ -297,7 +302,7 @@ async function judgePhoto(){
     const el=document.getElementById('result');
     el.style.display='block';
     el.className='result ng';
-    el.textContent='오류: ' + err.message;
+    el.textContent='네트워크 오류. 다시 시도해주세요.';
     document.getElementById('judge-btn').style.display='block';
   }
 }
@@ -307,26 +312,39 @@ function markDone(idx){
   const cells=document.querySelectorAll('.cell');
   cells[idx].className='cell done just-done';
   cells[idx].innerHTML=`<div class="cell-emoji">${missions[idx].emoji}</div><div class="cell-name">${missions[idx].name}</div><div class="cell-check">✓</div>`;
-  updateProg(); checkBingo();
+
+  // 보상 계산 (칸 + 줄 + 완주 합산)
+  var lineCount   = checkBingo();
+  var isComplete  = state.every(Boolean);
+  var cellReward  = REWARD_CELL;
+  var lineReward  = lineCount * REWARD_LINE;
+  var clearReward = isComplete ? REWARD_CLEAR : 0;
+  var total = cellReward + lineReward + clearReward;
+
+  // 일괄 지급
+  var t = parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
+  localStorage.setItem('rcm_gacha_tickets', t + total);
+
+  // 합산 토스트 (한 번만)
+  var parts = ['칸 +'+cellReward];
+  if(lineReward  > 0) parts.push('빙고 +'+lineReward);
+  if(clearReward > 0) parts.push('완주 +'+clearReward);
+  var prefix = isComplete ? '🏆' : lineCount > 0 ? '🎉' : '🎰';
+  showToast(prefix+' 가챠권 총 '+total+'개 획득  '+parts.join(' · '));
+
+  updateProg();
 }
 
 function checkBingo(){
-  let newLineCount=0;
+  // 새로 완성된 줄 수만 반환 — 보상/토스트는 markDone에서 처리
+  var newLineCount=0;
   LINES.forEach((line,i)=>{
     if(!doneLines.has(i) && line.every(idx=>state[idx])){
       doneLines.add(i); newLineCount++;
     }
   });
-  if(newLineCount > 0){
-    save();
-    // 가챠권 적립 (새로 완성된 줄 수만큼)
-    var t = parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
-    var added = newLineCount;
-    localStorage.setItem('rcm_gacha_tickets', t + added);
-    updateProg();
-    showToast('🎉 빙고 '+newLineCount+'줄! 가챠권 '+added+'개 획득! (보유 '+(t+added)+'개)');
-  }
-  if(state.every(Boolean)) setTimeout(()=>showToast('🏆 빙고 완성! 최고예요!'), 900);
+  if(newLineCount > 0){ save(); updateProg(); }
+  return newLineCount;
 }
 
 function showToast(msg){
