@@ -124,6 +124,7 @@
 <hr class="divider">
 
 <button class="coll-btn" onclick="location.href='collection.html'">📖 내 컬렉션 보기</button>
+<button onclick="var t=parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');localStorage.setItem('rcm_gacha_tickets',t+10);tickets=t+10;updateTicketUI();showToast('🛠 테스트 +10장');" style="margin-top:8px;background:#ffe082;border:1.5px dashed #f9a825;border-radius:20px;color:#5d4037;font-size:12px;padding:8px 20px;cursor:pointer;font-family:inherit;">🛠 테스트용 +10장</button>
 
 <!-- 결과 오버레이 -->
 <div class="overlay" id="overlay">
