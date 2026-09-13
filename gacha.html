@@ -248,6 +248,7 @@ let isMerging  = false;
 function init(){
   onAuthStateChanged(auth, async user => {
     if(!user){ location.href='login.html'; return; }
+    showToast('auth OK: '+user.uid.slice(0,6)); // 🛠 디버그
     userRef = doc(db,'users',user.uid);
     await loadUserData();
   });
@@ -265,6 +266,7 @@ async function loadUserData(){
     document.getElementById('hdr-nick').textContent = nick + '님의 가챠';
     localStorage.setItem('rcm_nickname', nick);
     updateTicketUI();
+    showToast('로드완료 tickets='+tickets); // 🛠 디버그
   } catch(e){
     showToast('데이터 로드 실패: '+e.message);
   }
