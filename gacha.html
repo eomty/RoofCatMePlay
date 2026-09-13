@@ -180,7 +180,7 @@
 <hr class="divider">
 
 <button class="coll-btn" onclick="location.href='collection.html'">📖 냥카드 컬렉션 보기</button>
-<button onclick="var t=parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');localStorage.setItem('rcm_gacha_tickets',t+10);tickets=t+10;updateTicketUI();showToast('🛠 테스트 +10장');" style="margin-top:8px;background:#ffe082;border:1.5px dashed #f9a825;border-radius:20px;color:#5d4037;font-size:12px;padding:8px 20px;cursor:pointer;font-family:inherit;">🛠 테스트용 +10장</button>
+<button onclick="addTestTickets()" style="margin-top:8px;background:#ffe082;border:1.5px dashed #f9a825;border-radius:20px;color:#5d4037;font-size:12px;padding:8px 20px;cursor:pointer;font-family:inherit;">🛠 테스트용 +10장</button>
 
 <!-- 뽑기 결과 오버레이 -->
 <div class="overlay" id="overlay">
@@ -254,17 +254,20 @@ function init(){
 }
 
 async function loadUserData(){
-  const snap = await getDoc(userRef);
-  if(!snap.exists()) return;
-  const data = snap.data();
-  tickets    = data.tickets    || 0;
-  collection = data.collection || {};
-  discovered = data.discovered || {};
-  // Firestore 닉네임 우선 표시 (localStorage 캐시도 갱신)
-  const nick = data.nickname || '손님';
-  document.getElementById('hdr-nick').textContent = nick + '님의 가챠';
-  localStorage.setItem('rcm_nickname', nick);
-  updateTicketUI();
+  try{
+    const snap = await getDoc(userRef);
+    if(!snap.exists()){ showToast('사용자 정보를 불러오지 못했어요.'); return; }
+    const data = snap.data();
+    tickets    = data.tickets    || 0;
+    collection = data.collection || {};
+    discovered = data.discovered || {};
+    const nick = data.nickname || '손님';
+    document.getElementById('hdr-nick').textContent = nick + '님의 가챠';
+    localStorage.setItem('rcm_nickname', nick);
+    updateTicketUI();
+  } catch(e){
+    showToast('데이터 로드 실패: '+e.message);
+  }
 }
 
 function updateTicketUI(){
@@ -527,6 +530,25 @@ window.confirmMerge = async function(){
     else showToast('합성 오류가 발생했습니다.');
   }finally{
     isMerging=false;
+  }
+};
+
+window.addTestTickets = async function(){
+  if(!userRef){ showToast('로그인 정보 없음'); return; }
+  let committedTickets;
+  try{
+    await runTransaction(db, async tx=>{
+      const snap = await tx.get(userRef);
+      if(!snap.exists()) throw new Error('NO_USER');
+      committedTickets = (snap.data().tickets||0) + 10;
+      tx.update(userRef,{ tickets: committedTickets });
+    });
+    tickets = committedTickets;
+    localStorage.setItem('rcm_gacha_tickets', tickets);
+    updateTicketUI();
+    showToast('🛠 테스트 +10장 (Firestore)');
+  } catch(e){
+    showToast('테스트 지급 실패: '+e.message);
   }
 };
 
