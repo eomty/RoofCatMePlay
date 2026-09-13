@@ -104,10 +104,28 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-// Worker URL: Cloudflare Worker 배포 후 실제 주소로 교체
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, runTransaction, increment }
+  from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqxMZf8xDfaQ1oAheXJAuYbWBBfZBkgvI",
+  authDomain: "roofcatmeplay.firebaseapp.com",
+  projectId: "roofcatmeplay",
+  storageBucket: "roofcatmeplay.firebasestorage.app",
+  messagingSenderId: "793320259272",
+  appId: "1:793320259272:web:7ba8355067b03edc2b2ffd"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Worker (AI 판정) ─────────────────────────────────────────────
 const WORKER_URL = 'https://super-mouse-c9f8.eom732.workers.dev';
 
+// ── 미션 풀 ─────────────────────────────────────────────────────
 const ALL = [
   {id:1, emoji:'🍞', name:'식빵 자세',           desc:'고양이가 앞발을 몸 아래에 접고 네모나게 웅크려 앉아있다'},
   {id:2, emoji:'🧼', name:'그루밍 중',            desc:'고양이가 자신의 몸을 핥거나 앞발로 얼굴을 닦으며 그루밍하고 있다'},
@@ -137,54 +155,75 @@ const ALL = [
   {id:26,emoji:'👀', name:'눈 마주친 고양이',      desc:'고양이가 카메라나 사람을 직접 바라보며 눈이 마주쳤다'},
 ];
 
-const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-// ── 가챠권 보상량 상수 (조정 시 여기만 수정) ──
-const REWARD_CELL  = 2;   // 칸 1개 완성 시
-const REWARD_LINE  = 5;   // 줄 1줄 완성 시 (칸 보상과 별도)
-const REWARD_CLEAR = 30;  // 빙고판 전체 완성 시
+const BINGO_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const REWARD_CELL  = 2;
+const REWARD_LINE  = 5;
+const REWARD_CLEAR = 30;
 
-const K_M='rcm_bingo_missions', K_S='rcm_bingo_state', K_D='rcm_bingo_date', K_L='rcm_bingo_lines';
-
-let missions=[], state=[], doneLines=new Set(), curCell=-1, curPhoto=null;
+// ── 상태 (Firestore 캐시) ───────────────────────────────────────
+let userRef   = null;
+let missions  = [];
+let state     = [];
+let doneLines = new Set();
+let curCell   = -1;
+let curPhoto  = null;
 
 function today(){
   const d=new Date();
-  const y=d.getFullYear();
-  const m=String(d.getMonth()+1).padStart(2,'0');
-  const day=String(d.getDate()).padStart(2,'0');
-  return y+'-'+m+'-'+day;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 
-function init(){
-  const nick = localStorage.getItem('rcm_nickname') || '손님';
-  document.getElementById('hdr-nick').textContent = nick + '님의 빙고판';
-  if(localStorage.getItem(K_D) === today()){
-    missions = JSON.parse(localStorage.getItem(K_M));
-    state    = JSON.parse(localStorage.getItem(K_S));
-    const dl = localStorage.getItem(K_L);
-    doneLines = new Set(dl ? JSON.parse(dl) : []);
-  } else {
-    newBoard();
+// ── 초기화 ──────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if(!user){ location.href='login.html'; return; }
+  userRef = doc(db,'users',user.uid);
+  await initBingo();
+});
+
+async function initBingo(){
+  // 새 보드 미리 생성 (transaction 안에서 랜덤 생성 금지)
+  const candidateMissions = [...ALL].sort(()=>Math.random()-.5).slice(0,9);
+  let committedMissions, committedState, committedLines, committedNick;
+
+  try{
+    await runTransaction(db, async tx=>{
+      const snap = await tx.get(userRef);
+      if(!snap.exists()) throw new Error('NO_USER');
+      const data = snap.data();
+      committedNick = data.nickname || '손님';
+
+      if(data.bingoDate === today()){
+        // 이미 오늘 보드 있음 — 그대로 사용
+        committedMissions = data.bingoMissions || [];
+        committedState    = data.bingoState    || Array(9).fill(false);
+        committedLines    = data.bingoLines    || [];
+      } else {
+        // 새 보드 생성 — transaction 안에서 저장
+        committedMissions = candidateMissions;
+        committedState    = Array(9).fill(false);
+        committedLines    = [];
+        tx.update(userRef, {
+          bingoDate:     today(),
+          bingoMissions: committedMissions,
+          bingoState:    committedState,
+          bingoLines:    committedLines
+        });
+      }
+    });
+
+    // commit 성공 후 로컬 반영
+    missions  = committedMissions;
+    state     = committedState;
+    doneLines = new Set(committedLines);
+    document.getElementById('hdr-nick').textContent = committedNick + '님의 빙고판';
+    localStorage.setItem('rcm_nickname', committedNick);
+    render();
+  } catch(e){
+    showToast('빙고판을 불러오지 못했어요. 새로고침 해주세요.');
   }
-  render();
 }
 
-function newBoard(){
-  const sh = [...ALL].sort(()=>Math.random()-.5);
-  missions = sh.slice(0,9);
-  state    = Array(9).fill(false);
-  doneLines = new Set();
-  localStorage.setItem(K_D, today());
-  localStorage.setItem(K_M, JSON.stringify(missions));
-  localStorage.setItem(K_S, JSON.stringify(state));
-  localStorage.setItem(K_L, JSON.stringify([]));
-}
-
-function save(){
-  localStorage.setItem(K_S, JSON.stringify(state));
-  localStorage.setItem(K_L, JSON.stringify([...doneLines]));
-}
-
+// ── 렌더링 ──────────────────────────────────────────────────────
 function render(){
   const g = document.getElementById('grid');
   g.innerHTML = '';
@@ -203,6 +242,7 @@ function updateProg(){
   document.getElementById('prog-bingo').textContent = '빙고 ' + doneLines.size + '줄';
 }
 
+// ── 모달 ────────────────────────────────────────────────────────
 function openModal(i){
   curCell=i; curPhoto=null;
   const m=missions[i];
@@ -221,10 +261,13 @@ function closeModal(){
   document.getElementById('overlay').classList.remove('open');
   curCell=-1; curPhoto=null;
 }
+window.closeModal = closeModal;
+window.overlayClick = function(e){
+  if(e.target===document.getElementById('overlay')) closeModal();
+};
 
-function overlayClick(e){ if(e.target===document.getElementById('overlay')) closeModal(); }
-
-function handlePhoto(input){
+// ── 사진 업로드 ─────────────────────────────────────────────────
+window.handlePhoto = function(input){
   if(!input.files||!input.files[0]) return;
   compressImage(input.files[0]).then(b64=>{
     curPhoto = b64;
@@ -235,7 +278,7 @@ function handlePhoto(input){
     document.getElementById('judge-btn').style.display = 'block';
     document.getElementById('result').style.display = 'none';
   });
-}
+};
 
 function compressImage(file){
   return new Promise(resolve=>{
@@ -258,23 +301,23 @@ function compressImage(file){
   });
 }
 
-async function judgePhoto(){
+// ── AI 판정 ─────────────────────────────────────────────────────
+window.judgePhoto = async function(){
   if(!curPhoto||curCell<0) return;
   const m=missions[curCell];
   document.getElementById('judge-btn').style.display='none';
   document.getElementById('loading').style.display='block';
   document.getElementById('result').style.display='none';
 
-  try {
-    const res = await fetch(WORKER_URL, {
+  try{
+    const res = await fetch(WORKER_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ missionId:m.id, image:curPhoto })
+      body:JSON.stringify({missionId:m.id, image:curPhoto})
     });
     if(!res.ok) throw new Error('WORKER_ERROR');
     const data = await res.json();
-    const txt  = (data.result || '').trim().toUpperCase();
-    const ok   = txt === 'YES';
+    const ok   = (data.result||'').trim().toUpperCase() === 'YES';
 
     document.getElementById('loading').style.display='none';
     const el=document.getElementById('result');
@@ -283,7 +326,7 @@ async function judgePhoto(){
     if(ok){
       el.className='result ok';
       el.textContent='✓ 미션 달성!';
-      markDone(curCell);
+      await markDone(curCell);
       setTimeout(closeModal, 1200);
     } else {
       el.className='result ng';
@@ -305,60 +348,101 @@ async function judgePhoto(){
     el.textContent='네트워크 오류. 다시 시도해주세요.';
     document.getElementById('judge-btn').style.display='block';
   }
-}
+};
 
-function markDone(idx){
-  state[idx]=true; save();
-  const cells=document.querySelectorAll('.cell');
-  cells[idx].className='cell done just-done';
-  cells[idx].innerHTML=`<div class="cell-emoji">${missions[idx].emoji}</div><div class="cell-name">${missions[idx].name}</div><div class="cell-check">✓</div>`;
+// ── 미션 완료 (Firestore transaction) ──────────────────────────
+async function markDone(idx){
+  let committedState, committedLines, newLineCount, total, isComplete;
 
-  // 보상 계산 (칸 + 줄 + 완주 합산)
-  var lineCount   = checkBingo();
-  var isComplete  = state.every(Boolean);
-  var cellReward  = REWARD_CELL;
-  var lineReward  = lineCount * REWARD_LINE;
-  var clearReward = isComplete ? REWARD_CLEAR : 0;
-  var total = cellReward + lineReward + clearReward;
+  try{
+    await runTransaction(db, async tx=>{
+      const snap = await tx.get(userRef);
+      if(!snap.exists()) throw new Error('NO_USER');
+      const data = snap.data();
 
-  // 일괄 지급
-  var t = parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
-  localStorage.setItem('rcm_gacha_tickets', t + total);
+      // 오늘 보드 검증
+      if(data.bingoDate !== today()) throw new Error('DATE_MISMATCH');
+      const currState = [...(data.bingoState||Array(9).fill(false))];
+      // 이미 완료된 칸이면 중복 처리 방지
+      if(currState[idx]) throw new Error('ALREADY_DONE');
+      // 미션 ID 검증 — 서버 보드와 로컬 보드가 다르면 차단
+      const serverMissions = data.bingoMissions || [];
+      if(serverMissions[idx]?.id !== missions[idx]?.id) throw new Error('BOARD_MISMATCH');
 
-  // 합산 토스트 (한 번만)
-  var parts = ['칸 +'+cellReward];
-  if(lineReward  > 0) parts.push('빙고 +'+lineReward);
-  if(clearReward > 0) parts.push('완주 +'+clearReward);
-  var prefix = isComplete ? '🏆' : lineCount > 0 ? '🎉' : '🎰';
-  showToast(prefix+' 가챠권 총 '+total+'개 획득  '+parts.join(' · '));
+      // 새 state 계산
+      const newState = [...currState];
+      newState[idx] = true;
 
-  updateProg();
-}
+      // 새로 완성된 줄 계산
+      const currLines = data.bingoLines || [];
+      const newLines  = [];
+      BINGO_LINES.forEach((line,i)=>{
+        if(!currLines.includes(i) && line.every(j=>newState[j])) newLines.push(i);
+      });
+      const allLines = [...currLines, ...newLines];
 
-function checkBingo(){
-  // 새로 완성된 줄 수만 반환 — 보상/토스트는 markDone에서 처리
-  var newLineCount=0;
-  LINES.forEach((line,i)=>{
-    if(!doneLines.has(i) && line.every(idx=>state[idx])){
-      doneLines.add(i); newLineCount++;
+      // 보상 계산
+      isComplete    = newState.every(Boolean);
+      newLineCount  = newLines.length;
+      const cellR   = REWARD_CELL;
+      const lineR   = newLineCount * REWARD_LINE;
+      const clearR  = isComplete ? REWARD_CLEAR : 0;
+      total = cellR + lineR + clearR;
+
+      // Firestore 업데이트 (임시 변수에 저장)
+      committedState = newState;
+      committedLines = allLines;
+
+      tx.update(userRef, {
+        bingoState: newState,
+        bingoLines: allLines,
+        tickets:    increment(total)
+      });
+    });
+
+    // commit 성공 후 로컬 상태 반영
+    state     = committedState;
+    doneLines = new Set(committedLines);
+
+    // UI 업데이트
+    const cells = document.querySelectorAll('.cell');
+    cells[idx].className = 'cell done just-done';
+    cells[idx].innerHTML = `<div class="cell-emoji">${missions[idx].emoji}</div><div class="cell-name">${missions[idx].name}</div><div class="cell-check">✓</div>`;
+
+    // localStorage 캐시 갱신 (gacha 등 다른 페이지 참조용)
+    const t = parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
+    localStorage.setItem('rcm_gacha_tickets', t + total);
+
+    // 합산 토스트
+    const parts = ['칸 +'+REWARD_CELL];
+    if(newLineCount > 0) parts.push('빙고 +'+(newLineCount*REWARD_LINE));
+    if(isComplete) parts.push('완주 +'+REWARD_CLEAR);
+    const prefix = isComplete ? '🏆' : newLineCount > 0 ? '🎉' : '🎰';
+    showToast(prefix+' 가챠권 총 '+total+'개 획득  '+parts.join(' · '));
+
+    updateProg();
+  } catch(e){
+    if(e.message==='ALREADY_DONE'){
+      // 다른 기기에서 이미 완료 — 최신 상태로 재동기화
+      await initBingo();
+      return;
     }
-  });
-  if(newLineCount > 0){ save(); updateProg(); }
-  return newLineCount;
+    if(e.message==='DATE_MISMATCH'){
+      showToast('날짜가 바뀌었어요. 새로고침 해주세요.');
+    } else if(e.message==='BOARD_MISMATCH'){
+      showToast('빙고판이 달라졌어요. 다시 불러올게요.');
+      await initBingo();
+    } else{
+      showToast('저장에 실패했어요. 다시 시도해주세요.');
+    }
+  }
 }
 
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
-
-function resetBingo(){
-  if(!confirm('새 게임을 시작할까요? 현재 진행이 초기화돼요.')) return;
-  newBoard(); render();
-}
-
-init();
 </script>
 </body>
 </html>

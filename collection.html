@@ -135,7 +135,7 @@
 <div class="grid" id="grid"></div>
 
 <!-- 상세 모달 -->
-<div class="overlay" id="overlay" onclick="closeModal(event)">
+<div class="overlay" id="overlay">
   <div class="sheet" id="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-name" id="modal-name"></div>
@@ -144,52 +144,61 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqxMZf8xDfaQ1oAheXJAuYbWBBfZBkgvI",
+  authDomain: "roofcatmeplay.firebaseapp.com",
+  projectId: "roofcatmeplay",
+  storageBucket: "roofcatmeplay.firebasestorage.app",
+  messagingSenderId: "793320259272",
+  appId: "1:793320259272:web:7ba8355067b03edc2b2ffd"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
 const CATS = ['금동','금별','금실','낑깡','닉','달이','랑이','랭이','레오','레첼',
               '먼지','모아','모찌','무디','뭉이','백설','버즈','베리','부엉','블루',
               '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','절미',
               '주디','지니','치즈','콩떡','쿠미','티코','파인','페너','플래시','호떡','호시']
              .sort((a,b)=>a.localeCompare(b,'ko'));
 
-  const CAT_SLUG = {'금동': 'geumdong', '금별': 'geumbyeol', '금실': 'geumsil', '낑깡': 'kkingkang', '닉': 'nik', '달이': 'dari', '랑이': 'rangi', '랭이': 'raengi', '레오': 'leo', '레첼': 'rechel', '먼지': 'meonji', '모아': 'moa', '모찌': 'mocchi', '무디': 'mudi', '뭉이': 'mungyi', '백설': 'baekseol', '버즈': 'beojeu', '베리': 'beri', '부엉': 'bueong', '블루': 'beullyu', '비니': 'bini', '샤인': 'shayin', '소고': 'sogo', '시니': 'shini', '실버': 'silbeo', '써클': 'sseokeul', '앤디': 'aendi', '엘크': 'elkeuri', '여비': 'yeobi', '절미': 'jeolmi', '주디': 'judi', '지니': 'jini', '치즈': 'chijeu', '콩떡': 'kongddeok', '쿠미': 'kumi', '티코': 'tikko', '파인': 'pain', '페너': 'fener', '플래시': 'peullaeswi', '호떡': 'hotteok', '호시': 'hoshi'};
+const CAT_SLUG = {'금동':'geumdong','금별':'geumbyeol','금실':'geumsil','낑깡':'kkingkang','닉':'nik','달이':'dari','랑이':'rangi','랭이':'raengi','레오':'leo','레첼':'rechel','먼지':'meonji','모아':'moa','모찌':'mocchi','무디':'mudi','뭉이':'mungyi','백설':'baekseol','버즈':'beojeu','베리':'beri','부엉':'bueong','블루':'beullyu','비니':'bini','샤인':'shayin','소고':'sogo','시니':'shini','실버':'silbeo','써클':'sseokeul','앤디':'aendi','엘크':'elkeuri','여비':'yeobi','절미':'jeolmi','주디':'judi','지니':'jini','치즈':'chijeu','콩떡':'kongddeok','쿠미':'kumi','티코':'tikko','파인':'pain','페너':'fener','플래시':'peullaeswi','호떡':'hotteok','호시':'hoshi'};
 const GRADES = ['C','B','A','S','SS'];
-const GRADE_COLORS = {
-  C:'linear-gradient(135deg,#757575,#9E9E9E)',
-  B:'linear-gradient(135deg,#388E3C,#66BB6A)',
-  A:'linear-gradient(135deg,#1565C0,#42A5F5)',
-  S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',
-  SS:'linear-gradient(135deg,#F57F17,#FFD54F)'
-};
-const GRADE_NAMES = {C:'일반',B:'희귀',A:'레어',S:'슈퍼레어',SS:'초희귀'};
-const GRADE_TEXT  = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+const GRADE_COLORS = {C:'linear-gradient(135deg,#757575,#9E9E9E)',B:'linear-gradient(135deg,#388E3C,#66BB6A)',A:'linear-gradient(135deg,#1565C0,#42A5F5)',S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',SS:'linear-gradient(135deg,#F57F17,#FFD54F)'};
+const GRADE_NAMES  = {C:'일반',B:'희귀',A:'레어',S:'슈퍼레어',SS:'초희귀'};
+const GRADE_TEXT   = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+const TOTAL_CATS  = CATS.length;
+const TOTAL_CARDS = CATS.length * GRADES.length;
 
-const K_DISC = 'rcm_gacha_discovered';
+// Firestore 원본 — localStorage 불사용
 let collection = {};
 let discovered = {};
 
-function migrateDiscovered(){
-  // collection에 있는데 discovered에 없는 항목 병합 (조건 없이 항상 실행)
-  var changed = false;
-  Object.keys(collection).forEach(function(key){
-    if(collection[key]>0 && !discovered[key]){
-      discovered[key] = true;
-      changed = true;
-    }
-  });
-  if(changed) localStorage.setItem(K_DISC, JSON.stringify(discovered));
-}
-
 function init(){
-  const nick = localStorage.getItem('rcm_nickname')||'손님';
-  document.getElementById('hdr-nick').textContent = nick + '님의 컬렉션';
-  collection = JSON.parse(localStorage.getItem('rcm_gacha_collection')||'{}');
-  discovered = JSON.parse(localStorage.getItem(K_DISC)||'{}');
-  migrateDiscovered();
-  render();
+  onAuthStateChanged(auth, async user => {
+    if(!user){ location.href='login.html'; return; }
+    try{
+      const snap = await getDoc(doc(db,'users',user.uid));
+      const data = snap.data();
+      const nick = data.nickname || '손님';
+      document.getElementById('hdr-nick').textContent = nick + '님의 컬렉션';
+      localStorage.setItem('rcm_nickname', nick); // 캐시 갱신
+      collection = data.collection || {};
+      discovered = data.discovered || {};
+    } catch(e){
+      // Firestore 실패 시 빈 상태로 렌더
+    }
+    render();
+  });
 }
 
 function getBestGrade(cat){
-  // discovered 기준 (합성으로 소비해도 한 번 얻었으면 유지)
+  // discovered 기준 (합성 소비해도 유지)
   for(let i=GRADES.length-1;i>=0;i--){
     if(discovered[cat+'_'+GRADES[i]]) return GRADES[i];
   }
@@ -199,21 +208,18 @@ function getBestGrade(cat){
 function render(){
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
+  let catsUnlocked=0, cardsUnlocked=0;
 
-  let catsUnlocked = 0;
-  let cardsUnlocked = 0;
-
-  CATS.forEach(cat => {
+  CATS.forEach(cat=>{
     const best = getBestGrade(cat);
     const hasAny = !!best;
     if(hasAny) catsUnlocked++;
-    GRADES.forEach(g => { if(discovered[cat+'_'+g]) cardsUnlocked++; });
+    GRADES.forEach(g=>{ if(discovered[cat+'_'+g]) cardsUnlocked++; });
 
     const card = document.createElement('div');
     if(hasAny){
       card.className = 'cat-card unlocked card-'+best;
       const ss = best==='SS';
-      // SS 전용 사진 있으면 사용, 없으면 대표 사진
       const slug = CAT_SLUG[cat]||cat;
       const baseImg = 'images/cats/'+slug+'.webp';
       const ssImg   = 'images/cats/ss/'+slug+'.webp';
@@ -234,7 +240,6 @@ function render(){
           <div class="grade-badge">${best}</div>
         </div>`;
     } else {
-      // 잠긴 카드 — img 요청 없음
       card.className = 'cat-card locked';
       card.innerHTML = `
         <div style="font-size:24px;">🔒</div>
@@ -244,22 +249,21 @@ function render(){
     grid.appendChild(card);
   });
 
-  // 진행률
-  document.getElementById('cat-prog-val').textContent  = catsUnlocked+' / 41마리';
-  document.getElementById('card-prog-val').textContent = cardsUnlocked+' / 205장';
-  document.getElementById('cat-prog-bar').style.width  = (catsUnlocked/41*100).toFixed(1)+'%';
-  document.getElementById('card-prog-bar').style.width = (cardsUnlocked/205*100).toFixed(1)+'%';
+  document.getElementById('cat-prog-val').textContent  = catsUnlocked+' / '+TOTAL_CATS+'마리';
+  document.getElementById('card-prog-val').textContent = cardsUnlocked+' / '+TOTAL_CARDS+'장';
+  document.getElementById('cat-prog-bar').style.width  = (catsUnlocked/TOTAL_CATS*100).toFixed(1)+'%';
+  document.getElementById('card-prog-bar').style.width = (cardsUnlocked/TOTAL_CARDS*100).toFixed(1)+'%';
 }
 
 function openModal(cat){
   document.getElementById('modal-name').textContent = cat;
   const list = document.getElementById('modal-grades');
   list.innerHTML = '';
-  GRADES.slice().reverse().forEach(g => {
-    const obtained = !!discovered[cat+'_'+g]; // 한 번이라도 얻었으면 ✓
-    const cnt = collection[cat+'_'+g] || 0;    // 현재 보유 수량
+  GRADES.slice().reverse().forEach(g=>{
+    const obtained = !!discovered[cat+'_'+g];
+    const cnt = collection[cat+'_'+g] || 0;
     const row = document.createElement('div');
-    row.className = 'grade-row ' + (obtained ? 'collected' : 'not-collected');
+    row.className = 'grade-row '+(obtained?'collected':'not-collected');
     if(obtained) row.style.background = GRADE_COLORS[g];
     row.innerHTML = `
       <div class="grade-badge" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${g}</div>
@@ -277,6 +281,7 @@ function closeModal(e){
   if(e.target===document.getElementById('overlay'))
     document.getElementById('overlay').classList.remove('open');
 }
+document.getElementById('overlay').addEventListener('click', closeModal);
 
 init();
 </script>

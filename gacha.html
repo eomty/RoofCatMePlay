@@ -205,47 +205,65 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-const CATS = ['금동', '금별', '금실', '낑깡', '닉', '달이', '랑이', '랭이', '레오', '레첼', '먼지', '모아', '모찌', '무디', '뭉이', '백설', '버즈', '베리', '부엉', '블루', '비니', '샤인', '소고', '시니', '실버', '써클', '앤디', '엘크', '여비', '절미', '주디', '지니', '치즈', '콩떡', '쿠미', '티코', '파인', '페너', '플래시', '호떡', '호시'];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-  const CAT_SLUG = {'금동': 'geumdong', '금별': 'geumbyeol', '금실': 'geumsil', '낑깡': 'kkingkang', '닉': 'nik', '달이': 'dari', '랑이': 'rangi', '랭이': 'raengi', '레오': 'leo', '레첼': 'rechel', '먼지': 'meonji', '모아': 'moa', '모찌': 'mocchi', '무디': 'mudi', '뭉이': 'mungyi', '백설': 'baekseol', '버즈': 'beojeu', '베리': 'beri', '부엉': 'bueong', '블루': 'beullyu', '비니': 'bini', '샤인': 'shayin', '소고': 'sogo', '시니': 'shini', '실버': 'silbeo', '써클': 'sseokeul', '앤디': 'aendi', '엘크': 'elkeuri', '여비': 'yeobi', '절미': 'jeolmi', '주디': 'judi', '지니': 'jini', '치즈': 'chijeu', '콩떡': 'kongddeok', '쿠미': 'kumi', '티코': 'tikko', '파인': 'pain', '페너': 'fener', '플래시': 'peullaeswi', '호떡': 'hotteok', '호시': 'hoshi'};
-const GRADES = ['C','B','A','S','SS'];
-const GRADE_COLORS = {
-  C:'linear-gradient(135deg,#757575,#9E9E9E)',
-  B:'linear-gradient(135deg,#388E3C,#66BB6A)',
-  A:'linear-gradient(135deg,#1565C0,#42A5F5)',
-  S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',
-  SS:'linear-gradient(135deg,#F57F17,#FFD54F)'
+const firebaseConfig = {
+  apiKey: "AIzaSyBqxMZf8xDfaQ1oAheXJAuYbWBBfZBkgvI",
+  authDomain: "roofcatmeplay.firebaseapp.com",
+  projectId: "roofcatmeplay",
+  storageBucket: "roofcatmeplay.firebasestorage.app",
+  messagingSenderId: "793320259272",
+  appId: "1:793320259272:web:7ba8355067b03edc2b2ffd"
 };
-const GRADE_TEXT = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-const K_TICKETS  = 'rcm_gacha_tickets';
-const K_COLL     = 'rcm_gacha_collection';
-const K_DISC     = 'rcm_gacha_discovered'; // 영구 획득 기록 (합성 소비해도 유지)
+const CATS = ['금동','금별','금실','낑깡','닉','달이','랑이','랭이','레오','레첼',
+              '먼지','모아','모찌','무디','뭉이','백설','버즈','베리','부엉','블루',
+              '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','절미',
+              '주디','지니','치즈','콩떡','쿠미','티코','파인','페너','플래시','호떡','호시']
+             .sort((a,b)=>a.localeCompare(b,'ko'));
 
+const CAT_SLUG = {'금동':'geumdong','금별':'geumbyeol','금실':'geumsil','낑깡':'kkingkang','닉':'nik','달이':'dari','랑이':'rangi','랭이':'raengi','레오':'leo','레첼':'rechel','먼지':'meonji','모아':'moa','모찌':'mocchi','무디':'mudi','뭉이':'mungyi','백설':'baekseol','버즈':'beojeu','베리':'beri','부엉':'bueong','블루':'beullyu','비니':'bini','샤인':'shayin','소고':'sogo','시니':'shini','실버':'silbeo','써클':'sseokeul','앤디':'aendi','엘크':'elkeuri','여비':'yeobi','절미':'jeolmi','주디':'judi','지니':'jini','치즈':'chijeu','콩떡':'kongddeok','쿠미':'kumi','티코':'tikko','파인':'pain','페너':'fener','플래시':'peullaeswi','호떡':'hotteok','호시':'hoshi'};
+const GRADES = ['C','B','A','S','SS'];
+const GRADE_COLORS = {C:'linear-gradient(135deg,#757575,#9E9E9E)',B:'linear-gradient(135deg,#388E3C,#66BB6A)',A:'linear-gradient(135deg,#1565C0,#42A5F5)',S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',SS:'linear-gradient(135deg,#F57F17,#FFD54F)'};
+const GRADE_TEXT   = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+
+let userRef    = null;
 let tickets    = 0;
-let collection = {}; // 현재 보유 수량
-let discovered = {}; // 한 번이라도 획득한 기록
+let collection = {};
+let discovered = {};
+let isLoading  = false;
 
-function migrateDiscovered(){
-  // collection에 있는데 discovered에 없는 항목 병합 (조건 없이 항상 실행)
-  var changed = false;
-  Object.keys(collection).forEach(function(key){
-    if(collection[key]>0 && !discovered[key]){
-      discovered[key] = true;
-      changed = true;
-    }
+// 합성 모달 상태
+var mergeGrade = 'C';
+var selCount   = {};
+let isMerging  = false;
+
+// ── 초기화 ──────────────────────────────────────────────────────
+function init(){
+  onAuthStateChanged(auth, async user => {
+    if(!user){ location.href='login.html'; return; }
+    userRef = doc(db,'users',user.uid);
+    await loadUserData();
   });
-  if(changed) localStorage.setItem(K_DISC, JSON.stringify(discovered));
 }
 
-function init(){
-  const nick = localStorage.getItem('rcm_nickname')||'손님';
-  document.getElementById('hdr-nick').textContent = nick+'님의 가챠';
-  tickets    = parseInt(localStorage.getItem(K_TICKETS)||'0');
-  collection = JSON.parse(localStorage.getItem(K_COLL)||'{}');
-  discovered = JSON.parse(localStorage.getItem(K_DISC)||'{}');
-  migrateDiscovered();
+async function loadUserData(){
+  const snap = await getDoc(userRef);
+  if(!snap.exists()) return;
+  const data = snap.data();
+  tickets    = data.tickets    || 0;
+  collection = data.collection || {};
+  discovered = data.discovered || {};
+  // Firestore 닉네임 우선 표시 (localStorage 캐시도 갱신)
+  const nick = data.nickname || '손님';
+  document.getElementById('hdr-nick').textContent = nick + '님의 가챠';
+  localStorage.setItem('rcm_nickname', nick);
   updateTicketUI();
 }
 
@@ -253,144 +271,156 @@ function updateTicketUI(){
   document.getElementById('ticket-count').textContent = tickets;
 }
 
-function saveAll(){
-  localStorage.setItem(K_TICKETS, tickets);
-  localStorage.setItem(K_COLL, JSON.stringify(collection));
-  localStorage.setItem(K_DISC, JSON.stringify(discovered));
-}
-
+// ── 뽑기 ────────────────────────────────────────────────────────
 function drawOne(){
-  const r = Math.random()*100;
+  const r=Math.random()*100;
   let grade;
   if(r<1)       grade='SS';
   else if(r<5)  grade='S';
   else if(r<20) grade='A';
   else if(r<50) grade='B';
   else           grade='C';
-  const cat = CATS[Math.floor(Math.random()*CATS.length)];
-  return {cat, grade};
+  const cat=CATS[Math.floor(Math.random()*CATS.length)];
+  return {cat,grade};
 }
 
-function recordCard(cat, grade){
-  // 보유 수량 추가
-  const key = cat+'_'+grade;
-  collection[key] = (collection[key]||0)+1;
-  // 영구 기록 (삭제 안 함)
-  discovered[key] = true;
-}
-
-function isNew(cat, grade){
-  return !discovered[cat+'_'+grade];
-}
-
-function doPull(count){
+window.doPull = async function(count){
+  if(isLoading) return;
   if(tickets < count){ showToast('가챠권이 부족해요! 냥빙고를 도전해보세요 🎯'); return; }
-  tickets -= count;
+  isLoading = true;
+
+  // 결과 미리 생성 (랜덤, Firestore 불필요)
   const results = [];
   for(let i=0;i<count;i++) results.push(drawOne());
-  // 10연차 내 첫 등장만 NEW
-  const seenThisPull = new Set();
-  const newFlags = results.map(r=>{
-    const key = r.cat+'_'+r.grade;
-    const isN = !discovered[key] && !seenThisPull.has(key);
-    seenThisPull.add(key);
-    return isN;
-  });
-  results.forEach(r => recordCard(r.cat, r.grade));
-  saveAll();
-  updateTicketUI();
-  showResults(results, newFlags, count);
+
+  let newFlags = [];
+  let committedTickets, committedColl, committedDisc;
+  try{
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(userRef);
+      if(!snap.exists()) throw new Error('NO_USER');
+      const data = snap.data();
+      if((data.tickets||0) < count) throw new Error('INSUFFICIENT_TICKETS');
+
+      const currDisc = data.discovered || {};
+      const seen = new Set();
+      newFlags = results.map(r=>{
+        const key=r.cat+'_'+r.grade;
+        const isN=!currDisc[key]&&!seen.has(key);
+        seen.add(key); return isN;
+      });
+
+      const newColl = {...(data.collection||{})};
+      const newDisc = {...currDisc};
+      results.forEach(r=>{
+        const key=r.cat+'_'+r.grade;
+        newColl[key]=(newColl[key]||0)+1;
+        newDisc[key]=true;
+      });
+
+      // 임시 변수에만 저장 (commit 성공 후 적용)
+      committedTickets = data.tickets - count;
+      committedColl    = newColl;
+      committedDisc    = newDisc;
+
+      tx.update(userRef,{
+        tickets: committedTickets,
+        collection: newColl,
+        discovered: newDisc
+      });
+    });
+
+    // commit 성공 후 로컬 상태 반영
+    tickets    = committedTickets;
+    collection = committedColl;
+    discovered = committedDisc;
+    updateTicketUI();
+    localStorage.setItem('rcm_gacha_tickets', tickets);
+    showResults(results, newFlags, count);
+  } catch(e){
+    isLoading=false;
+    if(e.message==='INSUFFICIENT_TICKETS') showToast('가챠권이 부족해요!');
+    else showToast('오류가 발생했습니다. 다시 시도해주세요.');
+    return;
+  }
+  isLoading=false;
+};
+
+// ── 카드 렌더링 ──────────────────────────────────────────────────
+function makeCardHTML(r, isN, size, delay){
+  const ss = r.grade==='SS';
+  const slug = CAT_SLUG[r.cat]||r.cat;
+  const baseImg='images/cats/'+slug+'.webp';
+  const ssImg='images/cats/ss/'+slug+'.webp';
+  const imgSrc=ss?ssImg:baseImg;
+  const onerr=ss
+    ? "this.src='"+baseImg+"';this.onerror=function(){this.style.display='none';this.parentNode.innerHTML+='🐱';};"
+    : "this.style.display='none';this.parentNode.innerHTML+='🐱';";
+  const imgH=size==='single'?'140px':'60%';
+  const shimmer=ss?'<div class="card-shimmer"></div><div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>':'';
+  const newBadge=(isN&&size==='single')?'<div class="card-new-badge">NEW</div>':'';
+  const miniNew=(isN&&size==='mini')?'<div class="mini-new"></div>':'';
+  return `<div class="${size==='single'?'single-card':'mini-card'} card-${r.grade}" style="${size==='mini'&&delay?'animation-delay:'+delay+'s':''}">      <div class="card-frame"></div>${shimmer}${newBadge}${miniNew}      <div class="card-photo" style="height:${imgH};padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;">        <img src="${imgSrc}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" onerror="${onerr}">      </div>      <div class="card-info"><div class="cat-name">${r.cat}</div><div class="grade-badge">${r.grade}</div></div>    </div>`;
 }
 
 function showResults(results, newFlags, count){
-  const area  = document.getElementById('result-area');
-  const title = document.getElementById('result-title');
-  // onerror 체인: SS전용 → 대표사진 → 🐱
-  function makeCardHTML(r, isN, size, delay){
-    const ss = r.grade==='SS';
-    const slug = CAT_SLUG[r.cat]||r.cat;
-    const baseImg = 'images/cats/'+slug+'.webp';
-    const ssImg   = 'images/cats/ss/'+slug+'.webp';
-    const imgSrc  = ss ? ssImg : baseImg;
-    const onerr   = ss
-      ? `this.src='${baseImg}';this.onerror=function(){this.style.display='none';this.parentNode.innerHTML+='🐱';};`
-      : `this.style.display='none';this.parentNode.innerHTML+='🐱';`;
-    const imgH    = size==='single'?'140px':'60%';
-    const shimmer = ss?'<div class="card-shimmer"></div><div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>':'';
-    const newBadge = (isN&&size==='single')?'<div class="card-new-badge">NEW</div>':'';
-    const miniNew  = (isN&&size==='mini')?'<div class="mini-new"></div>':'';
-    return `<div class="${size==='single'?'single-card':'mini-card'} card-${r.grade}" style="${size==='mini'&&delay?'animation-delay:'+delay+'s':''}">
-      <div class="card-frame"></div>${shimmer}${newBadge}${miniNew}
-      <div class="card-photo" style="height:${imgH};padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-        <img src="${imgSrc}" loading="lazy" decoding="async"
-          style="width:100%;height:100%;object-fit:cover;"
-          onerror="${onerr}">
-      </div>
-      <div class="card-info">
-        <div class="cat-name">${r.cat}</div>
-        <div class="grade-badge">${r.grade}</div>
-      </div>
-    </div>`;
-  }
+  const area=document.getElementById('result-area');
+  const title=document.getElementById('result-title');
   if(count===1){
-    const r=results[0], isN=newFlags[0];
-    title.textContent = gradeLabel(r.grade);
-    area.innerHTML = makeCardHTML(r, isN, 'single');
-  } else {
-    const hasSpecial = results.some(r=>r.grade==='S'||r.grade==='SS');
-    title.textContent = hasSpecial ? '✨ 특별한 카드 등장!' : `${count}장 획득!`;
-    area.innerHTML = `<div class="multi-grid">${results.map((r,i)=>makeCardHTML(r,newFlags[i],'mini',i*.05)).join('')}</div>`;
+    const r=results[0],isN=newFlags[0];
+    title.textContent=gradeLabel(r.grade);
+    area.innerHTML=makeCardHTML(r,isN,'single');
+  }else{
+    const hasSpecial=results.some(r=>r.grade==='S'||r.grade==='SS');
+    title.textContent=hasSpecial?'✨ 특별한 카드 등장!':`${count}장 획득!`;
+    area.innerHTML=`<div class="multi-grid">${results.map((r,i)=>makeCardHTML(r,newFlags[i],'mini',i*.05)).join('')}</div>`;
   }
   document.getElementById('overlay').classList.add('open');
 }
 
 function gradeLabel(g){
-  return {C:'일반 카드 획득',B:'희귀 카드 획득!',A:'✨ 레어 카드!',S:'💜 슈퍼 레어!',SS:'🌟 초희귀 등장!!'}[g];
+  return {C:'일반 카드 획득',B:'희귀 카드 획득!',A:'✨ 레어 카드!',S:'💜 슈퍼 레어!',SS:'🌟 초희귀 등장!!}[g];
 }
 
-function closeResult(){
+window.closeResult = function(){
   document.getElementById('overlay').classList.remove('open');
-}
+};
 
-// ── 합성 ──────────────────────────────────────────────
-var mergeGrade = 'C';
-var selCount   = {}; // { cat: 선택 수 }
-
-function openMergeModal(){
-  selCount = {};
+// ── 합성 ─────────────────────────────────────────────────────────
+window.openMergeModal = function(){
+  selCount={};
   buildGradeTabs();
   setMergeGrade('C');
   document.getElementById('merge-overlay').classList.add('open');
-}
+};
 
 function closeMergeModal(){
   document.getElementById('merge-overlay').classList.remove('open');
 }
+window.closeMergeModal = closeMergeModal;
 
 function handleMergeOverlayClick(e){
   if(e.target===document.getElementById('merge-overlay')) closeMergeModal();
 }
+window.handleMergeOverlayClick = handleMergeOverlayClick;
 
 function buildGradeTabs(){
-  const tabs = document.getElementById('grade-tabs');
-  tabs.innerHTML = '';
+  const tabs=document.getElementById('grade-tabs');
+  tabs.innerHTML='';
   ['C','B','A','S'].forEach(g=>{
-    const btn = document.createElement('button');
-    btn.className = 'grade-tab';
-    btn.id = 'mtab-'+g;
-    btn.textContent = g;
-    btn.style.background = GRADE_COLORS[g];
-    btn.onclick = ()=>setMergeGrade(g);
+    const btn=document.createElement('button');
+    btn.className='grade-tab'; btn.id='mtab-'+g;
+    btn.textContent=g; btn.style.background=GRADE_COLORS[g];
+    btn.onclick=()=>setMergeGrade(g);
     tabs.appendChild(btn);
   });
 }
 
 function setMergeGrade(g){
-  mergeGrade = g;
-  selCount = {};
+  mergeGrade=g; selCount={};
   document.querySelectorAll('.grade-tab').forEach(b=>b.classList.remove('active'));
-  const tab = document.getElementById('mtab-'+g);
-  if(tab){ tab.classList.add('active'); }
+  const tab=document.getElementById('mtab-'+g);
+  if(tab) tab.classList.add('active');
   renderMergeGrid();
   updateMergeCounter();
 }
@@ -400,76 +430,105 @@ function totalSel(){
 }
 
 function renderMergeGrid(){
-  const grid = document.getElementById('merge-grid');
-  grid.innerHTML = '';
-  const total = totalSel();
-
+  const grid=document.getElementById('merge-grid');
+  grid.innerHTML='';
+  const total=totalSel();
   CATS.forEach(cat=>{
-    const have = collection[cat+'_'+mergeGrade]||0;
+    const have=collection[cat+'_'+mergeGrade]||0;
     if(have===0) return;
-    const sel  = selCount[cat]||0;
-    const canAdd = sel < have && total < 3;
-    const exhausted = !canAdd && sel===0;
-
-    const card = document.createElement('div');
-    card.className = 'mc'+(sel>0?' selected':'')+(exhausted?' exhausted':'');
-    card.innerHTML = `
-      <div class="mc-emoji">🐱</div>
-      <div class="mc-name">${cat}</div>
-      <div class="mc-have">보유 ${have}장</div>
-      ${sel>0?`<div class="mc-sel-badge">${sel}선택</div>`:''}`;
+    const sel=selCount[cat]||0;
+    const canAdd=sel<have&&total<3;
+    const exhausted=!canAdd&&sel===0;
+    const card=document.createElement('div');
+    card.className='mc'+(sel>0?' selected':'')+(exhausted?' exhausted':'');
+    card.innerHTML=`<div class="mc-emoji">🐱</div><div class="mc-name">${cat}</div><div class="mc-have">보유 ${have}장</div>${sel>0?`<div class="mc-sel-badge">${sel}선택</div>`:''}`;
     if(!exhausted) card.addEventListener('click',()=>toggleSel(cat));
     grid.appendChild(card);
   });
-
   if(grid.children.length===0){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">'+mergeGrade+'등급 카드가 없어요</div>';
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">${mergeGrade}등급 카드가 없어요</div>`;
   }
 }
 
 function toggleSel(cat){
-  const have  = collection[cat+'_'+mergeGrade]||0;
-  const sel   = selCount[cat]||0;
-  const total = totalSel();
-  const next  = sel + 1;
-  // 보유 초과하거나 총 3장 이미 찼으면 0으로 리셋 (순환)
-  if(next > have || total >= 3){
-    delete selCount[cat];
-  } else {
-    selCount[cat] = next;
-  }
+  const have=collection[cat+'_'+mergeGrade]||0;
+  const sel=selCount[cat]||0;
+  const total=totalSel();
+  const next=sel+1;
+  if(next>have||(total>=3&&next>sel)){ delete selCount[cat]; }
+  else{ selCount[cat]=next; }
   renderMergeGrid();
   updateMergeCounter();
 }
 
 function updateMergeCounter(){
-  const t = totalSel();
-  document.getElementById('sel-count').textContent = t;
-  document.getElementById('merge-confirm-btn').disabled = t!==3;
+  const t=totalSel();
+  document.getElementById('sel-count').textContent=t;
+  document.getElementById('merge-confirm-btn').disabled=t!==3;
 }
 
-function confirmMerge(){
-  if(totalSel()!==3) return;
-  const nextGrade = GRADES[GRADES.indexOf(mergeGrade)+1];
+window.confirmMerge = async function(){
+  if(isMerging||totalSel()!==3) return;
+  const nextGrade=GRADES[GRADES.indexOf(mergeGrade)+1];
   if(!nextGrade){ showToast('이미 최고 등급이에요!'); return; }
 
-  // 선택 카드 소비 (discovered는 건드리지 않음)
-  Object.entries(selCount).forEach(([cat,cnt])=>{
-    const key = cat+'_'+mergeGrade;
-    collection[key] = (collection[key]||0)-cnt;
-    if(collection[key]<=0) delete collection[key];
-  });
+  isMerging=true;
+  document.getElementById('merge-confirm-btn').disabled=true;
 
-  // 랜덤 상위 등급 카드 지급
-  const cat = CATS[Math.floor(Math.random()*CATS.length)];
-  const isN = isNew(cat, nextGrade);
-  recordCard(cat, nextGrade);
-  saveAll();
+  const resultCat=CATS[Math.floor(Math.random()*CATS.length)];
+  let resultIsNew=false;
+  let committedMergeColl, committedMergeDisc;
 
-  closeMergeModal();
-  showResults([{cat,grade:nextGrade}],[isN],1);
-  document.getElementById('result-title').textContent = '🔮 합성 성공! '+gradeLabel(nextGrade);
-}
+  try{
+    await runTransaction(db, async tx=>{
+      const snap=await tx.get(userRef);
+      if(!snap.exists()) throw new Error('NO_USER');
+      const data=snap.data();
+      const newColl={...(data.collection||{})};
+
+      // 보유 검증 (트랜잭션 내에서 재확인)
+      let total=0;
+      for(const [cat,cnt] of Object.entries(selCount)){
+        const have=newColl[cat+'_'+mergeGrade]||0;
+        if(have<cnt) throw new Error('INSUFFICIENT_CARDS');
+        total+=cnt;
+      }
+      if(total!==3) throw new Error('INVALID_SELECTION');
+
+      // 소비
+      for(const [cat,cnt] of Object.entries(selCount)){
+        const key=cat+'_'+mergeGrade;
+        newColl[key]=(newColl[key]||0)-cnt;
+        if(newColl[key]<=0) delete newColl[key];
+      }
+
+      // 결과 카드 추가
+      const resultKey=resultCat+'_'+nextGrade;
+      newColl[resultKey]=(newColl[resultKey]||0)+1;
+      const newDisc={...(data.discovered||{})};
+      resultIsNew=!newDisc[resultKey];
+      newDisc[resultKey]=true;
+
+      // 임시 변수에만 저장 (commit 성공 후 적용)
+      tx.update(userRef,{collection:newColl,discovered:newDisc});
+      committedMergeColl = newColl;
+      committedMergeDisc = newDisc;
+    });
+
+    // commit 성공 후 로컬 상태 반영
+    collection = committedMergeColl;
+    discovered = committedMergeDisc;
+    closeMergeModal();
+    showResults([{cat:resultCat,grade:nextGrade}],[resultIsNew],1);
+    document.getElementById('result-title').textContent='🔮 합성 성공! '+gradeLabel(nextGrade);
+  }catch(e){
+    closeMergeModal();
+    if(e.message==='INSUFFICIENT_CARDS') showToast('카드가 부족해요. 다시 선택해주세요.');
+    else showToast('합성 오류가 발생했습니다.');
+  }finally{
+    isMerging=false;
+  }
+};
 
 function showToast(msg){
   const t=document.getElementById('toast');
