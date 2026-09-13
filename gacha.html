@@ -29,48 +29,117 @@
     .pull-btn.ten{background:var(--red);color:#fff;}
     .pull-btn .cost{font-size:11px;font-weight:400;opacity:.7;display:block;margin-top:2px;}
 
-    .divider{width:100%;max-width:360px;border:none;border-top:1px solid rgba(158,124,112,.15);margin:8px 16px;}
+    .divider{width:calc(100% - 32px);border:none;border-top:1px solid rgba(158,124,112,.15);margin:8px 0;}
 
-    .rates-box{width:100%;max-width:360px;padding:16px;}
+    .rates-box{width:100%;max-width:360px;padding:4px 16px 12px;}
     .rates-title{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:700;}
     .rates{display:flex;gap:8px;flex-wrap:wrap;}
     .rate-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;color:#fff;}
 
+    /* 합성 섹션 */
+    .merge-section{width:100%;max-width:360px;padding:4px 16px 12px;}
+    .merge-open-btn{width:100%;padding:14px;background:#fff;border:2px solid rgba(158,124,112,.3);border-radius:14px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;}
+    .merge-open-btn:active{transform:scale(.97);}
+
     .coll-btn{margin-top:8px;background:none;border:1.5px solid rgba(158,124,112,.3);border-radius:20px;color:var(--muted);font-size:13px;padding:10px 24px;cursor:pointer;font-family:inherit;}
 
-    /* 결과 오버레이 */
+    /* 공통 오버레이 */
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:16px;}
     .overlay.open{display:flex;}
+
+    /* 뽑기 결과 */
     .result-title{color:#fff;font-size:18px;font-weight:900;}
-
-    /* 단일 카드 */
-    .single-card{width:160px;height:220px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:popIn .4s ease;}
-    @keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
-    .card-emoji{font-size:48px;}
-    .card-name{font-size:20px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3);}
-    .card-grade{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.25);color:#fff;font-size:13px;font-weight:900;padding:3px 8px;border-radius:10px;}
-    .card-new{position:absolute;top:12px;left:12px;background:#FF6B6B;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;}
-
-    /* 10연 그리드 */
+@keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
     .multi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:400px;}
-    .mini-card{border-radius:12px;aspect-ratio:.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;animation:popIn .3s ease both;}
-    .mini-emoji{font-size:24px;}
-    .mini-name{font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.2;}
-    .mini-grade{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.25);color:#fff;font-size:9px;font-weight:900;padding:1px 4px;border-radius:6px;}
-    .mini-new{position:absolute;top:4px;left:4px;width:8px;height:8px;background:#FF6B6B;border-radius:50%;}
+/* ── 등급별 카드 디자인 ───────────────────────────── */
+.card-C .card-photo{background:linear-gradient(180deg,#424242,#616161);}
+.card-C .card-info{background:#757575;}
+.card-C .card-frame{border:2px solid #9E9E9E;}
+.card-C .grade-badge{background:rgba(255,255,255,.15);color:#e0e0e0;}
+
+.card-B .card-photo{background:linear-gradient(180deg,#1B5E20,#388E3C);}
+.card-B .card-info{background:#388E3C;}
+.card-B .card-frame{border:2px solid #66BB6A;}
+.card-B .grade-badge{background:rgba(255,255,255,.15);color:#C8E6C9;}
+
+.card-A .card-photo{background:linear-gradient(180deg,#0D47A1,#1565C0);}
+.card-A .card-info{background:#1565C0;}
+.card-A .card-frame{border:2px solid #42A5F5;box-shadow:0 0 10px rgba(66,165,245,.35);}
+.card-A .grade-badge{background:rgba(255,255,255,.15);color:#BBDEFB;}
+
+.card-S .card-photo{background:linear-gradient(180deg,#4A148C,#6A1B9A);}
+.card-S .card-info{background:#6A1B9A;}
+.card-S .card-frame{border:2px solid #CE93D8;animation:pulseS 2s ease-in-out infinite;}
+.card-S .grade-badge{background:rgba(255,255,255,.15);color:#E1BEE7;}
+@keyframes pulseS{0%,100%{box-shadow:0 0 10px rgba(206,147,216,.5)}50%{box-shadow:0 0 22px rgba(206,147,216,.9)}}
+
+.card-SS .card-photo{background:linear-gradient(160deg,#b71c1c,#e65100,#f57f17,#1b5e20,#0d47a1,#4a148c);}
+.card-SS .card-info{background:linear-gradient(90deg,#b71c1c,#e65100,#f9a825,#1b5e20,#0d47a1,#6a1b9a);}
+.card-SS .card-frame{border:2px solid transparent;background:linear-gradient(#0d1117,#0d1117) padding-box,linear-gradient(135deg,#ff6b6b,#ffd700,#4caf50,#42a5f5,#ce93d8,#ff6b6b) border-box;}
+.card-SS .grade-badge{background:rgba(255,215,0,.25);color:#FFD700;border:1px solid rgba(255,215,0,.4);}
+.card-SS .cat-name{text-shadow:0 0 8px rgba(255,215,0,.6);}
+.card-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 3s ease-in-out infinite;pointer-events:none;}
+@keyframes shimmer{0%{left:-100%}40%,100%{left:200%}}
+.card-stars{position:absolute;top:8px;right:8px;display:flex;gap:2px;}
+.card-star{font-size:10px;color:#FFD700;animation:twinkle 1.5s ease-in-out infinite;}
+.card-star:nth-child(2){animation-delay:.3s;}
+.card-star:nth-child(3){animation-delay:.6s;}
+@keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* 공통 카드 구조 */
+.single-card{width:160px;height:220px;border-radius:20px;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:popIn .4s ease;-webkit-tap-highlight-color:transparent;}
+.card-frame{position:absolute;inset:0;border-radius:20px;pointer-events:none;}
+.card-photo{width:100%;height:140px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;}
+.card-info{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px;}
+.cat-name{font-size:15px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3);}
+.grade-badge{font-size:11px;font-weight:900;padding:2px 8px;border-radius:8px;}
+.card-new-badge{position:absolute;top:10px;left:10px;background:#FF6B6B;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;}
+
+/* 미니 카드 (10연차) */
+.mini-card{border-radius:12px;aspect-ratio:.7;display:flex;flex-direction:column;position:relative;overflow:hidden;animation:popIn .3s ease both;}
+.mini-card .card-frame{border-radius:12px;}
+.mini-card .card-photo{height:60%;font-size:28px;}
+.mini-card .card-info{padding:4px 2px;}
+.mini-card .cat-name{font-size:9px;}
+.mini-card .grade-badge{font-size:8px;padding:1px 5px;}
+.mini-new{position:absolute;top:4px;left:4px;width:8px;height:8px;background:#FF6B6B;border-radius:50%;}
 
     .close-btn{background:#fff;border:none;border-radius:12px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;color:var(--text);font-family:inherit;}
 
-    /* 토스트 */
+    /* 합성 모달 */
+    .merge-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;}
+    .merge-overlay.open{display:flex;}
+    .merge-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 44px;display:flex;flex-direction:column;gap:12px;max-height:85vh;overflow:hidden;}
+    .merge-handle{width:36px;height:4px;background:#e0d8d4;border-radius:2px;align-self:center;}
+    .merge-sheet-title{font-size:17px;font-weight:900;color:var(--text);text-align:center;}
+    .merge-desc{font-size:12px;color:var(--muted);text-align:center;}
+
+    /* 등급 탭 */
+    .grade-tabs{display:flex;gap:8px;padding:0 4px;}
+    .grade-tab{flex:1;padding:8px 0;border:2px solid transparent;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:#f2ece8;color:var(--muted);}
+    .grade-tab.active{color:#fff;}
+
+    /* 선택 카운터 */
+    .merge-counter{text-align:center;font-size:13px;font-weight:700;color:var(--muted);}
+    .merge-counter span{color:var(--red);}
+
+    /* 합성 카드 그리드 */
+    .merge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;overflow-y:auto;padding:4px 2px;}
+    .mc{border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:#f2ece8;border:2px solid transparent;-webkit-tap-highlight-color:transparent;transition:transform .12s;}
+    .mc:active{transform:scale(.93);}
+    .mc.selected{border-color:var(--red);background:#fff5f4;}
+    .mc.exhausted{opacity:.35;cursor:default;}
+    .mc-emoji{font-size:20px;}
+    .mc-name{font-size:10px;font-weight:700;color:var(--text);text-align:center;}
+    .mc-have{font-size:10px;color:var(--muted);text-align:center;}
+    .mc-sel-badge{font-size:10px;font-weight:900;color:var(--red);}
+
+    .merge-confirm-btn{padding:14px;background:var(--red);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+    .merge-confirm-btn:disabled{background:#e0d8d4;color:#9E7C70;cursor:default;}
+    .merge-cancel-btn{padding:12px;background:none;border:1.5px solid #e0d8d4;border-radius:10px;font-size:14px;cursor:pointer;color:var(--muted);font-family:inherit;}
+
     .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#2A1A14;color:#fff;padding:14px 24px;border-radius:24px;font-size:14px;font-weight:700;z-index:2000;transition:transform .4s;white-space:nowrap;pointer-events:none;}
     .toast.show{transform:translateX(-50%) translateY(0);}
-
-    /* 합성 섹션 */
-    .merge-box{width:100%;max-width:360px;padding:16px;}
-    .merge-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;}
-    .merge-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
-    .merge-grade-btns{display:flex;gap:8px;flex-wrap:wrap;}
-    .merge-grade-btn{padding:8px 14px;border-radius:12px;border:none;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;}
   </style>
 </head>
 <body>
@@ -87,14 +156,8 @@
 </div>
 
 <div class="pull-btns">
-  <button class="pull-btn one" onclick="doPull(1)">
-    1회 뽑기
-    <span class="cost">가챠권 1장</span>
-  </button>
-  <button class="pull-btn ten" onclick="doPull(10)">
-    10회 뽑기
-    <span class="cost">가챠권 10장</span>
-  </button>
+  <button class="pull-btn one" onclick="doPull(1)">1회 뽑기<span class="cost">가챠권 1장</span></button>
+  <button class="pull-btn ten" onclick="doPull(10)">10회 뽑기<span class="cost">가챠권 10장</span></button>
 </div>
 
 <div class="rates-box">
@@ -110,27 +173,34 @@
 
 <hr class="divider">
 
-<div class="merge-box">
-  <div class="merge-title">🔮 카드 합성</div>
-  <div class="merge-desc">같은 등급 카드 3장 → 상위 등급 카드 1장 (랜덤)<br>합성할 등급을 선택하세요.</div>
-  <div class="merge-grade-btns">
-    <button class="merge-grade-btn" style="background:#9E9E9E;" onclick="doMerge('C')">C → B</button>
-    <button class="merge-grade-btn" style="background:#4CAF50;" onclick="doMerge('B')">B → A</button>
-    <button class="merge-grade-btn" style="background:#2196F3;" onclick="doMerge('A')">A → S</button>
-    <button class="merge-grade-btn" style="background:#9C27B0;" onclick="doMerge('S')">S → SS</button>
-  </div>
+<div class="merge-section">
+  <button class="merge-open-btn" onclick="openMergeModal()">🔮 카드 합성 — 같은 등급 3장 → 상위 등급 1장</button>
 </div>
 
 <hr class="divider">
 
-<button class="coll-btn" onclick="location.href='collection.html'">📖 내 컬렉션 보기</button>
+<button class="coll-btn" onclick="location.href='collection.html'">📖 냥카드 컬렉션 보기</button>
 <button onclick="var t=parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');localStorage.setItem('rcm_gacha_tickets',t+10);tickets=t+10;updateTicketUI();showToast('🛠 테스트 +10장');" style="margin-top:8px;background:#ffe082;border:1.5px dashed #f9a825;border-radius:20px;color:#5d4037;font-size:12px;padding:8px 20px;cursor:pointer;font-family:inherit;">🛠 테스트용 +10장</button>
 
-<!-- 결과 오버레이 -->
+<!-- 뽑기 결과 오버레이 -->
 <div class="overlay" id="overlay">
   <div class="result-title" id="result-title"></div>
   <div id="result-area"></div>
   <button class="close-btn" onclick="closeResult()">확인</button>
+</div>
+
+<!-- 합성 선택 모달 -->
+<div class="merge-overlay" id="merge-overlay" onclick="handleMergeOverlayClick(event)">
+  <div class="merge-sheet" id="merge-sheet">
+    <div class="merge-handle"></div>
+    <div class="merge-sheet-title">🔮 합성할 카드 3장 선택</div>
+    <div class="merge-desc">같은 등급 카드 3장 소비 → 상위 등급 카드 1장 (랜덤)</div>
+    <div class="grade-tabs" id="grade-tabs"></div>
+    <div class="merge-counter">선택: <span id="sel-count">0</span> / 3장</div>
+    <div class="merge-grid" id="merge-grid"></div>
+    <button class="merge-confirm-btn" id="merge-confirm-btn" onclick="confirmMerge()" disabled>합성하기</button>
+    <button class="merge-cancel-btn" onclick="closeMergeModal()">취소</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -138,6 +208,7 @@
 <script>
 const CATS = ['금동', '금별', '금실', '낑깡', '닉', '달이', '랑이', '랭이', '레오', '레첼', '먼지', '모아', '모찌', '무디', '뭉이', '백설', '버즈', '베리', '부엉', '블루', '비니', '샤인', '소고', '시니', '실버', '써클', '앤디', '엘크', '여비', '절미', '주디', '지니', '치즈', '콩떡', '쿠미', '티코', '파인', '페너', '플래시', '호떡', '호시'];
 
+  const CAT_SLUG = {'금동': 'geumdong', '금별': 'geumbyeol', '금실': 'geumsil', '낑깡': 'kkingkang', '닉': 'nik', '달이': 'dari', '랑이': 'rangi', '랭이': 'raengi', '레오': 'leo', '레첼': 'rechel', '먼지': 'meonji', '모아': 'moa', '모찌': 'mocchi', '무디': 'mudi', '뭉이': 'mungyi', '백설': 'baekseol', '버즈': 'beojeu', '베리': 'beri', '부엉': 'bueong', '블루': 'beullyu', '비니': 'bini', '샤인': 'shayin', '소고': 'sogo', '시니': 'shini', '실버': 'silbeo', '써클': 'sseokeul', '앤디': 'aendi', '엘크': 'elkeuri', '여비': 'yeobi', '절미': 'jeolmi', '주디': 'judi', '지니': 'jini', '치즈': 'chijeu', '콩떡': 'kongddeok', '쿠미': 'kumi', '티코': 'tikko', '파인': 'pain', '페너': 'fener', '플래시': 'peullaeswi', '호떡': 'hotteok', '호시': 'hoshi'};
 const GRADES = ['C','B','A','S','SS'];
 const GRADE_COLORS = {
   C:'linear-gradient(135deg,#757575,#9E9E9E)',
@@ -146,19 +217,35 @@ const GRADE_COLORS = {
   S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',
   SS:'linear-gradient(135deg,#F57F17,#FFD54F)'
 };
-const GRADE_TEXT_COLOR = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+const GRADE_TEXT = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
 
 const K_TICKETS  = 'rcm_gacha_tickets';
 const K_COLL     = 'rcm_gacha_collection';
+const K_DISC     = 'rcm_gacha_discovered'; // 영구 획득 기록 (합성 소비해도 유지)
 
 let tickets    = 0;
-let collection = {};
+let collection = {}; // 현재 보유 수량
+let discovered = {}; // 한 번이라도 획득한 기록
+
+function migrateDiscovered(){
+  // collection에 있는데 discovered에 없는 항목 병합 (조건 없이 항상 실행)
+  var changed = false;
+  Object.keys(collection).forEach(function(key){
+    if(collection[key]>0 && !discovered[key]){
+      discovered[key] = true;
+      changed = true;
+    }
+  });
+  if(changed) localStorage.setItem(K_DISC, JSON.stringify(discovered));
+}
 
 function init(){
-  const nick = localStorage.getItem('rcm_nickname') || '손님';
-  document.getElementById('hdr-nick').textContent = nick + '님의 가챠';
+  const nick = localStorage.getItem('rcm_nickname')||'손님';
+  document.getElementById('hdr-nick').textContent = nick+'님의 가챠';
   tickets    = parseInt(localStorage.getItem(K_TICKETS)||'0');
   collection = JSON.parse(localStorage.getItem(K_COLL)||'{}');
+  discovered = JSON.parse(localStorage.getItem(K_DISC)||'{}');
+  migrateDiscovered();
   updateTicketUI();
 }
 
@@ -169,47 +256,47 @@ function updateTicketUI(){
 function saveAll(){
   localStorage.setItem(K_TICKETS, tickets);
   localStorage.setItem(K_COLL, JSON.stringify(collection));
+  localStorage.setItem(K_DISC, JSON.stringify(discovered));
 }
 
 function drawOne(){
-  const r = Math.random() * 100;
+  const r = Math.random()*100;
   let grade;
-  if(r < 1)       grade = 'SS';
-  else if(r < 5)  grade = 'S';
-  else if(r < 20) grade = 'A';
-  else if(r < 50) grade = 'B';
-  else             grade = 'C';
-  const cat = CATS[Math.floor(Math.random() * CATS.length)];
+  if(r<1)       grade='SS';
+  else if(r<5)  grade='S';
+  else if(r<20) grade='A';
+  else if(r<50) grade='B';
+  else           grade='C';
+  const cat = CATS[Math.floor(Math.random()*CATS.length)];
   return {cat, grade};
 }
 
-function isNew(cat, grade){
-  return !collection[cat + '_' + grade];
+function recordCard(cat, grade){
+  // 보유 수량 추가
+  const key = cat+'_'+grade;
+  collection[key] = (collection[key]||0)+1;
+  // 영구 기록 (삭제 안 함)
+  discovered[key] = true;
 }
 
-function addToCollection(results){
-  results.forEach(r => {
-    const key = r.cat + '_' + r.grade;
-    collection[key] = (collection[key] || 0) + 1;
-  });
+function isNew(cat, grade){
+  return !discovered[cat+'_'+grade];
 }
 
 function doPull(count){
   if(tickets < count){ showToast('가챠권이 부족해요! 냥빙고를 도전해보세요 🎯'); return; }
   tickets -= count;
-
   const results = [];
   for(let i=0;i<count;i++) results.push(drawOne());
-
-  // 10연차 내에서도 같은 cat_grade 첫 등장만 NEW
+  // 10연차 내 첫 등장만 NEW
   const seenThisPull = new Set();
-  const newFlags = results.map(r => {
-    const key = r.cat + '_' + r.grade;
-    const isN = !collection[key] && !seenThisPull.has(key);
+  const newFlags = results.map(r=>{
+    const key = r.cat+'_'+r.grade;
+    const isN = !discovered[key] && !seenThisPull.has(key);
     seenThisPull.add(key);
     return isN;
   });
-  addToCollection(results);
+  results.forEach(r => recordCard(r.cat, r.grade));
   saveAll();
   updateTicketUI();
   showResults(results, newFlags, count);
@@ -218,79 +305,176 @@ function doPull(count){
 function showResults(results, newFlags, count){
   const area  = document.getElementById('result-area');
   const title = document.getElementById('result-title');
-
-  if(count === 1){
-    const r = results[0];
-    const isN = newFlags[0];
-    title.textContent = gradeLabel(r.grade);
-    area.innerHTML = `
-      <div class="single-card" style="background:${GRADE_COLORS[r.grade]}">
-        ${isN ? '<div class="card-new">NEW</div>' : ''}
-        <div class="card-grade">${r.grade}</div>
-        <div class="card-emoji">🐱</div>
-        <div class="card-name" style="color:${GRADE_TEXT_COLOR[r.grade]}">${r.cat}</div>
-      </div>`;
-  } else {
-    const hasSpecial = results.some(r => r.grade === 'S' || r.grade === 'SS');
-    title.textContent = hasSpecial ? '✨ 특별한 카드 등장!' : `${count}장 획득!`;
-    area.innerHTML = `<div class="multi-grid">${
-      results.map((r,i) => `
-        <div class="mini-card" style="background:${GRADE_COLORS[r.grade]};animation-delay:${i*0.05}s">
-          ${newFlags[i] ? '<div class="mini-new"></div>' : ''}
-          <div class="mini-grade">${r.grade}</div>
-          <div class="mini-emoji">🐱</div>
-          <div class="mini-name" style="color:${GRADE_TEXT_COLOR[r.grade]}">${r.cat}</div>
-        </div>`).join('')
-    }</div>`;
+  // onerror 체인: SS전용 → 대표사진 → 🐱
+  function makeCardHTML(r, isN, size, delay){
+    const ss = r.grade==='SS';
+    const slug = CAT_SLUG[r.cat]||r.cat;
+    const baseImg = 'images/cats/'+slug+'.webp';
+    const ssImg   = 'images/cats/ss/'+slug+'.webp';
+    const imgSrc  = ss ? ssImg : baseImg;
+    const onerr   = ss
+      ? `this.src='${baseImg}';this.onerror=function(){this.style.display='none';this.parentNode.innerHTML+='🐱';};`
+      : `this.style.display='none';this.parentNode.innerHTML+='🐱';`;
+    const imgH    = size==='single'?'140px':'60%';
+    const shimmer = ss?'<div class="card-shimmer"></div><div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>':'';
+    const newBadge = (isN&&size==='single')?'<div class="card-new-badge">NEW</div>':'';
+    const miniNew  = (isN&&size==='mini')?'<div class="mini-new"></div>':'';
+    return `<div class="${size==='single'?'single-card':'mini-card'} card-${r.grade}" style="${size==='mini'&&delay?'animation-delay:'+delay+'s':''}">
+      <div class="card-frame"></div>${shimmer}${newBadge}${miniNew}
+      <div class="card-photo" style="height:${imgH};padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+        <img src="${imgSrc}" loading="lazy" decoding="async"
+          style="width:100%;height:100%;object-fit:cover;"
+          onerror="${onerr}">
+      </div>
+      <div class="card-info">
+        <div class="cat-name">${r.cat}</div>
+        <div class="grade-badge">${r.grade}</div>
+      </div>
+    </div>`;
   }
-
+  if(count===1){
+    const r=results[0], isN=newFlags[0];
+    title.textContent = gradeLabel(r.grade);
+    area.innerHTML = makeCardHTML(r, isN, 'single');
+  } else {
+    const hasSpecial = results.some(r=>r.grade==='S'||r.grade==='SS');
+    title.textContent = hasSpecial ? '✨ 특별한 카드 등장!' : `${count}장 획득!`;
+    area.innerHTML = `<div class="multi-grid">${results.map((r,i)=>makeCardHTML(r,newFlags[i],'mini',i*.05)).join('')}</div>`;
+  }
   document.getElementById('overlay').classList.add('open');
 }
 
 function gradeLabel(g){
-  const labels = {C:'일반 카드 획득',B:'희귀 카드 획득!',A:'✨ 레어 카드!',S:'💜 슈퍼 레어!',SS:'🌟 초희귀 등장!!'};
-  return labels[g];
+  return {C:'일반 카드 획득',B:'희귀 카드 획득!',A:'✨ 레어 카드!',S:'💜 슈퍼 레어!',SS:'🌟 초희귀 등장!!'}[g];
 }
 
 function closeResult(){
   document.getElementById('overlay').classList.remove('open');
 }
 
-function doMerge(grade){
-  const nextGrade = GRADES[GRADES.indexOf(grade) + 1];
+// ── 합성 ──────────────────────────────────────────────
+var mergeGrade = 'C';
+var selCount   = {}; // { cat: 선택 수 }
+
+function openMergeModal(){
+  selCount = {};
+  buildGradeTabs();
+  setMergeGrade('C');
+  document.getElementById('merge-overlay').classList.add('open');
+}
+
+function closeMergeModal(){
+  document.getElementById('merge-overlay').classList.remove('open');
+}
+
+function handleMergeOverlayClick(e){
+  if(e.target===document.getElementById('merge-overlay')) closeMergeModal();
+}
+
+function buildGradeTabs(){
+  const tabs = document.getElementById('grade-tabs');
+  tabs.innerHTML = '';
+  ['C','B','A','S'].forEach(g=>{
+    const btn = document.createElement('button');
+    btn.className = 'grade-tab';
+    btn.id = 'mtab-'+g;
+    btn.textContent = g;
+    btn.style.background = GRADE_COLORS[g];
+    btn.onclick = ()=>setMergeGrade(g);
+    tabs.appendChild(btn);
+  });
+}
+
+function setMergeGrade(g){
+  mergeGrade = g;
+  selCount = {};
+  document.querySelectorAll('.grade-tab').forEach(b=>b.classList.remove('active'));
+  const tab = document.getElementById('mtab-'+g);
+  if(tab){ tab.classList.add('active'); }
+  renderMergeGrid();
+  updateMergeCounter();
+}
+
+function totalSel(){
+  return Object.values(selCount).reduce((s,v)=>s+v,0);
+}
+
+function renderMergeGrid(){
+  const grid = document.getElementById('merge-grid');
+  grid.innerHTML = '';
+  const total = totalSel();
+
+  CATS.forEach(cat=>{
+    const have = collection[cat+'_'+mergeGrade]||0;
+    if(have===0) return;
+    const sel  = selCount[cat]||0;
+    const canAdd = sel < have && total < 3;
+    const exhausted = !canAdd && sel===0;
+
+    const card = document.createElement('div');
+    card.className = 'mc'+(sel>0?' selected':'')+(exhausted?' exhausted':'');
+    card.innerHTML = `
+      <div class="mc-emoji">🐱</div>
+      <div class="mc-name">${cat}</div>
+      <div class="mc-have">보유 ${have}장</div>
+      ${sel>0?`<div class="mc-sel-badge">${sel}선택</div>`:''}`;
+    if(!exhausted) card.addEventListener('click',()=>toggleSel(cat));
+    grid.appendChild(card);
+  });
+
+  if(grid.children.length===0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">'+mergeGrade+'등급 카드가 없어요</div>';
+  }
+}
+
+function toggleSel(cat){
+  const have  = collection[cat+'_'+mergeGrade]||0;
+  const sel   = selCount[cat]||0;
+  const total = totalSel();
+  const next  = sel + 1;
+  // 보유 초과하거나 총 3장 이미 찼으면 0으로 리셋 (순환)
+  if(next > have || total >= 3){
+    delete selCount[cat];
+  } else {
+    selCount[cat] = next;
+  }
+  renderMergeGrid();
+  updateMergeCounter();
+}
+
+function updateMergeCounter(){
+  const t = totalSel();
+  document.getElementById('sel-count').textContent = t;
+  document.getElementById('merge-confirm-btn').disabled = t!==3;
+}
+
+function confirmMerge(){
+  if(totalSel()!==3) return;
+  const nextGrade = GRADES[GRADES.indexOf(mergeGrade)+1];
   if(!nextGrade){ showToast('이미 최고 등급이에요!'); return; }
 
-  // 해당 등급 보유 카드 수 합산
-  const total = CATS.reduce((sum, cat) => sum + (collection[cat+'_'+grade] || 0), 0);
-  if(total < 3){ showToast(grade + '등급 카드가 3장 필요해요! (현재 '+total+'장)'); return; }
-
-  // 3장 소모 — 보유 수 많은 것부터
-  let toConsume = 3;
-  CATS.forEach(cat => {
-    if(toConsume <= 0) return;
-    const key = cat + '_' + grade;
-    const has = collection[key] || 0;
-    const use = Math.min(has, toConsume);
-    collection[key] = has - use;
-    if(collection[key] === 0) delete collection[key];
-    toConsume -= use;
+  // 선택 카드 소비 (discovered는 건드리지 않음)
+  Object.entries(selCount).forEach(([cat,cnt])=>{
+    const key = cat+'_'+mergeGrade;
+    collection[key] = (collection[key]||0)-cnt;
+    if(collection[key]<=0) delete collection[key];
   });
 
   // 랜덤 상위 등급 카드 지급
-  const cat = CATS[Math.floor(Math.random() * CATS.length)];
-  const key = cat + '_' + nextGrade;
-  const isN = !collection[key];
-  collection[key] = (collection[key] || 0) + 1;
+  const cat = CATS[Math.floor(Math.random()*CATS.length)];
+  const isN = isNew(cat, nextGrade);
+  recordCard(cat, nextGrade);
   saveAll();
 
-  showResults([{cat, grade:nextGrade}], [isN], 1);
-  document.getElementById('result-title').textContent = '🔮 합성 성공! ' + gradeLabel(nextGrade);
+  closeMergeModal();
+  showResults([{cat,grade:nextGrade}],[isN],1);
+  document.getElementById('result-title').textContent = '🔮 합성 성공! '+gradeLabel(nextGrade);
 }
 
 function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 
 init();

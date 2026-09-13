@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>냥카드 컬렉션 — ROOF CAT ME PLAY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    html{color-scheme:light;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--red:#E8392A;--bg:#FFF8F2;--text:#2A1A14;--muted:#9E7C70;}
+    body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:60px;}
+
+    /* 헤더 */
+    .hdr{width:100%;background:var(--red);color:#fff;padding:20px;text-align:center;}
+    .hdr-brand{font-size:11px;letter-spacing:.15em;opacity:.75;margin-bottom:4px;}
+    .hdr-title{font-size:26px;font-weight:900;}
+    .hdr-nick{font-size:13px;opacity:.85;margin-top:3px;}
+
+    /* 진행률 */
+    .progress-wrap{width:100%;max-width:360px;padding:20px 16px 8px;}
+    .progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .progress-label{font-size:12px;font-weight:700;color:var(--muted);}
+    .progress-value{font-size:13px;font-weight:900;color:var(--text);}
+    .progress-bar-bg{width:100%;height:8px;background:rgba(158,124,112,.15);border-radius:4px;overflow:hidden;margin-bottom:14px;}
+    .progress-bar-fill{height:100%;border-radius:4px;background:var(--red);transition:width .6s ease;}
+
+    /* 그리드 */
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:8px 16px 0;width:100%;max-width:360px;}
+
+    /* 카드 */
+    .cat-card{border-radius:14px;aspect-ratio:.75;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;transition:transform .15s;}
+    .cat-card:active{transform:scale(.93);}
+    .cat-card.locked{background:#e8e0d8;border:2px dashed rgba(158,124,112,.3);}
+    .cat-card.unlocked{box-shadow:0 2px 10px rgba(0,0,0,.15);}
+    .card-emoji{font-size:22px;line-height:1;}
+    .card-name{font-size:10px;font-weight:700;text-align:center;line-height:1.2;}
+    .card-grade-badge{position:absolute;top:5px;right:5px;font-size:9px;font-weight:900;padding:2px 5px;border-radius:6px;background:rgba(0,0,0,.2);color:#fff;}
+    .locked .card-name{color:rgba(158,124,112,.6);}
+
+    /* 상세 모달 */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-end;justify-content:center;}
+    .overlay.open{display:flex;}
+    .sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 24px 44px;display:flex;flex-direction:column;gap:14px;}
+    .sheet-handle{width:36px;height:4px;background:#e0d8d4;border-radius:2px;align-self:center;}
+    .sheet-name{font-size:22px;font-weight:900;color:var(--text);text-align:center;}
+    .grade-list{display:flex;flex-direction:column;gap:10px;}
+    .grade-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;}
+    .grade-row.collected{box-shadow:0 2px 8px rgba(0,0,0,.1);}
+    .grade-row.not-collected{background:#f2ece8;opacity:.5;}
+    .grade-badge{font-size:14px;font-weight:900;width:32px;text-align:center;}
+    .grade-info{flex:1;}
+    .grade-name{font-size:13px;font-weight:700;}
+    .grade-count{font-size:11px;opacity:.7;margin-top:1px;}
+    .grade-lock{font-size:18px;margin-left:auto;}
+    .close-btn{background:none;border:1.5px solid #e0d8d4;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;color:var(--muted);font-family:inherit;}
+  
+/* ── 등급별 카드 디자인 ───────────────────────────── */
+.card-C .card-photo{background:linear-gradient(180deg,#424242,#616161);}
+.card-C .card-info{background:#757575;}
+.card-C .card-frame{border:2px solid #9E9E9E;}
+.card-C .grade-badge{background:rgba(255,255,255,.15);color:#e0e0e0;}
+
+.card-B .card-photo{background:linear-gradient(180deg,#1B5E20,#388E3C);}
+.card-B .card-info{background:#388E3C;}
+.card-B .card-frame{border:2px solid #66BB6A;}
+.card-B .grade-badge{background:rgba(255,255,255,.15);color:#C8E6C9;}
+
+.card-A .card-photo{background:linear-gradient(180deg,#0D47A1,#1565C0);}
+.card-A .card-info{background:#1565C0;}
+.card-A .card-frame{border:2px solid #42A5F5;box-shadow:0 0 10px rgba(66,165,245,.35);}
+.card-A .grade-badge{background:rgba(255,255,255,.15);color:#BBDEFB;}
+
+.card-S .card-photo{background:linear-gradient(180deg,#4A148C,#6A1B9A);}
+.card-S .card-info{background:#6A1B9A;}
+.card-S .card-frame{border:2px solid #CE93D8;animation:pulseS 2s ease-in-out infinite;}
+.card-S .grade-badge{background:rgba(255,255,255,.15);color:#E1BEE7;}
+@keyframes pulseS{0%,100%{box-shadow:0 0 10px rgba(206,147,216,.5)}50%{box-shadow:0 0 22px rgba(206,147,216,.9)}}
+
+.card-SS .card-photo{background:linear-gradient(160deg,#b71c1c,#e65100,#f57f17,#1b5e20,#0d47a1,#4a148c);}
+.card-SS .card-info{background:linear-gradient(90deg,#b71c1c,#e65100,#f9a825,#1b5e20,#0d47a1,#6a1b9a);}
+.card-SS .card-frame{border:2px solid transparent;background:linear-gradient(#0d1117,#0d1117) padding-box,linear-gradient(135deg,#ff6b6b,#ffd700,#4caf50,#42a5f5,#ce93d8,#ff6b6b) border-box;}
+.card-SS .grade-badge{background:rgba(255,215,0,.25);color:#FFD700;border:1px solid rgba(255,215,0,.4);}
+.card-SS .cat-name{text-shadow:0 0 8px rgba(255,215,0,.6);}
+.card-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 3s ease-in-out infinite;pointer-events:none;}
+@keyframes shimmer{0%{left:-100%}40%,100%{left:200%}}
+.card-stars{position:absolute;top:8px;right:8px;display:flex;gap:2px;}
+.card-star{font-size:10px;color:#FFD700;animation:twinkle 1.5s ease-in-out infinite;}
+.card-star:nth-child(2){animation-delay:.3s;}
+.card-star:nth-child(3){animation-delay:.6s;}
+@keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* 공통 카드 구조 */
+.single-card{width:160px;height:220px;border-radius:20px;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:popIn .4s ease;-webkit-tap-highlight-color:transparent;}
+.card-frame{position:absolute;inset:0;border-radius:20px;pointer-events:none;}
+.card-photo{width:100%;height:140px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;}
+.card-info{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px;}
+.cat-name{font-size:15px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3);}
+.grade-badge{font-size:11px;font-weight:900;padding:2px 8px;border-radius:8px;}
+.card-new-badge{position:absolute;top:10px;left:10px;background:#FF6B6B;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;}
+
+/* 미니 카드 (10연차) */
+.mini-card{border-radius:12px;aspect-ratio:.7;display:flex;flex-direction:column;position:relative;overflow:hidden;animation:popIn .3s ease both;}
+.mini-card .card-frame{border-radius:12px;}
+.mini-card .card-photo{height:60%;font-size:28px;}
+.mini-card .card-info{padding:4px 2px;}
+.mini-card .cat-name{font-size:9px;}
+.mini-card .grade-badge{font-size:8px;padding:1px 5px;}
+.mini-new{position:absolute;top:4px;left:4px;width:8px;height:8px;background:#FF6B6B;border-radius:50%;}
+
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand">ROOF CAT ME PLAY</div>
+  <div class="hdr-title">📖 냥카드 컬렉션</div>
+  <div class="hdr-nick" id="hdr-nick"></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-row">
+    <span class="progress-label">🐱 마리 수집</span>
+    <span class="progress-value" id="cat-prog-val">0 / 41마리</span>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="cat-prog-bar" style="width:0%"></div></div>
+  <div class="progress-row">
+    <span class="progress-label">🃏 카드 수집</span>
+    <span class="progress-value" id="card-prog-val">0 / 205장</span>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="card-prog-bar" style="width:0%"></div></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<!-- 상세 모달 -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-name" id="modal-name"></div>
+    <div class="grade-list" id="modal-grades"></div>
+    <button class="close-btn" onclick="document.getElementById('overlay').classList.remove('open')">닫기</button>
+  </div>
+</div>
+
+<script>
+const CATS = ['금동','금별','금실','낑깡','닉','달이','랑이','랭이','레오','레첼',
+              '먼지','모아','모찌','무디','뭉이','백설','버즈','베리','부엉','블루',
+              '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','절미',
+              '주디','지니','치즈','콩떡','쿠미','티코','파인','페너','플래시','호떡','호시']
+             .sort((a,b)=>a.localeCompare(b,'ko'));
+
+  const CAT_SLUG = {'금동': 'geumdong', '금별': 'geumbyeol', '금실': 'geumsil', '낑깡': 'kkingkang', '닉': 'nik', '달이': 'dari', '랑이': 'rangi', '랭이': 'raengi', '레오': 'leo', '레첼': 'rechel', '먼지': 'meonji', '모아': 'moa', '모찌': 'mocchi', '무디': 'mudi', '뭉이': 'mungyi', '백설': 'baekseol', '버즈': 'beojeu', '베리': 'beri', '부엉': 'bueong', '블루': 'beullyu', '비니': 'bini', '샤인': 'shayin', '소고': 'sogo', '시니': 'shini', '실버': 'silbeo', '써클': 'sseokeul', '앤디': 'aendi', '엘크': 'elkeuri', '여비': 'yeobi', '절미': 'jeolmi', '주디': 'judi', '지니': 'jini', '치즈': 'chijeu', '콩떡': 'kongddeok', '쿠미': 'kumi', '티코': 'tikko', '파인': 'pain', '페너': 'fener', '플래시': 'peullaeswi', '호떡': 'hotteok', '호시': 'hoshi'};
+const GRADES = ['C','B','A','S','SS'];
+const GRADE_COLORS = {
+  C:'linear-gradient(135deg,#757575,#9E9E9E)',
+  B:'linear-gradient(135deg,#388E3C,#66BB6A)',
+  A:'linear-gradient(135deg,#1565C0,#42A5F5)',
+  S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',
+  SS:'linear-gradient(135deg,#F57F17,#FFD54F)'
+};
+const GRADE_NAMES = {C:'일반',B:'희귀',A:'레어',S:'슈퍼레어',SS:'초희귀'};
+const GRADE_TEXT  = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#2A1A14'};
+
+const K_DISC = 'rcm_gacha_discovered';
+let collection = {};
+let discovered = {};
+
+function migrateDiscovered(){
+  // collection에 있는데 discovered에 없는 항목 병합 (조건 없이 항상 실행)
+  var changed = false;
+  Object.keys(collection).forEach(function(key){
+    if(collection[key]>0 && !discovered[key]){
+      discovered[key] = true;
+      changed = true;
+    }
+  });
+  if(changed) localStorage.setItem(K_DISC, JSON.stringify(discovered));
+}
+
+function init(){
+  const nick = localStorage.getItem('rcm_nickname')||'손님';
+  document.getElementById('hdr-nick').textContent = nick + '님의 컬렉션';
+  collection = JSON.parse(localStorage.getItem('rcm_gacha_collection')||'{}');
+  discovered = JSON.parse(localStorage.getItem(K_DISC)||'{}');
+  migrateDiscovered();
+  render();
+}
+
+function getBestGrade(cat){
+  // discovered 기준 (합성으로 소비해도 한 번 얻었으면 유지)
+  for(let i=GRADES.length-1;i>=0;i--){
+    if(discovered[cat+'_'+GRADES[i]]) return GRADES[i];
+  }
+  return null;
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  let catsUnlocked = 0;
+  let cardsUnlocked = 0;
+
+  CATS.forEach(cat => {
+    const best = getBestGrade(cat);
+    const hasAny = !!best;
+    if(hasAny) catsUnlocked++;
+    GRADES.forEach(g => { if(discovered[cat+'_'+g]) cardsUnlocked++; });
+
+    const card = document.createElement('div');
+    if(hasAny){
+      card.className = 'cat-card unlocked card-'+best;
+      const ss = best==='SS';
+      // SS 전용 사진 있으면 사용, 없으면 대표 사진
+      const slug = CAT_SLUG[cat]||cat;
+      const baseImg = 'images/cats/'+slug+'.webp';
+      const ssImg   = 'images/cats/ss/'+slug+'.webp';
+      const imgSrc  = ss ? ssImg : baseImg;
+      const imgOnerror = ss
+        ? `this.src='${baseImg}';this.onerror=function(){this.style.display='none';this.parentNode.innerHTML+='🐱';};`
+        : `this.style.display='none';this.parentNode.innerHTML+='🐱';`;
+      card.innerHTML = `
+        <div class="card-frame"></div>
+        ${ss?'<div class="card-shimmer"></div><div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>':''}
+        <div class="card-photo" style="height:65%;padding:0;overflow:hidden;">
+          <img src="${imgSrc}" loading="lazy" decoding="async"
+            style="width:100%;height:100%;object-fit:cover;"
+            onerror="${imgOnerror}">
+        </div>
+        <div class="card-info">
+          <div class="cat-name" style="font-size:11px;">${cat}</div>
+          <div class="grade-badge">${best}</div>
+        </div>`;
+    } else {
+      // 잠긴 카드 — img 요청 없음
+      card.className = 'cat-card locked';
+      card.innerHTML = `
+        <div style="font-size:24px;">🔒</div>
+        <div class="cat-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
+    }
+    card.addEventListener('click', ()=>openModal(cat));
+    grid.appendChild(card);
+  });
+
+  // 진행률
+  document.getElementById('cat-prog-val').textContent  = catsUnlocked+' / 41마리';
+  document.getElementById('card-prog-val').textContent = cardsUnlocked+' / 205장';
+  document.getElementById('cat-prog-bar').style.width  = (catsUnlocked/41*100).toFixed(1)+'%';
+  document.getElementById('card-prog-bar').style.width = (cardsUnlocked/205*100).toFixed(1)+'%';
+}
+
+function openModal(cat){
+  document.getElementById('modal-name').textContent = cat;
+  const list = document.getElementById('modal-grades');
+  list.innerHTML = '';
+  GRADES.slice().reverse().forEach(g => {
+    const obtained = !!discovered[cat+'_'+g]; // 한 번이라도 얻었으면 ✓
+    const cnt = collection[cat+'_'+g] || 0;    // 현재 보유 수량
+    const row = document.createElement('div');
+    row.className = 'grade-row ' + (obtained ? 'collected' : 'not-collected');
+    if(obtained) row.style.background = GRADE_COLORS[g];
+    row.innerHTML = `
+      <div class="grade-badge" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${g}</div>
+      <div class="grade-info">
+        <div class="grade-name" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${GRADE_NAMES[g]}</div>
+        ${cnt>0?`<div class="grade-count" style="color:${GRADE_TEXT[g]}">${cnt}장 보유</div>`:obtained?`<div class="grade-count" style="color:${GRADE_TEXT[g]}">획득 완료 (합성 소비됨)</div>`:''}
+      </div>
+      <div class="grade-lock">${obtained?'✓':'🔒'}</div>`;
+    list.appendChild(row);
+  });
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal(e){
+  if(e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
+
+init();
+</script>
+</body>
+</html>
