@@ -75,7 +75,8 @@
 
 .card-SS .card-photo{background:linear-gradient(160deg,#b71c1c,#e65100,#f57f17,#1b5e20,#0d47a1,#4a148c);}
 .card-SS .card-info{background:linear-gradient(90deg,#b71c1c,#e65100,#f9a825,#1b5e20,#0d47a1,#6a1b9a);}
-.card-SS .card-frame{border:2px solid transparent;background:linear-gradient(#0d1117,#0d1117) padding-box,linear-gradient(135deg,#ff6b6b,#ffd700,#4caf50,#42a5f5,#ce93d8,#ff6b6b) border-box;}
+.card-SS .card-frame{border:2px solid #FFD700;box-shadow:0 0 14px rgba(255,215,0,.7),inset 0 0 8px rgba(255,215,0,.1);animation:ssGlow 2s ease-in-out infinite;}
+@keyframes ssGlow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.5)}50%{box-shadow:0 0 22px rgba(255,215,0,.95)}}
 .card-SS .grade-badge{background:rgba(255,215,0,.25);color:#FFD700;border:1px solid rgba(255,215,0,.4);}
 .card-SS .cat-name{text-shadow:0 0 8px rgba(255,215,0,.6);}
 .card-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 3s ease-in-out infinite;pointer-events:none;}
