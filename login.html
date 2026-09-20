@@ -99,7 +99,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-         GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+         GoogleAuthProvider, signInWithPopup,
          onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -113,33 +113,12 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// redirect 결과 확인 후 onAuthStateChanged 등록 (race condition 방지)
+// 이미 로그인된 사용자 → index로 이동 (authActionInProgress 중엔 대기)
 let authActionInProgress = false;
 
-async function initAuth(){
-  try{
-    const result = await getRedirectResult(auth);
-    if(result?.user){
-      authActionInProgress = true;
-      try{
-        await saveUserDataWithRetry(result.user, null);
-        location.href = 'index.html';
-        return;
-      } catch(e){
-        await signOut(auth);
-        authActionInProgress = false;
-        errMsg('login-err','회원 정보 저장에 실패했습니다. 다시 로그인해주세요.');
-      }
-    }
-  } catch(e){
-    errMsg('login-err','Google 로그인 처리에 실패했습니다. 다시 시도해주세요.');
-  }
-  // redirect 결과 처리 완료 후 기존 로그인 감지 등록
-  onAuthStateChanged(auth, user => {
-    if(user && !authActionInProgress) location.href = 'index.html';
-  });
-}
-initAuth();
+onAuthStateChanged(auth, user => {
+  if(user && !authActionInProgress) location.href = 'index.html';
+});
 
 window.switchTab = function(tab){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
@@ -233,12 +212,25 @@ window.doSignup = async function(){
   } catch(e){
     authActionInProgress = false;
     const msgs = {'auth/email-already-in-use':'이미 사용 중인 이메일이에요.','auth/weak-password':'비밀번호가 너무 약해요.'};
-    errMsg('signup-err', msgs[e.code]||'회원가입 실패: '+e.message);
+    errMsg('signup-err', msgs[e.code]||(e.code ? `회원가입 실패 (${e.code})` : '회원가입 실패: '+e.message));
   } finally{ setLoading(false); }
 };
 
+// 인앱브라우저 감지 (카카오톡·인스타 등) — Google 로그인 자체가 불가능한 환경
+function isInAppBrowser(){
+  return /FBAN|FBAV|Instagram|Line|KakaoTalk|NAVER/i.test(navigator.userAgent);
+}
+
 window.doGoogleLogin = async function(){
   if(isLoading) return;
+
+  // 인앱브라우저에서는 Google 로그인 불가 — Safari/Chrome에서 열도록 안내
+  if(isInAppBrowser()){
+    errMsg('login-err','Google 로그인은 Safari 또는 Chrome에서 이용해주세요.');
+    errMsg('signup-err','Google 로그인은 Safari 또는 Chrome에서 이용해주세요.');
+    return;
+  }
+
   setLoading(true);
   try{
     authActionInProgress = true;
@@ -247,10 +239,14 @@ window.doGoogleLogin = async function(){
     try{
       cred = await signInWithPopup(auth, provider);
     } catch(popupErr){
-      // 팝업 실패(모바일 인앱 브라우저 등) → redirect 방식으로 전환
+      // 팝업이 실제로 차단된 경우에만 redirect 전환
       if(popupErr.code==='auth/popup-blocked'){
-        await signInWithRedirect(auth, provider);
-        return; // redirect 후 페이지 이동하므로 여기서 종료
+        authActionInProgress = false;
+        const blockedMsg = '팝업이 차단되어 있습니다. 브라우저 팝업 차단 설정을 해제한 후 다시 시도해주세요.';
+        errMsg('login-err', blockedMsg);
+        errMsg('signup-err', blockedMsg);
+        setLoading(false);
+        return;
       }
       if(popupErr.code==='auth/popup-closed-by-user'){
         authActionInProgress = false;
@@ -270,8 +266,10 @@ window.doGoogleLogin = async function(){
     }
   } catch(e){
     authActionInProgress = false;
-    errMsg('login-err','Google 로그인 실패. 다시 시도해주세요.');
-    errMsg('signup-err','Google 로그인 실패. 다시 시도해주세요.');
+    // 실제 에러코드 표시 — iPhone Safari 디버그용
+    const msg = e.code ? `Google 로그인 실패 (${e.code})` : 'Google 로그인 실패. 다시 시도해주세요.';
+    errMsg('login-err', msg);
+    errMsg('signup-err', msg);
   } finally{ setLoading(false); }
 };
 
