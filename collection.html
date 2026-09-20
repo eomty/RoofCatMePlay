@@ -123,17 +123,27 @@
 <div class="progress-wrap">
   <div class="progress-row">
     <span class="progress-label">🐱 마리 수집</span>
-    <span class="progress-value" id="cat-prog-val">0 / 41마리</span>
+    <span class="progress-value" id="cat-prog-val">0 / 43마리</span>
   </div>
   <div class="progress-bar-bg"><div class="progress-bar-fill" id="cat-prog-bar" style="width:0%"></div></div>
   <div class="progress-row">
     <span class="progress-label">🃏 카드 수집</span>
-    <span class="progress-value" id="card-prog-val">0 / 205장</span>
+    <span class="progress-value" id="card-prog-val">0 / 230장</span>
   </div>
   <div class="progress-bar-bg"><div class="progress-bar-fill" id="card-prog-bar" style="width:0%"></div></div>
 </div>
 
 <div class="grid" id="grid"></div>
+
+<!-- SS 스페셜 섹션 -->
+<div style="width:100%;max-width:360px;padding:20px 16px 8px;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+    <span style="font-size:16px;">🌟</span>
+    <span style="font-size:13px;font-weight:900;color:#2A1A14;letter-spacing:.05em;">SS 스페셜 카드</span>
+    <span style="font-size:11px;color:#9E7C70;margin-left:auto;" id="ss-prog-val">0 / 15장</span>
+  </div>
+  <div class="grid" id="ss-grid" style="padding:0;"></div>
+</div>
 
 <!-- 상세 모달 -->
 <div class="overlay" id="overlay">
@@ -164,17 +174,37 @@ const db   = getFirestore(app);
 
 const CATS = ['금동','금별','금실','낑깡','닉','달이','랑이','랭이','레오','레첼',
               '먼지','모아','모찌','무디','뭉이','백설','버즈','베리','부엉','블루',
-              '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','절미',
-              '주디','지니','치즈','콩떡','쿠미','티코','파인','페너','플래시','호떡','호시']
+              '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','연탄',
+              '온별','절미','주디','지니','치즈','콩떡','쿠미','티코','파인','페너',
+              '플래시','호떡','호시']
              .sort((a,b)=>a.localeCompare(b,'ko'));
 
-const CAT_SLUG = {'금동':'geumdong','금별':'geumbyeol','금실':'geumsil','낑깡':'kkingkang','닉':'nik','달이':'dari','랑이':'rangi','랭이':'raengi','레오':'leo','레첼':'rechel','먼지':'meonji','모아':'moa','모찌':'mocchi','무디':'mudi','뭉이':'mungyi','백설':'baekseol','버즈':'beojeu','베리':'beri','부엉':'bueong','블루':'beullyu','비니':'bini','샤인':'shayin','소고':'sogo','시니':'shini','실버':'silbeo','써클':'sseokeul','앤디':'aendi','엘크':'elkeuri','여비':'yeobi','절미':'jeolmi','주디':'judi','지니':'jini','치즈':'chijeu','콩떡':'kongddeok','쿠미':'kumi','티코':'tikko','파인':'pain','페너':'fener','플래시':'peullaeswi','호떡':'hotteok','호시':'hoshi'};
+const SS_CATS = ['먼지킨','배부른절미','버즈소고','샤인여비','써클2','어린낑깡',
+                 '어린엘크','어린페너','유혹샤인','자는버즈','자는치즈','콩떡랭이',
+                 '탈옥백설','페너앤디','호시확대'];
+
+const CAT_SLUG = {
+  '금동':'geumdong','금별':'geumbyeol','금실':'geumsil','낑깡':'kkingkang',
+  '닉':'nik','달이':'dari','랑이':'rangi','랭이':'raengi','레오':'leo','레첼':'rechel',
+  '먼지':'meonji','모아':'moa','모찌':'mocchi','무디':'mudi','뭉이':'mungyi',
+  '백설':'baekseol','버즈':'buzz','베리':'berry','부엉':'buweong','블루':'blue',
+  '비니':'bini','샤인':'shine','소고':'sogo','시니':'shini','실버':'silver',
+  '써클':'circle','앤디':'andy','엘크':'elk','여비':'yeobi','연탄':'yeontan',
+  '온별':'onbyeol','절미':'jeolmi','주디':'judi','지니':'jini','치즈':'cheese',
+  '콩떡':'kongddeok','쿠미':'kumi','티코':'tico','파인':'pine','페너':'fenner',
+  '플래시':'flash','호떡':'hotteok','호시':'hosi',
+  '먼지킨':'meonji_kin','배부른절미':'jeolmi_fat','버즈소고':'buzz_sogo',
+  '샤인여비':'shine_yeobi','써클2':'circle2','어린낑깡':'kkingkang_baby',
+  '어린엘크':'elk_baby','어린페너':'fenner_baby','유혹샤인':'shine_seduce',
+  '자는버즈':'buzz_sleep','자는치즈':'cheese_sleep','콩떡랭이':'kongddeok_raengi',
+  '탈옥백설':'baekseol_escape','페너앤디':'fenner_andy','호시확대':'hosi_zoom'
+};
 const GRADES = ['C','B','A','S','SS'];
 const GRADE_COLORS = {C:'linear-gradient(135deg,#757575,#9E9E9E)',B:'linear-gradient(135deg,#388E3C,#66BB6A)',A:'linear-gradient(135deg,#1565C0,#42A5F5)',S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',SS:'linear-gradient(135deg,#F57F17,#FFD54F)'};
 const GRADE_NAMES  = {C:'일반',B:'희귀',A:'레어',S:'슈퍼레어',SS:'초희귀'};
 const GRADE_TEXT   = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#FFD700'};
-const TOTAL_CATS  = CATS.length;
-const TOTAL_CARDS = CATS.length * GRADES.length;
+const TOTAL_CATS  = CATS.length;      // 43
+const TOTAL_CARDS = CATS.length * GRADES.length + SS_CATS.length; // 43×5 + 15 = 230
 
 // Firestore 원본 — localStorage 불사용
 let collection = {};
@@ -211,6 +241,7 @@ function render(){
   grid.innerHTML = '';
   let catsUnlocked=0, cardsUnlocked=0;
 
+  // ── 일반 고양이 43마리 ──
   CATS.forEach(cat=>{
     const best = getBestGrade(cat);
     const hasAny = !!best;
@@ -246,35 +277,93 @@ function render(){
         <div style="font-size:24px;">🔒</div>
         <div class="cat-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
     }
-    card.addEventListener('click', ()=>openModal(cat));
+    card.addEventListener('click', ()=>openModal(cat, false));
     grid.appendChild(card);
+  });
+
+  // ── SS 스페셜 카드 15장 ──
+  const ssGrid = document.getElementById('ss-grid');
+  ssGrid.innerHTML = '';
+  let ssUnlocked = 0;
+
+  SS_CATS.forEach(cat=>{
+    const key = cat+'_SS';
+    const obtained = !!discovered[key];
+    if(obtained){ ssUnlocked++; cardsUnlocked++; }
+
+    const card = document.createElement('div');
+    if(obtained){
+      card.className = 'cat-card unlocked card-SS';
+      const slug = CAT_SLUG[cat]||cat;
+      const imgSrc = 'images/cats/ss/'+slug+'.webp';
+      card.innerHTML = `
+        <div class="card-frame"></div>
+        <div class="card-shimmer"></div>
+        <div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>
+        <div class="card-photo" style="height:65%;padding:0;overflow:hidden;">
+          <img src="${imgSrc}" loading="lazy" decoding="async"
+            style="width:100%;height:100%;object-fit:cover;"
+            onerror="this.style.display='none';this.parentNode.innerHTML+='⭐';">
+        </div>
+        <div class="card-info">
+          <div class="cat-name" style="font-size:10px;">${cat}</div>
+          <div class="grade-badge">SS</div>
+        </div>`;
+    } else {
+      card.className = 'cat-card locked';
+      card.innerHTML = `
+        <div style="font-size:24px;">🔒</div>
+        <div class="cat-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
+    }
+    card.addEventListener('click', ()=>openModal(cat, true));
+    ssGrid.appendChild(card);
   });
 
   document.getElementById('cat-prog-val').textContent  = catsUnlocked+' / '+TOTAL_CATS+'마리';
   document.getElementById('card-prog-val').textContent = cardsUnlocked+' / '+TOTAL_CARDS+'장';
+  document.getElementById('ss-prog-val').textContent   = ssUnlocked+' / '+SS_CATS.length+'장';
   document.getElementById('cat-prog-bar').style.width  = (catsUnlocked/TOTAL_CATS*100).toFixed(1)+'%';
   document.getElementById('card-prog-bar').style.width = (cardsUnlocked/TOTAL_CARDS*100).toFixed(1)+'%';
 }
 
-function openModal(cat){
+function openModal(cat, isSsOnly){
   document.getElementById('modal-name').textContent = cat;
   const list = document.getElementById('modal-grades');
   list.innerHTML = '';
-  GRADES.slice().reverse().forEach(g=>{
-    const obtained = !!discovered[cat+'_'+g];
-    const cnt = collection[cat+'_'+g] || 0;
+
+  if(isSsOnly){
+    // SS 스페셜 카드 — SS 등급만 표시
+    const obtained = !!discovered[cat+'_SS'];
+    const cnt = collection[cat+'_SS'] || 0;
     const row = document.createElement('div');
     row.className = 'grade-row '+(obtained?'collected':'not-collected');
-    if(obtained) row.style.background = GRADE_COLORS[g];
+    if(obtained) row.style.background = GRADE_COLORS['SS'];
     row.innerHTML = `
-      <div class="grade-badge" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${g}</div>
+      <div class="grade-badge" style="color:${obtained?GRADE_TEXT['SS']:'#9E7C70'}">SS</div>
       <div class="grade-info">
-        <div class="grade-name" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${GRADE_NAMES[g]}</div>
-        ${cnt>0?`<div class="grade-count" style="color:${GRADE_TEXT[g]}">${cnt}장 보유</div>`:obtained?`<div class="grade-count" style="color:${GRADE_TEXT[g]}">획득 완료 (합성 소비됨)</div>`:''}
+        <div class="grade-name" style="color:${obtained?GRADE_TEXT['SS']:'#9E7C70'}">초희귀 스페셜</div>
+        ${cnt>0?`<div class="grade-count" style="color:${GRADE_TEXT['SS']}">${cnt}장 보유</div>`:obtained?`<div class="grade-count" style="color:${GRADE_TEXT['SS']}">획득 완료</div>`:'<div class="grade-count" style="color:#9E7C70">가챠로만 획득 가능</div>'}
       </div>
       <div class="grade-lock">${obtained?'✓':'🔒'}</div>`;
     list.appendChild(row);
-  });
+  } else {
+    // 일반 고양이 — 5등급 모두 표시
+    GRADES.slice().reverse().forEach(g=>{
+      const obtained = !!discovered[cat+'_'+g];
+      const cnt = collection[cat+'_'+g] || 0;
+      const row = document.createElement('div');
+      row.className = 'grade-row '+(obtained?'collected':'not-collected');
+      if(obtained) row.style.background = GRADE_COLORS[g];
+      row.innerHTML = `
+        <div class="grade-badge" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${g}</div>
+        <div class="grade-info">
+          <div class="grade-name" style="color:${obtained?GRADE_TEXT[g]:'#9E7C70'}">${GRADE_NAMES[g]}</div>
+          ${cnt>0?`<div class="grade-count" style="color:${GRADE_TEXT[g]}">${cnt}장 보유</div>`:obtained?`<div class="grade-count" style="color:${GRADE_TEXT[g]}">획득 완료 (합성 소비됨)</div>`:''}
+        </div>
+        <div class="grade-lock">${obtained?'✓':'🔒'}</div>`;
+      list.appendChild(row);
+    });
+  }
   document.getElementById('overlay').classList.add('open');
 }
 

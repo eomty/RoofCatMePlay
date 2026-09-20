@@ -225,11 +225,31 @@ const db   = getFirestore(app);
 
 const CATS = ['금동','금별','금실','낑깡','닉','달이','랑이','랭이','레오','레첼',
               '먼지','모아','모찌','무디','뭉이','백설','버즈','베리','부엉','블루',
-              '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','절미',
-              '주디','지니','치즈','콩떡','쿠미','티코','파인','페너','플래시','호떡','호시']
+              '비니','샤인','소고','시니','실버','써클','앤디','엘크','여비','연탄',
+              '온별','절미','주디','지니','치즈','콩떡','쿠미','티코','파인','페너',
+              '플래시','호떡','호시']
              .sort((a,b)=>a.localeCompare(b,'ko'));
 
-const CAT_SLUG = {'금동':'geumdong','금별':'geumbyeol','금실':'geumsil','낑깡':'kkingkang','닉':'nik','달이':'dari','랑이':'rangi','랭이':'raengi','레오':'leo','레첼':'rechel','먼지':'meonji','모아':'moa','모찌':'mocchi','무디':'mudi','뭉이':'mungyi','백설':'baekseol','버즈':'beojeu','베리':'beri','부엉':'bueong','블루':'beullyu','비니':'bini','샤인':'shayin','소고':'sogo','시니':'shini','실버':'silbeo','써클':'sseokeul','앤디':'aendi','엘크':'elkeuri','여비':'yeobi','절미':'jeolmi','주디':'judi','지니':'jini','치즈':'chijeu','콩떡':'kongddeok','쿠미':'kumi','티코':'tikko','파인':'pain','페너':'fener','플래시':'peullaeswi','호떡':'hotteok','호시':'hoshi'};
+const SS_CATS = ['먼지킨','배부른절미','버즈소고','샤인여비','써클2','어린낑깡',
+                 '어린엘크','어린페너','유혹샤인','자는버즈','자는치즈','콩떡랭이',
+                 '탈옥백설','페너앤디','호시확대'];
+
+const CAT_SLUG = {
+  '금동':'geumdong','금별':'geumbyeol','금실':'geumsil','낑깡':'kkingkang',
+  '닉':'nik','달이':'dari','랑이':'rangi','랭이':'raengi','레오':'leo','레첼':'rechel',
+  '먼지':'meonji','모아':'moa','모찌':'mocchi','무디':'mudi','뭉이':'mungyi',
+  '백설':'baekseol','버즈':'buzz','베리':'berry','부엉':'buweong','블루':'blue',
+  '비니':'bini','샤인':'shine','소고':'sogo','시니':'shini','실버':'silver',
+  '써클':'circle','앤디':'andy','엘크':'elk','여비':'yeobi','연탄':'yeontan',
+  '온별':'onbyeol','절미':'jeolmi','주디':'judi','지니':'jini','치즈':'cheese',
+  '콩떡':'kongddeok','쿠미':'kumi','티코':'tico','파인':'pine','페너':'fenner',
+  '플래시':'flash','호떡':'hotteok','호시':'hosi',
+  '먼지킨':'meonji_kin','배부른절미':'jeolmi_fat','버즈소고':'buzz_sogo',
+  '샤인여비':'shine_yeobi','써클2':'circle2','어린낑깡':'kkingkang_baby',
+  '어린엘크':'elk_baby','어린페너':'fenner_baby','유혹샤인':'shine_seduce',
+  '자는버즈':'buzz_sleep','자는치즈':'cheese_sleep','콩떡랭이':'kongddeok_raengi',
+  '탈옥백설':'baekseol_escape','페너앤디':'fenner_andy','호시확대':'hosi_zoom'
+};
 const GRADES = ['C','B','A','S','SS'];
 const GRADE_COLORS = {C:'linear-gradient(135deg,#757575,#9E9E9E)',B:'linear-gradient(135deg,#388E3C,#66BB6A)',A:'linear-gradient(135deg,#1565C0,#42A5F5)',S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',SS:'linear-gradient(135deg,#F57F17,#FFD54F)'};
 const GRADE_TEXT   = {C:'#fff',B:'#fff',A:'#fff',S:'#fff',SS:'#FFD700'};
@@ -284,7 +304,8 @@ function drawOne(){
   else if(r<20) grade='A';
   else if(r<50) grade='B';
   else           grade='C';
-  const cat=CATS[Math.floor(Math.random()*CATS.length)];
+  const pool = grade==='SS' ? [...CATS,...SS_CATS] : CATS;
+  const cat  = pool[Math.floor(Math.random()*pool.length)];
   return {cat,grade};
 }
 
@@ -473,7 +494,10 @@ function updateMergeCounter(){
 
 window.confirmMerge = async function(){
   if(isMerging||totalSel()!==3) return;
-  const nextGrade=GRADES[GRADES.indexOf(mergeGrade)+1];
+  // 레이스 컨디션 방지: 트랜잭션 전에 상태 스냅샷
+  const sourceGrade = mergeGrade;
+  const selection   = {...selCount};
+  const nextGrade=GRADES[GRADES.indexOf(sourceGrade)+1];
   if(!nextGrade){ showToast('이미 최고 등급이에요!'); return; }
 
   isMerging=true;
@@ -490,18 +514,18 @@ window.confirmMerge = async function(){
       const data=snap.data();
       const newColl={...(data.collection||{})};
 
-      // 보유 검증 (트랜잭션 내에서 재확인)
+      // 보유 검증 (트랜잭션 내에서 스냅샷 기준으로 재확인)
       let total=0;
-      for(const [cat,cnt] of Object.entries(selCount)){
-        const have=newColl[cat+'_'+mergeGrade]||0;
+      for(const [cat,cnt] of Object.entries(selection)){
+        const have=newColl[cat+'_'+sourceGrade]||0;
         if(have<cnt) throw new Error('INSUFFICIENT_CARDS');
         total+=cnt;
       }
       if(total!==3) throw new Error('INVALID_SELECTION');
 
       // 소비
-      for(const [cat,cnt] of Object.entries(selCount)){
-        const key=cat+'_'+mergeGrade;
+      for(const [cat,cnt] of Object.entries(selection)){
+        const key=cat+'_'+sourceGrade;
         newColl[key]=(newColl[key]||0)-cnt;
         if(newColl[key]<=0) delete newColl[key];
       }
