@@ -27,18 +27,31 @@
     .progress-bar-fill{height:100%;border-radius:4px;background:var(--red);transition:width .6s ease;}
 
     /* 그리드 */
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:8px 16px 0;width:100%;max-width:360px;}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 16px 0;width:100%;max-width:360px;}
 
     /* 카드 */
-    .cat-card{border-radius:14px;aspect-ratio:.75;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;cursor:pointer;position:relative;overflow:hidden;min-height:0;-webkit-tap-highlight-color:transparent;transition:transform .15s;}
+    .cat-card{border-radius:12px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;cursor:pointer;position:relative;overflow:hidden;min-height:0;-webkit-tap-highlight-color:transparent;transition:transform .15s;}
     .cat-card:active{transform:scale(.93);}
-    .cat-card.locked{background:#e8e0d8;border:2px dashed rgba(158,124,112,.3);align-items:center;justify-content:center;gap:5px;}
+    .cat-card.locked{background:#e8e0d8;border:2px dashed rgba(158,124,112,.3);align-items:center;justify-content:center;gap:5px;min-height:148px;}
     .cat-card.unlocked{box-shadow:0 2px 10px rgba(0,0,0,.15);}
-    .cat-card .card-photo{width:100%;height:65%;flex:0 0 65%;overflow:hidden;}
-    .cat-card .card-info{width:100%;height:35%;flex:0 0 35%;overflow:hidden;}
+    /* 사진 영역 */
+    .cat-card .card-photo{width:100%;height:76px;flex:0 0 76px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;}
+    /* 상단 타입 바 */
+    .cat-card .card-topbar{width:100%;flex:0 0 18px;display:flex;align-items:center;justify-content:space-between;padding:0 6px;background:rgba(0,0,0,.25);}
+    .ct-type{font-size:7px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.06em;}
+    .ct-grade{font-size:7px;font-weight:900;color:#fff;}
+    /* 설명 박스 */
+    .cat-card .card-desc{width:100%;flex:0 0 auto;padding:4px 6px 3px;background:rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px;overflow:hidden;}
+    .cd-text{font-size:7px;line-height:1.5;color:rgba(255,255,255,.85);word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .cd-tags{display:flex;gap:3px;flex-wrap:wrap;}
+    .cd-tag{font-size:6px;font-weight:700;padding:1px 4px;border-radius:8px;background:rgba(255,255,255,.13);color:rgba(255,255,255,.75);}
+    /* 하단 등급 바 */
+    .cat-card .card-footer-bar{width:100%;flex:0 0 20px;display:flex;align-items:center;justify-content:space-between;padding:0 6px;}
+    .cf-name{font-size:7.5px;font-weight:700;}
+    .cf-stars{font-size:7px;letter-spacing:1px;}
+    /* 잠금 */
     .card-emoji{font-size:22px;line-height:1;}
     .card-name{font-size:10px;font-weight:700;text-align:center;line-height:1.2;}
-    .card-grade-badge{position:absolute;top:5px;right:5px;font-size:9px;font-weight:900;padding:2px 5px;border-radius:6px;background:rgba(0,0,0,.2);color:#fff;}
     .locked .card-name{color:rgba(158,124,112,.6);}
     #grid{margin-bottom:24px;}
 
@@ -59,41 +72,61 @@
     .grade-lock{font-size:18px;margin-left:auto;}
     .close-btn{background:none;border:1.5px solid #e0d8d4;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;color:var(--muted);font-family:inherit;}
   
-/* ── 등급별 카드 디자인 ───────────────────────────── */
-.card-C .card-photo{background:linear-gradient(180deg,#424242,#616161);}
-.card-C .card-info{background:#757575;}
-.card-C .card-frame{border:2px solid #9E9E9E;}
-.card-C .grade-badge{background:rgba(255,255,255,.15);color:#e0e0e0;}
+/* ── 등급별 카드 배경 ───────────────────────────── */
+.card-C{background:linear-gradient(160deg,#424242,#757575,#424242);}
+.card-C .card-footer-bar{background:#757575;}
+.card-C .cf-name,.card-C .cf-stars{color:#e0e0e0;}
 
-.card-B .card-photo{background:linear-gradient(180deg,#1B5E20,#388E3C);}
-.card-B .card-info{background:#388E3C;}
-.card-B .card-frame{border:2px solid #66BB6A;}
-.card-B .grade-badge{background:rgba(255,255,255,.15);color:#C8E6C9;}
+.card-B{background:linear-gradient(160deg,#1B5E20,#388E3C,#1B5E20);}
+.card-B .card-footer-bar{background:#388E3C;}
+.card-B .cf-name,.card-B .cf-stars{color:#C8E6C9;}
 
-.card-A .card-photo{background:linear-gradient(180deg,#0D47A1,#1565C0);}
-.card-A .card-info{background:#1565C0;}
-.card-A .card-frame{border:2px solid #42A5F5;box-shadow:0 0 10px rgba(66,165,245,.35);}
-.card-A .grade-badge{background:rgba(255,255,255,.15);color:#BBDEFB;}
+.card-A{background:linear-gradient(160deg,#0D47A1,#1976D2,#0D47A1);}
+.card-A .card-footer-bar{background:#1565C0;}
+.card-A .cf-name,.card-A .cf-stars{color:#BBDEFB;}
 
-.card-S .card-photo{background:linear-gradient(180deg,#4A148C,#6A1B9A);}
-.card-S .card-info{background:#6A1B9A;}
-.card-S .card-frame{border:2px solid #CE93D8;animation:pulseS 2s ease-in-out infinite;}
-.card-S .grade-badge{background:rgba(255,255,255,.15);color:#E1BEE7;}
-@keyframes pulseS{0%,100%{box-shadow:0 0 10px rgba(206,147,216,.5)}50%{box-shadow:0 0 22px rgba(206,147,216,.9)}}
+.card-S{background:linear-gradient(160deg,#4A148C,#6A1B9A,#4A148C);}
+.card-S .card-footer-bar{background:#6A1B9A;}
+.card-S .cf-name,.card-S .cf-stars{color:#E1BEE7;}
+.card-S{animation:glowS 2.5s ease-in-out infinite;}
+@keyframes glowS{0%,100%{box-shadow:0 4px 16px rgba(206,147,216,.35)}50%{box-shadow:0 4px 28px rgba(206,147,216,.7)}}
 
-.card-SS .card-photo{background:linear-gradient(160deg,#b71c1c,#e65100,#f57f17,#1b5e20,#0d47a1,#4a148c);}
-.card-SS .card-info{background:linear-gradient(90deg,#b71c1c,#e65100,#f9a825,#1b5e20,#0d47a1,#6a1b9a);}
-.card-SS .card-frame{border:2px solid #FFD700;box-shadow:0 0 14px rgba(255,215,0,.7),inset 0 0 8px rgba(255,215,0,.1);animation:ssGlow 2s ease-in-out infinite;}
-@keyframes ssGlow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.5)}50%{box-shadow:0 0 22px rgba(255,215,0,.95)}}
-.card-SS .grade-badge{background:rgba(255,215,0,.25);color:#FFD700;border:1px solid rgba(255,215,0,.4);}
-.card-SS .cat-name{text-shadow:0 0 8px rgba(255,215,0,.6);}
-.card-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 3s ease-in-out infinite;pointer-events:none;}
+.card-SS{background:linear-gradient(160deg,#7b1212,#b71c1c,#4a148c,#1a237e);}
+.card-SS .card-footer-bar{background:linear-gradient(90deg,#b71c1c,#e65100,#f9a825,#1b5e20,#1a237e);}
+.card-SS .cf-name,.card-SS .cf-stars{color:#FFD700;}
+.card-SS{animation:glowSS 2s ease-in-out infinite;}
+@keyframes glowSS{0%,100%{box-shadow:0 4px 14px rgba(255,215,0,.3)}50%{box-shadow:0 4px 28px rgba(255,215,0,.8)}}
+.card-border-inner{position:absolute;inset:0;border-radius:12px;pointer-events:none;z-index:10;border:1.5px solid rgba(255,255,255,.18);}
+.card-S .card-border-inner{border-color:rgba(206,147,216,.45);}
+.card-SS .card-border-inner{border-color:rgba(255,215,0,.65);}
+
+/* 홀로그래픽 레이어 (S/SS CSS-only) */
+.holo-scan{position:absolute;inset:0;border-radius:12px;pointer-events:none;z-index:5;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0px,rgba(255,255,255,.025) 1px,transparent 1px,transparent 4px);
+  opacity:0;transition:opacity .3s;}
+.holo-sheen{position:absolute;inset:0;border-radius:12px;pointer-events:none;z-index:6;
+  background:conic-gradient(from 0deg,#ff0080,#ff8c00,#ffd700,#00ff80,#00bfff,#8000ff,#ff0080);
+  opacity:0;mix-blend-mode:color-dodge;filter:blur(3px);transition:opacity .3s;}
+.holo-glare{position:absolute;inset:0;border-radius:12px;pointer-events:none;z-index:7;
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.22) 0%,transparent 55%);
+  opacity:0;transition:opacity .3s;}
+.cat-card:hover .holo-scan,.cat-card:active .holo-scan{opacity:1;}
+.cat-card:hover .holo-glare,.cat-card:active .holo-glare{opacity:1;}
+.card-S:hover .holo-sheen,.card-S:active .holo-sheen{opacity:.12;}
+.card-SS:hover .holo-sheen,.card-SS:active .holo-sheen{opacity:.28;}
+
+/* SS 스파클 */
+.holo-sparkle{position:absolute;inset:0;pointer-events:none;z-index:8;border-radius:12px;
+  background-image:radial-gradient(circle,rgba(255,255,255,.9) 1px,transparent 1px),
+                   radial-gradient(circle,rgba(255,255,255,.6) 1px,transparent 1px);
+  background-size:22px 22px,14px 14px;background-position:0 0,7px 7px;
+  opacity:0;mix-blend-mode:screen;transition:opacity .3s;}
+.card-SS:hover .holo-sparkle,.card-SS:active .holo-sparkle{opacity:.55;}
+.card-S:hover .holo-sparkle,.card-S:active .holo-sparkle{opacity:.22;}
+
+/* 기존 shimmer (SS 카드용) */
+.card-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shimmer 3.5s ease-in-out infinite;pointer-events:none;z-index:9;}
 @keyframes shimmer{0%{left:-100%}40%,100%{left:200%}}
-.card-stars{position:absolute;top:8px;right:8px;display:flex;gap:2px;}
-.card-star{font-size:10px;color:#FFD700;animation:twinkle 1.5s ease-in-out infinite;}
-.card-star:nth-child(2){animation-delay:.3s;}
-.card-star:nth-child(3){animation-delay:.6s;}
-@keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 
 /* 공통 카드 구조 */
 .single-card{width:160px;height:220px;border-radius:20px;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:popIn .4s ease;-webkit-tap-highlight-color:transparent;}
@@ -203,6 +236,69 @@ const CAT_SLUG = {
   '자는버즈':'buzz_sleep','자는치즈':'cheese_sleep','콩떡랭이':'kongddeok_raengi',
   '탈옥백설':'baekseol_escape','페너앤디':'fenner_andy','호시확대':'hosi_zoom'
 };
+// ── 고양이 설명 (임시 — 실제 문구로 교체 예정) ──
+const CAT_DESC = {
+  '금동':{desc:'황금빛 털이 햇살처럼 빛나는 카리스마 냥이. 무리 중 제일 의연하다.',traits:['👑 리더형','🌟 황금빛','😎 쿨함']},
+  '금별':{desc:'별처럼 반짝이는 눈을 가진 몽상가. 밤마다 창가에서 별을 센다.',traits:['⭐ 낭만파','🌙 별빛냥','🪟 창가지킴이']},
+  '금실':{desc:'비단처럼 부드러운 털의 소유자. 한번 마음 준 사람에게만 골골송을 틀어준다.',traits:['🎵 골골송','💛 고급스러움','🤝 선택적친화']},
+  '낑깡':{desc:'귤처럼 통통하고 사랑스러운 주황빛 냥이. 간식 냄새엔 귀신같이 달려온다.',traits:['🍊 주황빛털','🍗 간식러버','🌀 애교왕']},
+  '닉':{desc:'쿨한 이름만큼 쿨한 성격. 하지만 배고프면 먼저 다가오는 츤데레.',traits:['😏 츤데레','🎸 쿨가이','🙈 배고프면약해짐']},
+  '달이':{desc:'달처럼 둥글고 포근한 흰 냥이. 누구에게나 살랑살랑 다가가는 사교왕.',traits:['🌕 달빛냥','🤗 사교적','☁️ 포근함']},
+  '랑이':{desc:'호랑이 무늬를 가진 당찬 냥이. 겉보기엔 무섭지만 속은 물러터졌다.',traits:['🐯 호랑이무늬','💪 당차보임','🍮 속은물렁']},
+  '랭이':{desc:'느긋하고 여유로운 일상을 즐기는 냥이. 항상 최적의 낮잠 자리를 알고 있다.',traits:['😴 낮잠장인','🛋️ 여유로움','📍 명당전문가']},
+  '레오':{desc:'이름처럼 사자 같은 갈기를 가진 위풍당당 냥이. 사실은 겁쟁이.',traits:['🦁 갈기자랑','😨 은근겁쟁이','👀 허세']},
+  '레첼':{desc:'우아한 몸짓으로 카페를 순찰하는 고급스러운 냥이. 아무 자리에나 앉지 않는다.',traits:['💎 우아함','🚶 순찰대장','🪑 자리선별']},
+  '먼지':{desc:'이름처럼 솜털 같은 털을 가진 작고 소중한 냥이. 먼지처럼 어느새 무릎 위에 있다.',traits:['☁️ 솜털뭉치','🦋 은밀한접근','🔎 미니멀체형']},
+  '모아':{desc:'모으고 쌓는 걸 좋아하는 탐사형 냥이. 장난감을 한 곳에 모아두는 이상한 버릇이 있다.',traits:['🗂️ 수집가','🔍 탐사형','🧸 장난감수집']},
+  '모찌':{desc:'이름처럼 찰지고 통통한 냥이. 안아주면 mochi처럼 쫀득하게 안겨있는다.',traits:['🍡 쫀득함','🤗 안기기전문','😊 행복냥']},
+  '무디':{desc:'기분 변화가 심한 냥이. 1분 전까지 골골대다가 갑자기 도망가기도 한다.',traits:['🌦️ 기분파','⚡ 변덕쟁이','😸→😾 시시각각']},
+  '뭉이':{desc:'뭉실뭉실 털이 풍성한 포근한 냥이. 카페 어디서든 가장 사진이 잘 나온다.',traits:['📸 포토제닉','🌨️ 털뭉치','💤 포근함']},
+  '백설':{desc:'새하얀 털을 가진 청순한 냥이. 깨끗한 걸 유독 좋아해 그루밍을 하루 종일 한다.',traits:['❄️ 순백','✨ 그루밍마니아','👸 청순함']},
+  '버즈':{desc:'호기심이 버즈처럼 넘치는 탐험가 냥이. 새로운 손님이 오면 제일 먼저 인사하러 온다.',traits:['🚀 탐험가','👋 첫인사담당','🔔 호기심만렙']},
+  '베리':{desc:'달콤한 이름처럼 사람을 좋아하는 애정 넘치는 냥이. 혼자 있으면 우는 소리를 낸다.',traits:['🍓 달콤함','💕 애정과다','😢 외로움타는편']},
+  '부엉':{desc:'크고 동그란 눈이 부엉이 같은 냥이. 밤에 특히 활발해지는 야행성 기질.',traits:['🦉 부엉이눈','🌙 야행성','👁️ 큰눈']},
+  '블루':{desc:'회청빛 털을 가진 시크한 냥이. 좋아하는 사람에게만 조용히 곁을 내어준다.',traits:['🩵 블루그레이','🧊 시크함','🤫 조용한친밀함']},
+  '비니':{desc:'이름처럼 동글동글한 얼굴의 귀여운 냥이. 작은 소리에도 큰 반응을 보인다.',traits:['🎪 리액션왕','🫧 동글동글','😲 예민한귀']},
+  '샤인':{desc:'햇살 아래 빛나는 금빛 털의 소유자. 무엇이든 반짝이는 것에 집착한다.',traits:['✨ 샤이닝','🌞 햇살냥','💍 반짝이집착']},
+  '소고':{desc:'조용하지만 눈빛으로 모든 걸 말하는 깊은 영혼의 냥이. 관찰하는 걸 좋아한다.',traits:['👁️ 관찰자','🔇 조용함','🌊 깊은영혼']},
+  '시니':{desc:'청록빛 눈을 가진 신비로운 냥이. 어디서 왔는지 아무도 모른다는 소문.',traits:['💚 청록빛눈','🌀 신비로움','❓ 미스터리']},
+  '실버':{desc:'은빛 털이 반짝이는 기품 있는 냥이. 느긋하게 카페를 거닐며 손님을 살핀다.',traits:['🥈 실버빛','🎩 기품','🚶 산책냥']},
+  '써클':{desc:'동그란 무늬가 매력적인 냥이. 빙글빙글 돌며 노는 걸 좋아해서 써클이라는 이름이 붙었다.',traits:['⭕ 동그라미','🌀 빙글빙글','🎡 놀이광']},
+  '앤디':{desc:'친근하고 붙임성 좋은 만인의 친구. 처음 본 손님에게도 스스럼없이 다가온다.',traits:['🤝 친화력갑','😄 활발함','👐 만인의친구']},
+  '엘크':{desc:'긴 다리가 엘크처럼 우아한 냥이. 높은 곳을 특히 좋아하는 등산가 기질.',traits:['🦌 긴다리','🏔️ 높은곳좋아','🧗 등산가기질']},
+  '여비':{desc:'여우 같은 영리함을 가진 냥이. 간식을 얻기 위한 눈빛 연기는 타의 추종을 불허한다.',traits:['🦊 여우같은영리함','🎭 눈빛연기','🍗 간식작전가']},
+  '연탄':{desc:'검은 털이 연탄처럼 까맣고 윤기 나는 냥이. 겉은 새까맣지만 속은 따뜻하다.',traits:['🖤 새까만털','🔥 속은따뜻','✨ 윤기나는']},
+  '온별':{desc:'포근한 온기를 가진 별같은 냥이. 추운 날 이 아이 곁에 있으면 마음까지 녹는다.',traits:['⭐ 별빛','🌡️ 온기','💛 마음따뜻']},
+  '절미':{desc:'절 같은 고요함을 가진 냥이. 오랜 시간 한 자리에서 명상하듯 앉아있는 걸 좋아한다.',traits:['🧘 명상냥','🕯️ 고요함','⏳ 인내심']},
+  '주디':{desc:'활발하고 명랑한 낙천적 냥이. 언제나 꼬리를 높이 세우고 씩씩하게 걷는다.',traits:['💃 활발함','☀️ 낙천적','🚩 꼬리높이세움']},
+  '지니':{desc:'도도하지만 마음을 열면 반전 매력을 보이는 냥이. 창가 해 바라기를 즐긴다.',traits:['😤 도도함','☀️ 햇빛파','🔄 반전매력']},
+  '치즈':{desc:'노랗고 달콤한 치즈색 털을 가진 식탐냥이. 항상 간식 타임을 기다리고 있다.',traits:['🧀 치즈색','🍽️ 식탐','⏰ 간식타임대기']},
+  '콩떡':{desc:'콩알처럼 작은 체구의 앙증맞은 냥이. 작지만 누구보다 대담하게 돌아다닌다.',traits:['🫘 콩알체구','💪 대담함','🐾 탐험가']},
+  '쿠미':{desc:'쿠션처럼 폭신한 털의 냥이. 어디든 쿠션을 찾아 눕는 안락함 추구자.',traits:['🛏️ 폭신함','😌 안락추구','🌸 느긋함']},
+  '티코':{desc:'경쾌하게 움직이는 발랄한 냥이. 카페 안을 누구보다 빠르게 순찰한다.',traits:['⚡ 빠름','🏃 활동파','🔔 경쾌함']},
+  '파인':{desc:'파인애플처럼 겉은 까칠하지만 속은 달콤한 냥이. 친해지면 의외로 스킨십을 즐긴다.',traits:['🍍 겉까칠속달콤','🙄 까칠한척','💗 스킨십은좋아']},
+  '페너':{desc:'페넥여우를 닮은 큰 귀를 가진 냥이. 아주 작은 소리도 귀신같이 알아챈다.',traits:['👂 큰귀','🦊 페넥닮음','🔊 초음파청력']},
+  '플래시':{desc:'번개처럼 빠르게 사라지는 냥이. 눈 깜짝할 새 사라져 어디 있는지 찾아야 한다.',traits:['⚡ 번개속도','👻 은신의달인','🔍 찾아보세요']},
+  '호떡':{desc:'호떡처럼 둥글고 달달한 냥이. 따뜻한 것을 좋아하고 늘 난방 근처에서 발견된다.',traits:['🥞 호떡닮음','🔥 온기덕후','😊 달달함']},
+  '호시':{desc:'별처럼 빛나는 눈을 가진 냥이. 반짝이는 장난감에 누구보다 진심으로 반응한다.',traits:['⭐ 빛나는눈','🎯 장난감진심','✨ 반짝이덕후']},
+  // SS 스페셜
+  '먼지킨':{desc:'먼지가 먹스킨처럼 변신한 전설의 형태. 솜털이 두 배가 되어 포근함도 두 배.',traits:['☁️ 솜털두배','✨ 전설의형태','🌟 포근함최강']},
+  '배부른절미':{desc:'절미가 간식을 너무 먹어 배가 빵빵해진 희귀 모습. 그래도 더 먹겠다는 눈빛.',traits:['🍽️ 과식모드','😋 더먹겠다눈빛','🐾 배부른행복']},
+  '버즈소고':{desc:'버즈와 소고가 함께하는 환상의 듀오 카드. 둘이 있으면 세상 무서울 게 없다.',traits:['👥 듀오카드','🤜🤛 환상의짝','💪 함께라면무적']},
+  '샤인여비':{desc:'샤인과 여비의 눈부신 콜라보. 반짝임과 영리함이 합쳐진 최강 조합.',traits:['✨ 눈부신콜라보','🦊 영리함','💡 최강조합']},
+  '써클2':{desc:'써클의 두 번째 형태. 빙글빙글 돌던 것이 진화해 이제는 공중제비도 가능하다.',traits:['⭕ 진화형','🌀 공중제비','🚀 업그레이드']},
+  '어린낑깡':{desc:'아기 때의 낑깡. 귤보다 더 작고 귀여운 모습. 이 모습을 본 사람은 심쿵한다고.',traits:['🍊 아기버전','💛 초귀여움','💘 심쿵보장']},
+  '어린엘크':{desc:'아기 때의 엘크. 아직 다리가 짧지만 이미 높은 곳을 올라가려 한다.',traits:['🦌 아기엘크','📏 짧은다리','🏔️ 포기모름']},
+  '어린페너':{desc:'아기 때의 페너. 귀가 이미 크지만 몸이 귀를 못 따라가고 있는 상태.',traits:['👂 귀가몸보다큰','🐣 아기형태','😂 불균형미']},
+  '유혹샤인':{desc:'샤인이 특별한 날 보여주는 유혹 모드. 눈빛 하나로 간식을 얻어내는 전문가.',traits:['💫 유혹모드','👁️ 최강눈빛','🍗 간식유도전문']},
+  '자는버즈':{desc:'쉬지 않던 버즈가 마침내 잠든 희귀한 모습. 이 순간을 목격하는 것만으로도 행운.',traits:['😴 희귀수면','🌟 목격은행운','🤫 방해금지']},
+  '자는치즈':{desc:'치즈가 간식을 기다리다 잠들어버린 모습. 꿈에서도 간식을 먹고 있을지 모른다.',traits:['😴 간식꿈꾸는중','🧀 치즈수면','💤 식탐은자면서도']},
+  '콩떡랭이':{desc:'콩떡과 랭이가 같이 낮잠 자는 최고의 힐링 카드. 보는 것만으로 피로가 풀린다.',traits:['💤 최고의낮잠','🫘🛋️ 콤비','💆 힐링보장']},
+  '탈옥백설':{desc:'청순한 백설이 탈출을 감행한 전설적인 순간. 아무도 어떻게 나왔는지 모른다.',traits:['🏃 탈출성공','❓ 탈출방법불명','❄️ 백설의반란']},
+  '페너앤디':{desc:'페너와 앤디의 최강 우정 카드. 큰 귀와 붙임성의 만남, 상대를 홀리는 콤비.',traits:['👐 최강우정','👂+😄 개성합체','💫 홀리는콤비']},
+  '호시확대':{desc:'호시의 반짝이는 눈을 클로즈업한 전설의 카드. 이 눈빛에 저항할 수 있는 인간은 없다.',traits:['👁️ 클로즈업눈빛','⭐ 저항불가','🌟 전설의눈빛']},
+};
+
 const GRADES = ['C','B','A','S','SS'];
 const GRADE_COLORS = {C:'linear-gradient(135deg,#757575,#9E9E9E)',B:'linear-gradient(135deg,#388E3C,#66BB6A)',A:'linear-gradient(135deg,#1565C0,#42A5F5)',S:'linear-gradient(135deg,#6A1B9A,#BA68C8)',SS:'linear-gradient(135deg,#F57F17,#FFD54F)'};
 const GRADE_NAMES  = {C:'일반',B:'희귀',A:'레어',S:'슈퍼레어',SS:'초희귀'};
@@ -263,23 +359,38 @@ function render(){
       const imgOnerror = ss
         ? `this.src='${baseImg}';this.onerror=function(){this.style.display='none';this.parentNode.innerHTML+='🐱';};`
         : `this.style.display='none';this.parentNode.innerHTML+='🐱';`;
+      const desc = CAT_DESC[cat]||{desc:'루프캣미의 소중한 냥이.',traits:[]};
+      const gradeStars = {C:'★',B:'★★',A:'★★★',S:'★★★★',SS:'★★★★★'};
+      const gradeLabel = {C:'일반',B:'희귀',A:'레어',S:'슈퍼레어',SS:'초희귀'};
       card.innerHTML = `
-        <div class="card-frame"></div>
-        ${ss?'<div class="card-shimmer"></div><div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>':''}
-        <div class="card-photo" style="height:65%;padding:0;overflow:hidden;">
+        <div class="holo-scan"></div>
+        <div class="holo-sheen"></div>
+        <div class="holo-sparkle"></div>
+        <div class="holo-glare"></div>
+        <div class="card-border-inner"></div>
+        ${ss?'<div class="card-shimmer"></div>':''}
+        <div class="card-topbar">
+          <span class="ct-type">루프캣미</span>
+          <span class="ct-grade">${cat}</span>
+        </div>
+        <div class="card-photo" style="padding:0;">
           <img src="${imgSrc}" loading="lazy" decoding="async"
             style="width:100%;height:100%;object-fit:cover;"
             onerror="${imgOnerror}">
         </div>
-        <div class="card-info">
-          <div class="cat-name" style="font-size:11px;">${cat}</div>
-          <div class="grade-badge">${best}</div>
+        <div class="card-desc">
+          <span class="cd-text">${desc.desc}</span>
+          <div class="cd-tags">${desc.traits.slice(0,3).map(t=>`<span class="cd-tag">${t}</span>`).join('')}</div>
+        </div>
+        <div class="card-footer-bar">
+          <span class="cf-name">${gradeLabel[best]}</span>
+          <span class="cf-stars">${gradeStars[best]}</span>
         </div>`;
     } else {
       card.className = 'cat-card locked';
       card.innerHTML = `
         <div style="font-size:24px;">🔒</div>
-        <div class="cat-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
+        <div class="card-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
     }
     card.addEventListener('click', ()=>openModal(cat, false));
     grid.appendChild(card);
@@ -301,23 +412,30 @@ function render(){
       const slug = CAT_SLUG[cat]||cat;
       const imgSrc = 'images/cats/ss/'+slug+'.webp';
       card.innerHTML = `
-        <div class="card-frame"></div>
+        <div class="holo-scan"></div>
+        <div class="holo-sheen"></div>
+        <div class="holo-sparkle"></div>
+        <div class="holo-glare"></div>
+        <div class="card-border-inner"></div>
         <div class="card-shimmer"></div>
-        <div class="card-stars"><span class="card-star">✦</span><span class="card-star">✦</span><span class="card-star">✦</span></div>
-        <div class="card-photo" style="height:65%;padding:0;overflow:hidden;">
+        <div class="card-topbar">
+          <span class="ct-type">SS 스페셜</span>
+          <span class="ct-grade" style="color:#FFD700;">${cat}</span>
+        </div>
+        <div class="card-photo" style="padding:0;">
           <img src="${imgSrc}" loading="lazy" decoding="async"
             style="width:100%;height:100%;object-fit:cover;"
             onerror="this.style.display='none';this.parentNode.innerHTML+='⭐';">
         </div>
-        <div class="card-info">
-          <div class="cat-name" style="font-size:10px;">${cat}</div>
-          <div class="grade-badge">SS</div>
+        <div class="card-footer-bar">
+          <span class="cf-name">초희귀</span>
+          <span class="cf-stars">★★★★★</span>
         </div>`;
     } else {
       card.className = 'cat-card locked';
       card.innerHTML = `
         <div style="font-size:24px;">🔒</div>
-        <div class="cat-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
+        <div class="card-name" style="font-size:10px;color:rgba(158,124,112,.6);">${cat}</div>`;
     }
     card.addEventListener('click', ()=>openModal(cat, true));
     ssGrid.appendChild(card);
