@@ -5,100 +5,104 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
   <title>냥빙고 — ROOF CAT ME PLAY</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="rcm-theme.css">
   <style>
     html{color-scheme:light;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{
-      --red:#E8392A; --bg:#FFF8F2; --surface:#fff;
-      --text:#2A1A14; --muted:#9E7C70; --green:#4CAF50;
-    }
-    body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:60px;}
+    body{background:#fff;color:var(--ink);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+    .page{width:100%;max-width:480px;margin:0 auto;padding:0 20px;flex:1;}
 
-    /* 헤더 */
-    .hdr{width:100%;background:var(--red);color:#fff;padding:20px 20px 18px;text-align:center;}
-    .hdr-brand{font-size:11px;letter-spacing:.15em;opacity:.75;margin-bottom:4px;}
-    .hdr-title{font-size:26px;font-weight:900;}
-    .hdr-nick{font-size:13px;opacity:.85;margin-top:3px;}
-
-    /* 진행 */
-    .prog{display:flex;justify-content:space-between;width:100%;max-width:360px;padding:14px 20px 4px;font-size:13px;font-weight:700;color:var(--muted);}
-    .prog-bingo{color:var(--red);}
+    /* 소개 + 진행 */
+    .intro{display:flex;flex-direction:column;gap:6px;padding:22px 0 0;}
+    .nick{font-size:14px;color:var(--ink-soft);}
+    .intro p{font-size:14px;line-height:1.65;color:var(--ink-soft);word-break:keep-all;}
+    .prog{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0 4px;font-size:15px;font-weight:800;color:var(--ink-soft);}
+    .prog-bingo{color:var(--roof-text);}
 
     /* 그리드 */
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 16px 0;width:100%;max-width:360px;}
-    .cell{background:#fff;border-radius:14px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:8px 5px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.07);transition:transform .15s;position:relative;overflow:hidden;border:2px solid transparent;-webkit-tap-highlight-color:transparent;}
-    .cell:active{transform:scale(.93);}
-    .cell.done{background:#f0fbf0;border-color:#4CAF50;cursor:default;}
-    .cell-emoji{font-size:26px;line-height:1;}
-    .cell-name{font-size:10px;text-align:center;color:var(--text);line-height:1.3;font-weight:700;}
-    .cell-check{position:absolute;inset:0;background:rgba(76,175,80,.12);display:flex;align-items:center;justify-content:center;font-size:34px;}
-    @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:8px 0 0;width:100%;}
+    .cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:10px;border-radius:12px;background:#fff;border:1.5px solid var(--line);cursor:pointer;transition:transform .15s;-webkit-tap-highlight-color:transparent;overflow:hidden;}
+    .cell:active{transform:scale(.96);}
+    .cell:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+    .cell-name{font-size:13.5px;line-height:1.4;font-weight:700;color:var(--ink);text-align:center;word-break:keep-all;}
+    .cell.done{background:#FFF3EA;border-color:#E4572E;cursor:default;}
+    .cell.done .cell-name{color:#8A2B16;}
+    .cell-check{position:absolute;right:6px;bottom:6px;width:24px;height:24px;border-radius:50%;background:var(--roof-btn);display:flex;align-items:center;justify-content:center;}
+    @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
     .cell.just-done{animation:pop .4s ease;}
+    @media (prefers-reduced-motion:reduce){.cell.just-done{animation:none;}}
 
-    /* 리셋 */
-    .reset-btn{margin-top:22px;background:none;border:1.5px solid rgba(158,124,112,.3);border-radius:20px;color:var(--muted);font-size:12px;padding:8px 20px;cursor:pointer;font-family:inherit;}
+    .notes{display:flex;flex-direction:column;gap:6px;padding:18px 0 36px;font-size:12.5px;line-height:1.6;color:var(--ink-soft);text-align:center;word-break:keep-all;}
+    .reward{display:inline-block;align-self:center;padding:6px 14px;border-radius:999px;background:var(--ivory);border:1.5px solid var(--gold);font-weight:700;color:#8A2B16;}
 
     /* 오버레이 */
-    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:flex-end;justify-content:center;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(40,28,22,.55);z-index:1000;align-items:flex-end;justify-content:center;}
     .overlay.open{display:flex;}
-    .sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 24px 44px;display:flex;flex-direction:column;gap:14px;}
-    .sheet-handle{width:36px;height:4px;background:#e0d8d4;border-radius:2px;align-self:center;}
-    .sheet-emoji{font-size:40px;text-align:center;}
-    .sheet-name{font-size:18px;font-weight:900;color:var(--text);text-align:center;}
+    .sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:14px 20px 32px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow:auto;}
+    .sheet-handle{width:36px;height:4px;background:#E0D8D4;border-radius:2px;align-self:center;}
+    .sheet-name{font-size:22px;font-weight:800;color:var(--roof);text-align:center;}
 
     /* 업로드 */
-    .upload-wrap{position:relative;border:2px dashed rgba(232,57,42,.3);border-radius:14px;padding:28px;text-align:center;background:#FFF8F2;cursor:pointer;}
+    .upload-wrap{position:relative;border:2px dashed #E4572E;border-radius:14px;padding:26px;text-align:center;background:#FFF3EA;cursor:pointer;}
     .upload-wrap input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-    .upload-ico{font-size:32px;display:block;margin-bottom:6px;}
-    .upload-lbl{font-size:13px;color:var(--muted);}
+    .upload-ico{display:flex;justify-content:center;margin-bottom:8px;}
+    .upload-lbl{font-size:14px;font-weight:700;color:var(--roof-text);}
+    .note-small{font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.6;padding:0 4px;}
     #photo-preview{width:100%;border-radius:12px;display:none;max-height:200px;object-fit:cover;}
-    .judge-btn{background:var(--red);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:none;}
-    .loading{text-align:center;color:var(--muted);font-size:14px;display:none;}
-    .result{text-align:center;font-size:17px;font-weight:700;display:none;padding:8px;}
-    .result.ok{color:#4CAF50;}
-    .result.ng{color:var(--red);}
-    .close-btn{background:none;border:1.5px solid #e0d8d4;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;color:var(--muted);font-family:inherit;}
+    .judge-btn{display:none;}
+    .loading{text-align:center;color:var(--ink-soft);font-size:14px;display:none;}
+    .result{text-align:center;font-size:17px;font-weight:800;display:none;padding:8px;}
+    .result.ok{color:#2E7D4F;}
+    .result.ng{color:var(--roof-text);}
 
     /* 토스트 */
-    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#2A1A14;color:#fff;padding:14px 24px;border-radius:24px;font-size:15px;font-weight:700;z-index:2000;transition:transform .4s;white-space:nowrap;pointer-events:none;}
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#4A3F3A;color:#FBF0D9;padding:14px 22px;border-radius:12px;font-size:14px;font-weight:700;z-index:2000;transition:transform .4s;max-width:92vw;text-align:center;pointer-events:none;}
     .toast.show{transform:translateX(-50%) translateY(0);}
   </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div class="hdr-brand">ROOF CAT ME PLAY</div>
-  <div class="hdr-title">🎯 냥빙고</div>
-  <div class="hdr-nick" id="hdr-nick"></div>
+<div class="rcm-hero"><h1 class="rcm-hero-title">냥빙고</h1></div>
+
+<div class="page">
+  <div class="intro">
+    <p class="nick" id="hdr-nick"></p>
+    <p>고양이를 관찰하고 사진을 찍어 올리면 AI 집사가 확인해요. 칸을 누르고 사진을 올려보세요.</p>
+  </div>
+
+  <div class="prog">
+    <span id="prog-done">0 / 9 완료</span>
+    <span class="prog-bingo" id="prog-bingo">빙고 0줄</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="notes">
+    <span class="reward" id="reward-info"></span>
+    <span>미션은 눈으로 관찰하는 것만으로 달성돼요. 안거나 깨우지 말고 멀리서 담아주세요.</span>
+  </div>
 </div>
-
-<div class="prog">
-  <span id="prog-done">0 / 9 완료</span>
-  <span class="prog-bingo" id="prog-bingo">빙고 0줄</span>
-</div>
-
-<div class="grid" id="grid"></div>
-
+<div class="rcm-roof"></div>
 
 <div class="overlay" id="overlay" onclick="overlayClick(event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-emoji" id="sh-emoji"></div>
     <div class="sheet-name" id="sh-name"></div>
     <div class="upload-wrap" id="upload-wrap">
       <input type="file" accept="image/*" capture="environment" id="photo-input" onchange="handlePhoto(this)">
-      <span class="upload-ico">📸</span>
+      <span class="upload-ico"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#C9301B" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
       <div class="upload-lbl">여기를 눌러 사진을 업로드하세요</div>
     </div>
-    <div style="font-size:11px;color:#9E7C70;text-align:center;line-height:1.6;padding:0 4px;">
+    <div class="note-small">
       AI 판정을 위해 선택한 사진이 분석 서버로 전송됩니다.<br>다른 고객의 얼굴이 나오지 않도록 촬영해주세요.
     </div>
     <img id="photo-preview" alt="">
-    <button class="judge-btn" id="judge-btn" onclick="judgePhoto()">✨ AI 집사에게 판정받기</button>
-    <div class="loading" id="loading">🐱 AI 집사가 확인 중…</div>
+    <button type="button" class="rcm-btn judge-btn" id="judge-btn" onclick="judgePhoto()">AI 집사에게 판정받기</button>
+    <div class="loading" id="loading">AI 집사가 확인 중…</div>
     <div class="result" id="result"></div>
-    <button class="close-btn" onclick="closeModal()">닫기</button>
+    <button type="button" class="rcm-btn ghost" onclick="closeModal()">닫기</button>
   </div>
 </div>
 
@@ -224,20 +228,30 @@ async function initBingo(){
 }
 
 // ── 렌더링 ──────────────────────────────────────────────────────
+const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+function cellHTML(m, done){
+  return `<div class="cell-name">${m.name}</div>${done?'<div class="cell-check" aria-label="완료">'+CHECK_SVG+'</div>':''}`;
+}
+
 function render(){
   const g = document.getElementById('grid');
   g.innerHTML = '';
   missions.forEach((m,i)=>{
     const c = document.createElement('div');
     c.className = 'cell' + (state[i] ? ' done' : '');
-    c.innerHTML = `<div class="cell-emoji">${m.emoji}</div><div class="cell-name">${m.name}</div>${state[i]?'<div class="cell-check">✓</div>':''}`;
-    if(!state[i]) c.addEventListener('click', ()=>openModal(i));
+    c.innerHTML = cellHTML(m, state[i]);
+    if(!state[i]){
+      c.tabIndex = 0; c.setAttribute('role','button');
+      c.addEventListener('click', ()=>openModal(i));
+      c.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(i); } });
+    }
     g.appendChild(c);
   });
   updateProg();
 }
 
 function updateProg(){
+  document.getElementById('reward-info').textContent = '가챠권  칸 +'+REWARD_CELL+' · 한 줄 +'+REWARD_LINE+' · 완주 +'+REWARD_CLEAR;
   document.getElementById('prog-done').textContent = state.filter(Boolean).length + ' / 9 완료';
   document.getElementById('prog-bingo').textContent = '빙고 ' + doneLines.size + '줄';
 }
@@ -246,7 +260,6 @@ function updateProg(){
 function openModal(i){
   curCell=i; curPhoto=null;
   const m=missions[i];
-  document.getElementById('sh-emoji').textContent = m.emoji;
   document.getElementById('sh-name').textContent  = m.name;
   document.getElementById('upload-wrap').style.display = 'block';
   document.getElementById('photo-preview').style.display = 'none';
@@ -325,12 +338,12 @@ window.judgePhoto = async function(){
 
     if(ok){
       el.className='result ok';
-      el.textContent='✓ 미션 달성!';
+      el.textContent='미션 달성!';
       await markDone(curCell);
       setTimeout(closeModal, 1200);
     } else {
       el.className='result ng';
-      el.textContent='✗ 아직 아닌 것 같아요. 다시 도전!';
+      el.textContent='아직 아닌 것 같아요. 다시 도전해보세요.';
       setTimeout(()=>{
         document.getElementById('upload-wrap').style.display='block';
         document.getElementById('photo-preview').style.display='none';
@@ -407,7 +420,8 @@ async function markDone(idx){
     // UI 업데이트
     const cells = document.querySelectorAll('.cell');
     cells[idx].className = 'cell done just-done';
-    cells[idx].innerHTML = `<div class="cell-emoji">${missions[idx].emoji}</div><div class="cell-name">${missions[idx].name}</div><div class="cell-check">✓</div>`;
+    cells[idx].innerHTML = cellHTML(missions[idx], true);
+    cells[idx].removeAttribute('role'); cells[idx].removeAttribute('tabindex');
 
     // localStorage 캐시 갱신 (gacha 등 다른 페이지 참조용)
     const t = parseInt(localStorage.getItem('rcm_gacha_tickets')||'0');
@@ -417,8 +431,7 @@ async function markDone(idx){
     const parts = ['칸 +'+REWARD_CELL];
     if(newLineCount > 0) parts.push('빙고 +'+(newLineCount*REWARD_LINE));
     if(isComplete) parts.push('완주 +'+REWARD_CLEAR);
-    const prefix = isComplete ? '🏆' : newLineCount > 0 ? '🎉' : '🎰';
-    showToast(prefix+' 가챠권 총 '+total+'개 획득  '+parts.join(' · '));
+    showToast('가챠권 총 '+total+'개 획득  '+parts.join(' · '));
 
     updateProg();
   } catch(e){

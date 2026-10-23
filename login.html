@@ -5,51 +5,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
   <title>로그인 — ROOF CAT ME PLAY</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="rcm-theme.css">
   <style>
     html{color-scheme:light;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{--red:#E8392A;--bg:#FFF8F2;--text:#2A1A14;--muted:#9E7C70;}
-    body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+    body{background:#fff;color:var(--ink);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+    .page{width:100%;max-width:480px;margin:0 auto;padding:0 20px;flex:1;}
 
-    .logo{width:180px;margin-bottom:8px;}
-    .play-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;letter-spacing:.18em;padding:4px 14px;border-radius:20px;margin-bottom:32px;}
-
-    .card{background:#fff;border-radius:24px;padding:32px 28px;width:100%;max-width:340px;box-shadow:0 4px 24px rgba(232,57,42,.08);display:flex;flex-direction:column;gap:14px;}
+    .card{display:flex;flex-direction:column;gap:16px;padding:26px 0 40px;}
 
     /* 탭 */
-    .tabs{display:flex;background:#f2ece8;border-radius:12px;padding:4px;gap:4px;}
-    .tab{flex:1;padding:9px 0;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:none;color:var(--muted);transition:all .2s;}
-    .tab.active{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+    .tabs{display:flex;background:#F4EFE8;border-radius:12px;padding:4px;gap:4px;}
+    .tab{flex:1;height:42px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:none;color:var(--ink-soft);transition:background .2s;}
+    .tab.active{background:#fff;color:var(--roof-text);box-shadow:0 0 0 1.5px var(--line);}
+    .tab:focus-visible,.inp:focus-visible,.submit-btn:focus-visible,.google-btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
 
     .tab-content{display:none;flex-direction:column;gap:12px;}
     .tab-content.active{display:flex;}
 
     /* 입력 */
-    .inp{width:100%;border:1.5px solid rgba(158,124,112,.25);border-radius:12px;padding:13px 16px;font-size:15px;font-family:inherit;outline:none;color:var(--text);background:#fff;transition:border-color .2s;}
-    .inp:focus{border-color:var(--red);}
+    .inp{width:100%;height:50px;border:1.5px solid #D9CFC2;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit;color:var(--ink);background:#fff;}
+    .inp:focus{border-color:var(--sky);outline:2px solid var(--sky);outline-offset:1px;}
 
-    .submit-btn{width:100%;padding:15px;background:var(--red);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
-    .submit-btn:active{transform:scale(.97);}
+    .submit-btn{width:100%;height:54px;background:var(--roof-btn);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;}
+    .submit-btn:active{transform:scale(.98);}
 
-    .divider{display:flex;align-items:center;gap:10px;color:rgba(158,124,112,.5);font-size:12px;}
-    .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(158,124,112,.2);}
+    .divider{display:flex;align-items:center;gap:12px;color:var(--ink-soft);font-size:12.5px;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
 
     /* 구글 버튼 */
-    .google-btn{width:100%;padding:13px;background:#fff;border:1.5px solid rgba(158,124,112,.25);border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text);display:flex;align-items:center;justify-content:center;gap:10px;}
-    .google-btn:active{transform:scale(.97);}
+    .google-btn{width:100%;height:54px;background:#fff;border:1.5px solid #D9CFC2;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px;}
+    .google-btn:active{transform:scale(.98);}
     .google-icon{width:20px;height:20px;}
 
-    .error-msg{font-size:12px;color:var(--red);text-align:center;min-height:16px;}
-    .loading{text-align:center;color:var(--muted);font-size:13px;display:none;}
+    .error-msg{font-size:13px;color:var(--roof-text);text-align:center;min-height:16px;white-space:pre-line;}
+    .loading{text-align:center;color:var(--ink-soft);font-size:13px;display:none;}
   </style>
 </head>
 <body>
 
-<img class="logo" src="images/logo.webp" alt="ROOF CAT ME"
-  onerror="this.style.display='none'">
-<span class="play-badge">PLAY</span>
+<div class="rcm-hero">
+  <img class="rcm-hero-logo" src="images/rcm-logo.png" alt="ROOF CAT ME">
+  <span class="rcm-hero-badge">PLAY</span>
+</div>
 
+<div class="page">
 <div class="card">
   <div class="tabs">
     <button class="tab active" onclick="switchTab('login')">로그인</button>
@@ -58,8 +60,8 @@
 
   <!-- 로그인 탭 -->
   <div class="tab-content active" id="tab-login">
-    <input class="inp" id="login-email" type="email" placeholder="이메일" autocomplete="email">
-    <input class="inp" id="login-pw" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <input class="inp" id="login-email" aria-label="이메일" type="email" placeholder="이메일" autocomplete="email">
+    <input class="inp" id="login-pw" aria-label="비밀번호" type="password" placeholder="비밀번호" autocomplete="current-password">
     <div class="error-msg" id="login-err"></div>
     <button class="submit-btn" onclick="doEmailLogin()">로그인</button>
     <div class="divider">또는</div>
@@ -76,9 +78,9 @@
 
   <!-- 회원가입 탭 -->
   <div class="tab-content" id="tab-signup">
-    <input class="inp" id="signup-nick" type="text" placeholder="닉네임 (최대 10자)" maxlength="10">
-    <input class="inp" id="signup-email" type="email" placeholder="이메일" autocomplete="email">
-    <input class="inp" id="signup-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
+    <input class="inp" id="signup-nick" aria-label="닉네임" type="text" placeholder="닉네임 (최대 10자)" maxlength="10">
+    <input class="inp" id="signup-email" aria-label="이메일" type="email" placeholder="이메일" autocomplete="email">
+    <input class="inp" id="signup-pw" aria-label="비밀번호" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
     <div class="error-msg" id="signup-err"></div>
     <button class="submit-btn" onclick="doSignup()">회원가입</button>
     <div class="divider">또는</div>
@@ -95,11 +97,13 @@
 
   <div class="loading" id="loading">처리 중...</div>
 </div>
+</div>
+<div class="rcm-roof"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-         GoogleAuthProvider, signInWithPopup,
+         GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
          onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -113,12 +117,33 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// 이미 로그인된 사용자 → index로 이동 (authActionInProgress 중엔 대기)
+// redirect 결과 확인 후 onAuthStateChanged 등록 (race condition 방지)
 let authActionInProgress = false;
 
-onAuthStateChanged(auth, user => {
-  if(user && !authActionInProgress) location.href = 'index.html';
-});
+async function initAuth(){
+  try{
+    const result = await getRedirectResult(auth);
+    if(result?.user){
+      authActionInProgress = true;
+      try{
+        await saveUserDataWithRetry(result.user, null);
+        location.href = 'index.html';
+        return;
+      } catch(e){
+        await signOut(auth);
+        authActionInProgress = false;
+        errMsg('login-err','회원 정보 저장에 실패했습니다. 다시 로그인해주세요.');
+      }
+    }
+  } catch(e){
+    errMsg('login-err','Google 로그인 처리에 실패했습니다. 다시 시도해주세요.');
+  }
+  // redirect 결과 처리 완료 후 기존 로그인 감지 등록
+  onAuthStateChanged(auth, user => {
+    if(user && !authActionInProgress) location.href = 'index.html';
+  });
+}
+initAuth();
 
 window.switchTab = function(tab){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
@@ -212,25 +237,12 @@ window.doSignup = async function(){
   } catch(e){
     authActionInProgress = false;
     const msgs = {'auth/email-already-in-use':'이미 사용 중인 이메일이에요.','auth/weak-password':'비밀번호가 너무 약해요.'};
-    errMsg('signup-err', msgs[e.code]||(e.code ? `회원가입 실패 (${e.code})` : '회원가입 실패: '+e.message));
+    errMsg('signup-err', msgs[e.code]||'회원가입 실패: '+e.message);
   } finally{ setLoading(false); }
 };
 
-// 인앱브라우저 감지 (카카오톡·인스타 등) — Google 로그인 자체가 불가능한 환경
-function isInAppBrowser(){
-  return /FBAN|FBAV|Instagram|Line|KakaoTalk|NAVER/i.test(navigator.userAgent);
-}
-
 window.doGoogleLogin = async function(){
   if(isLoading) return;
-
-  // 인앱브라우저에서는 Google 로그인 불가 — Safari/Chrome에서 열도록 안내
-  if(isInAppBrowser()){
-    errMsg('login-err','Google 로그인은 Safari 또는 Chrome에서 이용해주세요.');
-    errMsg('signup-err','Google 로그인은 Safari 또는 Chrome에서 이용해주세요.');
-    return;
-  }
-
   setLoading(true);
   try{
     authActionInProgress = true;
@@ -239,14 +251,10 @@ window.doGoogleLogin = async function(){
     try{
       cred = await signInWithPopup(auth, provider);
     } catch(popupErr){
-      // 팝업이 실제로 차단된 경우에만 redirect 전환
+      // 팝업 실패(모바일 인앱 브라우저 등) → redirect 방식으로 전환
       if(popupErr.code==='auth/popup-blocked'){
-        authActionInProgress = false;
-        const blockedMsg = '팝업이 차단되어 있습니다. 브라우저 팝업 차단 설정을 해제한 후 다시 시도해주세요.';
-        errMsg('login-err', blockedMsg);
-        errMsg('signup-err', blockedMsg);
-        setLoading(false);
-        return;
+        await signInWithRedirect(auth, provider);
+        return; // redirect 후 페이지 이동하므로 여기서 종료
       }
       if(popupErr.code==='auth/popup-closed-by-user'){
         authActionInProgress = false;
@@ -266,10 +274,8 @@ window.doGoogleLogin = async function(){
     }
   } catch(e){
     authActionInProgress = false;
-    // 실제 에러코드 표시 — iPhone Safari 디버그용
-    const msg = e.code ? `Google 로그인 실패 (${e.code})` : 'Google 로그인 실패. 다시 시도해주세요.';
-    errMsg('login-err', msg);
-    errMsg('signup-err', msg);
+    errMsg('login-err','Google 로그인 실패. 다시 시도해주세요.');
+    errMsg('signup-err','Google 로그인 실패. 다시 시도해주세요.');
   } finally{ setLoading(false); }
 };
 

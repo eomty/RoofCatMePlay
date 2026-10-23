@@ -1,0 +1,74 @@
+/* rcm-theme.css — ROOF CAT ME PLAY 공통 디자인 (카페 사이트 톤: 기와 레드오렌지 + 하늘색 + 아이보리) */
+:root{
+  --roof:#E8412A;        /* 큰 제목, 로고 */
+  --roof-text:#C9301B;   /* 작은 글씨용 진한 기와색 */
+  --roof-btn:#D14325;    /* 버튼 (흰 글씨 4.5:1) */
+  --roof-deep:#B8321D;
+  --sky:#8EC5D6;
+  --sky-pale:#D3EBF2;
+  --ivory:#FBF0D9;
+  --stone:#A79C92;
+  --ink:#4A3F3A;
+  --ink-soft:#6B5F58;
+  --line:#E4DDD3;
+  --gold:#E2A93B;
+  --font-display:'Jua','Noto Sans KR',sans-serif;
+}
+
+/* 히어로 (하늘 + 지붕) */
+.rcm-hero{position:relative;width:100%;max-width:480px;margin:0 auto;aspect-ratio:390/210;background:url(images/rcm-hero.svg) center/100% 100% no-repeat;overflow:hidden}
+.rcm-hero-title{position:absolute;left:0;right:0;top:12%;margin:0;text-align:center;font-family:var(--font-display);font-weight:400;font-size:clamp(30px,9.7vw,42px);line-height:1.1;color:var(--roof)}
+.rcm-hero-logo{position:absolute;left:50%;top:11%;transform:translateX(-50%);width:62%;max-width:300px;height:auto}
+.rcm-hero-badge{position:absolute;left:50%;top:34%;transform:translateX(-50%);padding:3px 14px;border-radius:999px;background:var(--roof-btn);color:#fff;font-size:11px;font-weight:700;letter-spacing:.18em}
+
+/* 기와 띠 / 푸터 지붕 */
+.rcm-tiles{height:11px;background-color:#E4572E;background-image:radial-gradient(circle 11px at 50% 0,#E4572E 0,#E4572E 8px,#B8321D 8.6px,#B8321D 10px,#E4572E 10.6px);background-size:22px 11px}
+.rcm-roof{width:100%;height:70px;background-color:#E4572E;background-image:radial-gradient(circle 14px at 50% 0,#E4572E 0,#E4572E 11px,#B8321D 11.6px,#B8321D 13px,#E4572E 13.6px);background-size:28px 14px}
+
+/* 제목, 버튼, 알약 */
+.rcm-h2{margin:0;font-size:22px;font-weight:800;color:var(--roof)}
+.rcm-btn{display:flex;align-items:center;justify-content:center;width:100%;height:54px;box-sizing:border-box;border:0;border-radius:12px;background:var(--roof-btn);color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.rcm-btn:active{transform:scale(.98)}
+.rcm-btn.ghost{background:#fff;border:1.5px solid var(--roof-btn);color:var(--roof-text)}
+.rcm-btn:disabled,.rcm-btn.off{background:#F4EFE8;border:1.5px solid var(--line);color:#6F655D;cursor:default;transform:none}
+.rcm-btn:focus-visible,.nc:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.rcm-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--ivory);border:1.5px solid var(--gold);font-size:14px;font-weight:800;color:#8A2B16}
+
+/* 등급 인장 */
+.stamp{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;line-height:1;flex-shrink:0}
+.stamp.C{background:#fff;border:1.5px solid #A79C92;color:#6F655D}
+.stamp.B{background:#8EC5D6;color:#1F4B5A}
+.stamp.A{background:#D14325;color:#fff}
+.stamp.S{background:#B8321D;color:#FBF0D9;box-shadow:0 0 0 2px #FBF0D9,0 0 0 3px #B8321D}
+.stamp.SS{background:#E2A93B;color:#6E1A0E;box-shadow:0 0 0 2px #DDF0F6,0 0 0 3px #E2A93B}
+
+/* 냥카드 (.nc) — 등급은 소재로 구분: C 종이 / B 하늘 / A 기와 / S 아이보리+인장 / SS 하늘+금박 */
+.nc{position:relative;display:flex;flex-direction:column;overflow:hidden;border-radius:14px;background:#fff;border:1.5px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.nc:active{transform:scale(.97)}
+.nc .in{display:flex;flex-direction:column;gap:9px;padding:8px 8px 13px;flex-grow:1}
+.nc .ph{position:relative;height:118px;border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.nc .ph svg{position:relative;z-index:0}
+.nc .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.nc .meta{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 2px}
+.nc .nm{font-size:16px;font-weight:800;color:var(--roof-text);letter-spacing:-.01em}
+.nc .ds{margin:0;padding:0 2px;font-size:11.5px;line-height:1.55;color:var(--ink-soft);word-break:keep-all;min-height:53px}
+.nc .tg{display:flex;gap:4px;flex-wrap:wrap;padding:0 2px}
+.nc .tg span{font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:999px;background:rgba(74,63,58,.08);color:#5B4F48}
+.nc.g-C .ph{background:#D8D2CA}
+.nc.g-B{background:#EEF7FA;border-color:#8EC5D6}
+.nc.g-B .ph{background:#C9E3EC}
+.nc.g-A{background:#FFF3EA;border-color:#E4572E}
+.nc.g-A .ph{background:#F0D9C4}
+.nc.g-S{background:#FBF0D9;border:2px solid #B8321D}
+.nc.g-S .ph{background:#E9D3B0}
+.nc.g-SS{background:linear-gradient(180deg,#DDF0F6,#B7DCE8);border:2px solid #E2A93B}
+.nc.g-SS .ph{background:#BFD9E0}
+/* SS 금빛 한 번 지나가기 (로드 시 1회, 누르면 다시) */
+.nc.g-SS::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.55) 50%,transparent 62%);background-size:260% 100%;background-position:130% 0;animation:rcm-sheen 2.2s ease-out .4s 1 both}
+.nc.g-SS:active::after{animation:rcm-sheen 1.2s ease-out 1 both}
+@keyframes rcm-sheen{0%{background-position:130% 0}100%{background-position:-30% 0}}
+@media (prefers-reduced-motion:reduce){.nc.g-SS::after{animation:none;opacity:0}}
+/* 잠긴 카드 */
+.nc.locked{background:#F4EFE8;border:1.5px dashed #CFC4B6;align-items:center;justify-content:center;gap:8px;min-height:150px;padding:12px 8px;text-align:center;cursor:pointer}
+.nc.locked .nm{color:#6F655D}
+.nc.locked p{margin:0;font-size:11.5px;color:#6F655D}
