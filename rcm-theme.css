@@ -62,13 +62,16 @@
 .nc .tg{display:flex;gap:4px;flex-wrap:wrap;padding:0 2px}
 .nc .tg span{font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:999px;background:rgba(74,63,58,.08);color:#5B4F48}
 /* 등급별: 기본 틀은 같고, 등급이 오를수록 테두리·띠·액자가 한 겹씩 늘어남 */
+/* C·B — 허름한 지붕(색 바랜 기와)도 같은 높이로 얹어서 줄이 맞게 */
+.nc.g-C::before,.nc.g-B::before{content:"";display:block;flex:none;height:11px;background-size:22px 11px}
+.nc.g-C::before{background-color:#C9C0B6;background-image:radial-gradient(circle 11px at 50% 0,#C9C0B6 0,#C9C0B6 8px,#948B82 8.6px,#948B82 10px,#C9C0B6 10.6px)}
+.nc.g-B::before{background-color:#8EC5D6;background-image:radial-gradient(circle 11px at 50% 0,#8EC5D6 0,#8EC5D6 8px,#5B98AD 8.6px,#5B98AD 10px,#8EC5D6 10.6px)}
 /* C — 종이 */
-.nc.g-C{border-color:#D5CCC0}
+.nc.g-C{border:2px solid #D5CCC0}
 .nc.g-C .ph{background:#D8D2CA}
 .nc.g-C .nm{color:var(--ink)}
-/* B — 하늘 + 윗선 */
-.nc.g-B{background:#EEF7FA;border:2px solid #8EC5D6;box-shadow:inset 0 4px 0 #8EC5D6}
-.nc.g-B .in{padding-top:12px}
+/* B — 하늘 */
+.nc.g-B{background:#EEF7FA;border:2px solid #8EC5D6}
 .nc.g-B .ph{background:#C9E3EC;border:1.5px solid #8EC5D6}
 .nc.g-B .nm{color:#1F5C70}
 /* A — 기와 띠 + 사진 테두리 */
