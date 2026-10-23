@@ -42,11 +42,11 @@
 .rcm-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--ivory);border:1.5px solid var(--gold);font-size:14px;font-weight:800;color:#8A2B16}
 
 /* 등급 인장 */
-.stamp{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;line-height:1;flex-shrink:0}
+.stamp{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;line-height:1;flex-shrink:0;box-sizing:border-box;padding-top:.15em}
 .stamp.C{background:#fff;border:1.5px solid #A79C92;color:#6F655D}
 .stamp.B{background:#8EC5D6;color:#1F4B5A}
 .stamp.A{background:#D14325;color:#fff}
-.stamp.S{background:#B8321D;color:#FBF0D9;box-shadow:0 0 0 2px #FBF0D9,0 0 0 3px #B8321D}
+.stamp.S{background:#6B3FA0;color:#F4EDFB;box-shadow:0 0 0 2px #F4EDFB,0 0 0 3px #6B3FA0}
 .stamp.SS{background:#E2A93B;color:#6E1A0E;box-shadow:0 0 0 2px #FFF3C4,0 0 0 3px #E2A93B}
 
 /* 냥카드 (.nc) — 등급은 소재로 구분: C 종이 / B 하늘 / A 기와 / S 아이보리+인장 / SS 하늘+금박 */
@@ -56,8 +56,10 @@
 .nc .ph{position:relative;height:118px;border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .nc .ph svg{position:relative;z-index:0}
 .nc .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
-.nc .meta{position:relative;display:flex;align-items:center;justify-content:center;min-height:26px;padding:0 30px}
-.nc .meta .stamp{position:absolute;left:2px;top:50%;transform:translateY(-50%)}
+/* 이름은 카드 정중앙, 등급 도장은 이름 바로 왼쪽 */
+.nc .meta{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);column-gap:6px;align-items:center;min-height:26px;padding:0 2px}
+.nc .meta .stamp{grid-row:1;grid-column:1;justify-self:end}
+.nc .meta .nm{grid-row:1;grid-column:2}
 .nc .nm{font-size:16px;font-weight:800;color:var(--roof-text);letter-spacing:-.01em;text-align:center;overflow-wrap:anywhere}
 .nc .ds{margin:0;padding:0 2px;font-size:11.5px;line-height:1.55;color:var(--ink-soft);word-break:keep-all;min-height:53px}
 .nc .tg{display:flex;gap:4px;flex-wrap:wrap;padding:0 2px}
@@ -79,12 +81,12 @@
 .nc.g-A{background:#FFF3EA;border:2px solid #E4572E}
 .nc.g-A .ph{background:#F0D9C4;border:1.5px solid #E4572E}
 .nc.g-A .nm{color:var(--roof-text)}
-/* S — 아이보리 벽 + 이중 액자 + 짙은 기와 */
-.nc.g-S{background:#FBF0D9;border:2.5px solid #B8321D;box-shadow:inset 0 0 0 3px #FBF0D9,inset 0 0 0 4.5px #D9A08F,0 2px 10px rgba(184,50,29,.22)}
-.nc.g-S .rcm-tiles{background-color:#C9301B}
+/* S — 보라빛 벽 + 이중 액자 + 보라 기와 */
+.nc.g-S{background:#F4EDFB;border:2.5px solid #6B3FA0;box-shadow:inset 0 0 0 3px #F4EDFB,inset 0 0 0 4.5px #B79AD8,0 2px 10px rgba(107,63,160,.25)}
+.nc.g-S .rcm-tiles{background-color:#7A4AB0;background-image:radial-gradient(circle 11px at 50% 0,#7A4AB0 0,#7A4AB0 8px,#4A2478 8.6px,#4A2478 10px,#7A4AB0 10.6px)}
 .nc.g-S .in{padding:10px 10px 14px}
-.nc.g-S .ph{background:#E9D3B0;border:2px solid #B8321D}
-.nc.g-S .nm{color:#A52A16}
+.nc.g-S .ph{background:#DCCDEF;border:2px solid #6B3FA0}
+.nc.g-S .nm{color:#5B2F91}
 /* SS — 금박 테두리 + 빛나는 하늘빛 카드 */
 .nc.g-SS{border:2.5px solid transparent;background:linear-gradient(180deg,#FFFAE8,#F9E5AE 70%,#F4D88C) padding-box,linear-gradient(135deg,#FFF1B8,#E2A93B 32%,#FFF6CF 52%,#D9951F 75%,#FFE08A) border-box;box-shadow:0 0 0 1px rgba(226,169,59,.35),0 0 14px rgba(255,214,120,.75),0 0 32px rgba(255,205,100,.4);animation:rcm-glow 2.6s ease-in-out infinite}
 .nc.g-SS .rcm-tiles{background-color:#E2A93B;background-image:radial-gradient(circle 11px at 50% 0,#F3C766 0,#F3C766 8px,#B7791A 8.6px,#B7791A 10px,#F3C766 10.6px)}
