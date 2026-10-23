@@ -54,7 +54,7 @@
     .nc.single{width:210px;}
     .nc.single .ph{height:200px;}
     .nc.single .nm{font-size:21px;}
-    .nc.single .meta{min-height:32px;padding:0 38px;}
+    .nc.single .meta{min-height:32px;column-gap:8px;}
     .nc.single .stamp{width:32px;height:32px;font-size:16px;}
     .new-tag{position:absolute;top:8px;left:8px;z-index:2;padding:2px 9px;border-radius:999px;background:var(--roof-btn);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;}
     .multi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;width:calc(100% + 16px);max-width:400px;}
@@ -63,10 +63,9 @@
     .nc.mini .ph{height:auto;aspect-ratio:1/1;border-radius:7px;}
     .nc.mini .ph svg{width:26px;height:26px;}
     .nc.mini .nm{font-size:10.5px;line-height:1.25;text-align:center;letter-spacing:-.03em;word-break:keep-all;overflow-wrap:anywhere;}
-    .nc.mini .meta{min-height:14px;padding:0;}
-    .nc.mini .stamp{left:0;width:14px;height:14px;font-size:8px;}
-    .nc.mini .meta.long{flex-direction:column;gap:3px;}
-    .nc.mini .meta.long .stamp{position:static;transform:none;}
+    .nc.mini .meta{min-height:14px;padding:0;column-gap:3px;}
+    .nc.mini .stamp{width:14px;height:14px;font-size:8px;}
+    .nc.mini .meta.long{display:flex;flex-direction:column;align-items:center;gap:3px;}
     .new-dot{position:absolute;top:4px;left:4px;z-index:2;width:10px;height:10px;border-radius:50%;background:var(--roof-btn);border:2px solid #fff;}
     @keyframes popIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
     @media (prefers-reduced-motion:reduce){.nc.rs{animation:none;}}
@@ -85,7 +84,7 @@
     .grade-tab.active.C{background:#F4EFE8;border-color:#A79C92;color:#4A3F3A;}
     .grade-tab.active.B{background:#EEF7FA;border-color:#8EC5D6;color:#1F4B5A;}
     .grade-tab.active.A{background:#FFF3EA;border-color:#E4572E;color:#B8321D;}
-    .grade-tab.active.S{background:#FBF0D9;border:2px solid #B8321D;color:#B8321D;}
+    .grade-tab.active.S{background:#F4EDFB;border:2px solid #6B3FA0;color:#5B2F91;}
     .merge-counter{text-align:center;font-size:14px;font-weight:700;color:var(--ink-soft);}
     .merge-counter span{color:var(--roof-text);font-size:16px;}
     .merge-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;overflow-y:auto;padding:4px 2px;}

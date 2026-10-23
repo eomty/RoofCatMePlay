@@ -47,7 +47,7 @@
 .stamp.B{background:#8EC5D6;color:#1F4B5A}
 .stamp.A{background:#D14325;color:#fff}
 .stamp.S{background:#B8321D;color:#FBF0D9;box-shadow:0 0 0 2px #FBF0D9,0 0 0 3px #B8321D}
-.stamp.SS{background:#E2A93B;color:#6E1A0E;box-shadow:0 0 0 2px #DDF0F6,0 0 0 3px #E2A93B}
+.stamp.SS{background:#E2A93B;color:#6E1A0E;box-shadow:0 0 0 2px #FFF3C4,0 0 0 3px #E2A93B}
 
 /* 냥카드 (.nc) — 등급은 소재로 구분: C 종이 / B 하늘 / A 기와 / S 아이보리+인장 / SS 하늘+금박 */
 .nc{position:relative;display:flex;flex-direction:column;overflow:hidden;border-radius:14px;background:#fff;border:1.5px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}
@@ -86,18 +86,18 @@
 .nc.g-S .ph{background:#E9D3B0;border:2px solid #B8321D}
 .nc.g-S .nm{color:#A52A16}
 /* SS — 금박 테두리 + 빛나는 하늘빛 카드 */
-.nc.g-SS{border:2.5px solid transparent;background:linear-gradient(180deg,#EAF7FB,#BEE0EC) padding-box,linear-gradient(135deg,#FFF1B8,#E2A93B 32%,#FFF6CF 52%,#D9951F 75%,#FFE08A) border-box;box-shadow:0 0 0 1px rgba(226,169,59,.35),0 0 14px rgba(255,214,120,.75),0 0 32px rgba(255,205,100,.4);animation:rcm-glow 2.6s ease-in-out infinite}
+.nc.g-SS{border:2.5px solid transparent;background:linear-gradient(180deg,#FFFAE8,#F9E5AE 70%,#F4D88C) padding-box,linear-gradient(135deg,#FFF1B8,#E2A93B 32%,#FFF6CF 52%,#D9951F 75%,#FFE08A) border-box;box-shadow:0 0 0 1px rgba(226,169,59,.35),0 0 14px rgba(255,214,120,.75),0 0 32px rgba(255,205,100,.4);animation:rcm-glow 2.6s ease-in-out infinite}
 .nc.g-SS .rcm-tiles{background-color:#E2A93B;background-image:radial-gradient(circle 11px at 50% 0,#F3C766 0,#F3C766 8px,#B7791A 8.6px,#B7791A 10px,#F3C766 10.6px)}
 .nc.g-SS .in{padding:10px 10px 14px}
-.nc.g-SS .ph{background:#BFD9E0;border:2px solid #E2A93B;box-shadow:0 0 10px rgba(255,214,120,.65)}
+.nc.g-SS .ph{background:#F1DFAE;border:2px solid #E2A93B;box-shadow:0 0 10px rgba(255,214,120,.65)}
 .nc.g-SS .nm{color:#6E1A0E;text-shadow:0 0 8px rgba(255,255,255,.9)}
-.nc.g-SS .stamp.SS{box-shadow:0 0 0 2px #DDF0F6,0 0 0 3px #E2A93B,0 0 10px rgba(255,200,80,.9)}
+.nc.g-SS .stamp.SS{box-shadow:0 0 0 2px #FFF3C4,0 0 0 3px #E2A93B,0 0 10px rgba(255,200,80,.9)}
 @keyframes rcm-glow{0%,100%{box-shadow:0 0 0 1px rgba(226,169,59,.35),0 0 10px rgba(255,214,120,.55),0 0 22px rgba(255,205,100,.28)}50%{box-shadow:0 0 0 1px rgba(226,169,59,.5),0 0 20px rgba(255,220,130,.95),0 0 42px rgba(255,205,100,.55)}}
 /* SS 빛줄기 (카드 전체를 가끔 훑고 지나감) */
 .nc.g-SS::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.42) 50%,transparent 64%);background-size:260% 100%;background-position:130% 0;animation:rcm-sheen 4.6s ease-in-out .5s infinite both}
 .nc.g-SS:active::after{animation:rcm-sheen 1.2s ease-out 1 both}
 /* SS 사진 위 무지개빛 코팅 */
-.nc.g-SS .ph::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,0) 25%,rgba(255,226,150,.30) 42%,rgba(150,215,255,.30) 58%,rgba(255,255,255,0) 75%)}
+.nc.g-SS .ph::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,0) 25%,rgba(255,236,170,.32) 42%,rgba(255,176,200,.24) 58%,rgba(255,255,255,0) 75%)}
 /* SS 반짝이 */
 .nc.g-SS .ph::before,.nc.g-SS::before{content:"";position:absolute;z-index:3;pointer-events:none;background:#FFF7D6;filter:drop-shadow(0 0 3px #F3B83A);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:rcm-twinkle 2.2s ease-in-out infinite}
 .nc.g-SS .ph::before{right:9px;bottom:9px;width:17px;height:17px}
