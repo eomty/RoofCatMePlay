@@ -54,16 +54,19 @@
     .nc.single{width:210px;}
     .nc.single .ph{height:200px;}
     .nc.single .nm{font-size:21px;}
+    .nc.single .meta{min-height:32px;padding:0 38px;}
     .nc.single .stamp{width:32px;height:32px;font-size:16px;}
     .new-tag{position:absolute;top:8px;left:8px;z-index:2;padding:2px 9px;border-radius:999px;background:var(--roof-btn);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;}
-    .multi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;width:100%;max-width:400px;}
+    .multi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;width:calc(100% + 16px);max-width:400px;}
     .nc.mini{border-radius:10px;}
     .nc.mini .in{padding:4px 4px 6px;gap:4px;}
     .nc.mini .ph{height:auto;aspect-ratio:1/1;border-radius:7px;}
     .nc.mini .ph svg{width:26px;height:26px;}
     .nc.mini .nm{font-size:10.5px;line-height:1.25;text-align:center;letter-spacing:-.03em;word-break:keep-all;overflow-wrap:anywhere;}
-    .nc.mini .meta{justify-content:center;flex-wrap:wrap;gap:3px;padding:0;}
-    .nc.mini .stamp{width:16px;height:16px;font-size:9px;}
+    .nc.mini .meta{min-height:14px;padding:0;}
+    .nc.mini .stamp{left:0;width:14px;height:14px;font-size:8px;}
+    .nc.mini .meta.long{flex-direction:column;gap:3px;}
+    .nc.mini .meta.long .stamp{position:static;transform:none;}
     .new-dot{position:absolute;top:4px;left:4px;z-index:2;width:10px;height:10px;border-radius:50%;background:var(--roof-btn);border:2px solid #fff;}
     @keyframes popIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
     @media (prefers-reduced-motion:reduce){.nc.rs{animation:none;}}
@@ -355,7 +358,7 @@ function makeCardHTML(r, isN, size, delay){
     const st=delay?' style="animation-delay:'+delay+'s"':'';
     return '<div class="nc rs mini g-'+g+'" role="group" aria-label="'+label+'"'+st+'>'+tiles+
       '<div class="in"><div class="ph">'+ICON_CAT_S+photo+newMark+'</div>'+
-      '<div class="meta"><span class="stamp '+g+'">'+g+'</span><span class="nm">'+r.cat+'</span></div></div></div>';
+      '<div class="meta'+(r.cat.length>3?' long':'')+'"><span class="stamp '+g+'">'+g+'</span><span class="nm">'+r.cat+'</span></div></div></div>';
   }
   return '<div class="nc rs single g-'+g+'" role="group" aria-label="'+label+'">'+tiles+
     '<div class="in"><div class="ph">'+ICON_CAT+photo+newMark+'</div>'+

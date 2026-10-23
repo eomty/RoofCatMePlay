@@ -40,27 +40,31 @@
     .foot b{font-family:var(--font-display);font-weight:400;font-size:18px;color:var(--roof);}
     .foot span{font-size:12px;color:var(--ink-soft);}
 
-    /* 상세 모달 */
-    .overlay{display:none;position:fixed;inset:0;background:rgba(40,28,22,.55);z-index:1000;align-items:flex-end;justify-content:center;}
+    /* 상세 보기: 카드가 커지면서 아래에 등급별 보유 */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(40,28,22,.82);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px 20px;overflow:auto;}
     .overlay.open{display:flex;}
-    .sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:14px 20px 32px;display:flex;flex-direction:column;gap:14px;max-height:88vh;overflow:auto;}
-    .sheet-handle{width:36px;height:4px;background:#E0D8D4;border-radius:2px;align-self:center;}
-    .sheet-name{font-size:24px;font-weight:800;color:var(--roof);text-align:center;}
-    .sheet-desc{font-size:13.5px;line-height:1.65;color:var(--ink-soft);text-align:center;word-break:keep-all;}
-    .grade-list{display:flex;flex-direction:column;gap:10px;}
-    .gr{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:#fff;}
-    .gr.on.C{border-color:#A79C92;}
-    .gr.on.B{background:#EEF7FA;border-color:#8EC5D6;}
-    .gr.on.A{background:#FFF3EA;border-color:#E4572E;}
-    .gr.on.S{background:#FBF0D9;border:2px solid #B8321D;}
-    .gr.on.SS{background:linear-gradient(180deg,#DDF0F6,#B7DCE8);border:2px solid #E2A93B;}
-    .gr.off{background:#F4EFE8;border:1.5px dashed #CFC4B6;}
-    .gr .stamp.off{background:#fff;border:1.5px dashed #CFC4B6;color:#6F655D;}
-    .gr-info{flex:1;min-width:0;}
-    .gr-name{font-size:14px;font-weight:800;color:var(--ink);}
-    .gr-count{font-size:12px;color:var(--ink-soft);margin-top:1px;}
-    .gr.off .gr-name,.gr.off .gr-count{color:#6F655D;}
-    .gr svg{flex-shrink:0;}
+    #modal-card{width:100%;display:flex;justify-content:center;}
+    .nc.big{width:min(300px,100%);cursor:default;animation:zoomIn .26s ease both;}
+    .nc.big:active{transform:none;}
+    .nc.big .in{padding:10px 10px 16px;gap:11px;}
+    .nc.big .ph{height:min(280px,56vh);}
+    .nc.big .nm{font-size:24px;}
+    .nc.big .stamp{width:36px;height:36px;font-size:18px;}
+    .nc.big .ds{font-size:14px;line-height:1.65;min-height:0;}
+    .nc.big .tg span{font-size:12px;padding:3px 10px;}
+    .nc.big.locked{min-height:min(420px,66vh);gap:12px;}
+    .nc.big.locked p{font-size:14px;}
+    @keyframes zoomIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+    @media (prefers-reduced-motion:reduce){.nc.big{animation:none;}}
+    .gchips{display:flex;gap:6px;justify-content:center;width:100%;max-width:360px;}
+    .gchip{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:1 1 0;min-width:0;padding:4px 6px 4px 4px;border-radius:999px;background:#fff;border:2px solid transparent;font-family:inherit;font-size:12px;font-weight:800;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+    .gchip .stamp{width:22px;height:22px;font-size:11px;}
+    .gchip[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 3px rgba(226,169,59,.4);}
+    .gchip:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+    .gchip.off{background:#F4EFE8;border:1.5px dashed #CFC4B6;color:#6F655D;}
+    .gchip.off[aria-pressed="true"]{border-color:var(--gold);border-style:solid;}
+    .gchip .stamp.off{background:#fff;border:1.5px dashed #CFC4B6;color:#6F655D;}
+    .overlay .rcm-btn{width:auto;min-width:160px;height:48px;padding:0 36px;}
   </style>
 </head>
 <body>
@@ -95,15 +99,11 @@
 <div class="foot"><b>ROOF_CAT_ME PLAY</b><span>루프캣미 매장에서 즐기는 미니게임</span></div>
 <div class="rcm-roof"></div>
 
-<!-- 상세 모달 -->
-<div class="overlay" id="overlay">
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-name">
-    <div class="sheet-handle"></div>
-    <div class="sheet-name" id="modal-name"></div>
-    <p class="sheet-desc" id="modal-desc"></p>
-    <div class="grade-list" id="modal-grades"></div>
-    <button type="button" class="rcm-btn ghost" onclick="document.getElementById('overlay').classList.remove('open')">닫기</button>
-  </div>
+<!-- 상세 보기 -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="냥카드 상세">
+  <div id="modal-card"></div>
+  <div class="gchips" id="modal-grades" role="group" aria-label="등급 선택"></div>
+  <button type="button" class="rcm-btn ghost" id="modal-close">닫기</button>
 </div>
 
 <script type="module">
@@ -319,44 +319,74 @@ function render(){
   document.getElementById('card-prog-bar').style.width = (cardsUnlocked/TOTAL_CARDS*100).toFixed(1)+'%';
 }
 
-function gradeRow(cat, g, label, lockedHint){
-  const obtained = !!discovered[cat+'_'+g];
-  const cnt = collection[cat+'_'+g] || 0;
-  const row = document.createElement('div');
-  row.className = 'gr '+(obtained?'on '+g:'off');
-  let sub = '';
-  if(cnt>0) sub = `<div class="gr-count">${cnt}장 보유</div>`;
-  else if(obtained) sub = `<div class="gr-count">획득 완료${g==='SS'&&lockedHint?'':' (합성 소비됨)'}</div>`;
-  else if(lockedHint) sub = `<div class="gr-count">${lockedHint}</div>`;
-  row.innerHTML = `
-    <span class="stamp ${obtained?g:'off'}">${g}</span>
-    <div class="gr-info"><div class="gr-name">${label}</div>${sub}</div>
-    ${obtained?ICON_CHECK:ICON_LOCK_S}`;
-  return row;
+let modalCat = null, modalSsOnly = false, modalGrade = null;
+
+function bigCardHTML(cat, grade, isSsOnly){
+  if(!discovered[cat+'_'+grade]){
+    const hint = isSsOnly ? '가챠로만 만날 수 있어요' : GRADE_NAMES[grade]+' 등급 · 아직 만나지 못했어요';
+    return `<div class="nc big locked" role="group" aria-label="${cat} ${GRADE_NAMES[grade]} 카드, 잠김">${ICON_LOCK}<span class="nm">${cat}</span><p>${hint}</p></div>`;
+  }
+  const slug = CAT_SLUG[cat]||cat;
+  const baseImg = 'images/cats/'+slug+'.webp';
+  const ssImg   = 'images/cats/ss/'+slug+'.webp';
+  const imgSrc  = (grade==='SS') ? ssImg : baseImg;
+  const onerr   = (grade==='SS' && !isSsOnly)
+    ? `this.onerror=function(){this.remove();};this.src='${baseImg}';`
+    : `this.remove();`;
+  const meta  = CAT_DESC[cat] || {d:'루프캣미의 소중한 냥이.',t:[]};
+  // C·B의 지붕은 CSS(::before)가 붙이므로 A·S·SS만 마크업 띠를 넣는다
+  const strip = (grade==='A'||grade==='S'||grade==='SS') ? '<div class="rcm-tiles"></div>' : '';
+  return `<div class="nc big g-${grade}" role="group" aria-label="${cat} ${GRADE_NAMES[grade]} 카드">${strip}
+    <div class="in">
+      <div class="ph">${ICON_CAT}<img src="${imgSrc}" alt="" decoding="async" onerror="${onerr}"></div>
+      <div class="meta"><span class="nm">${cat}</span><span class="stamp ${grade}">${grade}</span></div>
+      <p class="ds">${meta.d}</p>
+      <div class="tg">${meta.t.slice(0,3).map(t=>`<span>${t}</span>`).join('')}</div>
+    </div></div>`;
+}
+
+function showGrade(g){
+  modalGrade = g;
+  document.getElementById('modal-card').innerHTML = bigCardHTML(modalCat, g, modalSsOnly);
+  document.querySelectorAll('#modal-grades .gchip').forEach(b=>b.setAttribute('aria-pressed', b.dataset.g===g ? 'true' : 'false'));
+}
+
+function buildChips(){
+  const wrap = document.getElementById('modal-grades');
+  wrap.innerHTML = '';
+  const list = modalSsOnly ? ['SS'] : GRADES.slice().reverse();
+  list.forEach(g=>{
+    const obtained = !!discovered[modalCat+'_'+g];
+    const cnt = collection[modalCat+'_'+g] || 0;
+    const label = obtained ? cnt+'장' : ICON_LOCK_S;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'gchip'+(obtained?'':' off');
+    b.dataset.g = g;
+    b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label', g+' 등급 '+GRADE_NAMES[g]+', '+(cnt>0?cnt+'장 보유':(obtained?'획득 완료':'잠김')));
+    b.innerHTML = `<span class="stamp ${obtained?g:'off'}">${g}</span>${label}`;
+    b.addEventListener('click', e=>{ e.stopPropagation(); showGrade(g); });
+    wrap.appendChild(b);
+  });
 }
 
 function openModal(cat, isSsOnly){
-  document.getElementById('modal-name').textContent = cat;
-  const meta = CAT_DESC[cat];
-  document.getElementById('modal-desc').textContent = meta ? meta.d : '';
-  const list = document.getElementById('modal-grades');
-  list.innerHTML = '';
-
-  if(isSsOnly){
-    // SS 스페셜 카드 — SS 등급만 표시
-    list.appendChild(gradeRow(cat,'SS','초희귀 스페셜','가챠로만 획득 가능'));
-  } else {
-    // 일반 고양이 — 5등급 모두 표시
-    GRADES.slice().reverse().forEach(g=> list.appendChild(gradeRow(cat,g,GRADE_NAMES[g],'')));
-  }
+  modalCat = cat; modalSsOnly = !!isSsOnly;
+  buildChips();
+  showGrade(modalSsOnly ? 'SS' : (getBestGrade(cat) || 'C'));
   document.getElementById('overlay').classList.add('open');
+  document.getElementById('modal-close').focus();
 }
 
-function closeModal(e){
-  if(e.target===document.getElementById('overlay'))
-    document.getElementById('overlay').classList.remove('open');
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
 }
-document.getElementById('overlay').addEventListener('click', closeModal);
+document.getElementById('overlay').addEventListener('click', e=>{
+  if(e.target===document.getElementById('overlay') || e.target===document.getElementById('modal-card')) closeModal();
+});
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 
 init();
 </script>
