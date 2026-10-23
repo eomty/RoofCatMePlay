@@ -7,7 +7,7 @@
   <title>냥가챠 — ROOF CAT ME PLAY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="rcm-theme.css">
+  <link rel="stylesheet" href="rcm-theme.css?v=15">
   <style>
     html{color-scheme:light;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -63,9 +63,10 @@
     .nc.mini .ph{height:auto;aspect-ratio:1/1;border-radius:7px;}
     .nc.mini .ph svg{width:26px;height:26px;}
     .nc.mini .nm{font-size:10.5px;line-height:1.25;text-align:center;letter-spacing:-.03em;word-break:keep-all;overflow-wrap:anywhere;}
-    .nc.mini .meta{min-height:14px;padding:0;column-gap:3px;}
-    .nc.mini .stamp{width:14px;height:14px;font-size:8px;}
-    .nc.mini .meta.long{display:flex;flex-direction:column;align-items:center;gap:3px;}
+    /* 작은 카드: 등급 도장은 사진 오른쪽 위에 작게 (이름은 정중앙) */
+    .nc.mini .meta{min-height:0;padding:0;display:block;text-align:center;}
+    .nc.mini .ph .stamp{position:absolute;top:3px;right:3px;z-index:5;width:13px;height:13px;font-size:7px;box-shadow:0 0 0 1px #fff;}
+    .nc.mini.g-SS .ph .stamp.SS{box-shadow:0 0 0 1px #FFF3C4,0 0 6px rgba(255,200,80,.9);}
     .new-dot{position:absolute;top:4px;left:4px;z-index:2;width:10px;height:10px;border-radius:50%;background:var(--roof-btn);border:2px solid #fff;}
     @keyframes popIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
     @media (prefers-reduced-motion:reduce){.nc.rs{animation:none;}}
@@ -356,8 +357,8 @@ function makeCardHTML(r, isN, size, delay){
   if(mini){
     const st=delay?' style="animation-delay:'+delay+'s"':'';
     return '<div class="nc rs mini g-'+g+'" role="group" aria-label="'+label+'"'+st+'>'+tiles+
-      '<div class="in"><div class="ph">'+ICON_CAT_S+photo+newMark+'</div>'+
-      '<div class="meta'+(r.cat.length>3?' long':'')+'"><span class="stamp '+g+'">'+g+'</span><span class="nm">'+r.cat+'</span></div></div></div>';
+      '<div class="in"><div class="ph">'+ICON_CAT_S+photo+newMark+'<span class="stamp '+g+'">'+g+'</span></div>'+
+      '<div class="meta"><span class="nm">'+r.cat+'</span></div></div></div>';
   }
   return '<div class="nc rs single g-'+g+'" role="group" aria-label="'+label+'">'+tiles+
     '<div class="in"><div class="ph">'+ICON_CAT+photo+newMark+'</div>'+
