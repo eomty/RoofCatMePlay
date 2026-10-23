@@ -62,7 +62,8 @@
     .nc.mini .ph{height:auto;aspect-ratio:1/1;border-radius:7px;}
     .nc.mini .ph svg{width:26px;height:26px;}
     .nc.mini .nm{font-size:10.5px;line-height:1.25;text-align:center;letter-spacing:-.03em;word-break:keep-all;overflow-wrap:anywhere;}
-    .nc.mini .stamp{position:absolute;top:3px;right:3px;z-index:2;width:18px;height:18px;font-size:10px;}
+    .nc.mini .meta{justify-content:center;flex-wrap:wrap;gap:3px;padding:0;}
+    .nc.mini .stamp{width:16px;height:16px;font-size:9px;}
     .new-dot{position:absolute;top:4px;left:4px;z-index:2;width:10px;height:10px;border-radius:50%;background:var(--roof-btn);border:2px solid #fff;}
     @keyframes popIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
     @media (prefers-reduced-motion:reduce){.nc.rs{animation:none;}}
@@ -353,8 +354,8 @@ function makeCardHTML(r, isN, size, delay){
   if(mini){
     const st=delay?' style="animation-delay:'+delay+'s"':'';
     return '<div class="nc rs mini g-'+g+'" role="group" aria-label="'+label+'"'+st+'>'+tiles+
-      '<div class="in"><div class="ph">'+ICON_CAT_S+photo+newMark+'<span class="stamp '+g+'">'+g+'</span></div>'+
-      '<span class="nm">'+r.cat+'</span></div></div>';
+      '<div class="in"><div class="ph">'+ICON_CAT_S+photo+newMark+'</div>'+
+      '<div class="meta"><span class="stamp '+g+'">'+g+'</span><span class="nm">'+r.cat+'</span></div></div></div>';
   }
   return '<div class="nc rs single g-'+g+'" role="group" aria-label="'+label+'">'+tiles+
     '<div class="in"><div class="ph">'+ICON_CAT+photo+newMark+'</div>'+
