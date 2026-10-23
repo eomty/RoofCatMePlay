@@ -17,16 +17,16 @@
 
 /* 히어로 (하늘 + 지붕) */
 .rcm-hero{position:relative;width:100%;max-width:480px;margin:0 auto;aspect-ratio:390/210;background:url(images/rcm-hero.svg) center/100% 100% no-repeat;overflow:hidden}
-.rcm-hero-title{position:absolute;left:0;right:0;top:12%;margin:0;text-align:center;font-family:var(--font-display);font-weight:400;font-size:clamp(30px,9.7vw,42px);line-height:1.1;color:var(--roof)}
+.rcm-hero-title{position:absolute;left:0;right:0;top:8%;margin:0;text-align:center;font-family:var(--font-display);font-weight:400;font-size:clamp(30px,9.7vw,42px);line-height:1.1;color:var(--roof)}
 .rcm-hero-logo{position:absolute;left:50%;top:11%;transform:translateX(-50%);width:62%;max-width:300px;height:auto}
 .rcm-hero-badge{position:absolute;left:50%;top:34%;transform:translateX(-50%);padding:3px 14px;border-radius:999px;background:var(--roof-btn);color:#fff;font-size:11px;font-weight:700;letter-spacing:.18em}
 
 /* 히어로 위 캐릭터 (지붕 위에 앉기) */
-.rcm-hero-cast{position:absolute;height:auto;pointer-events:none;user-select:none}
-.rcm-hero-cast.trio{left:50%;transform:translateX(-50%);bottom:21%;width:29%}
-.rcm-hero-cast.walk{right:5%;bottom:24%;width:23%}
-.rcm-hero-cast.nap{right:4%;bottom:24%;width:24%}
-.rcm-hero-cast.box{right:6%;bottom:24%;width:19%}
+.rcm-hero-cast{position:absolute;left:50%;transform:translateX(-50%);height:auto;pointer-events:none;user-select:none}
+.rcm-hero-cast.trio{bottom:21%;width:28%}
+.rcm-hero-cast.walk{bottom:21%;width:20%}
+.rcm-hero-cast.nap{bottom:21%;width:23%}
+.rcm-hero-cast.box{bottom:21%;width:18%}
 
 /* 기와 띠 / 푸터 지붕 */
 .rcm-tiles{height:11px;background-color:#E4572E;background-image:radial-gradient(circle 11px at 50% 0,#E4572E 0,#E4572E 8px,#B8321D 8.6px,#B8321D 10px,#E4572E 10.6px);background-size:22px 11px}

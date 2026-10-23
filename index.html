@@ -40,12 +40,21 @@
     .card:active { transform: scale(0.97); }
     .card:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 
-    .ico { width: 100%; height: 84px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-    .ico svg { opacity: .55; }
-    .card.bingo .ico { background: #C9E3EC; }
-    .card.dokan .ico { background: #F6C9A0; }
-    .card.gacha .ico { background: #F0D9C4; }
-    .card.bti   .ico { background: #E9D3B0; }
+    .ico { position: relative; width: 100%; height: 104px; border-radius: 10px; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; }
+    .ico::before { content: ""; position: absolute; inset: 0; background:
+      radial-gradient(ellipse 26px 8px at 22% 26%, rgba(255,255,255,.85) 98%, transparent 100%),
+      radial-gradient(ellipse 18px 6px at 34% 20%, rgba(255,255,255,.85) 98%, transparent 100%),
+      radial-gradient(ellipse 22px 7px at 82% 38%, rgba(255,255,255,.7) 98%, transparent 100%); }
+    .ico::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 12px; background-color: #E4572E; background-image: radial-gradient(circle 11px at 50% 0,#E4572E 0,#E4572E 8px,#B8321D 8.6px,#B8321D 10px,#E4572E 10.6px); background-size: 22px 11px; }
+    .ico img { position: relative; z-index: 1; height: 88px; width: auto; margin-bottom: 6px; }
+    .ico .badge { position: absolute; z-index: 2; top: 7px; left: 7px; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center; }
+    .card.bingo .ico { background: linear-gradient(180deg, #D3EBF2, #A9D3E0); }
+    .card.dokan .ico { background: linear-gradient(180deg, #FBF0D9, #F2D9A6); }
+    .card.gacha .ico { background: linear-gradient(180deg, #FCE3D2, #F4B999); }
+    .card.bti   .ico { background: linear-gradient(180deg, #F1E4CF, #DFC39A); }
+    .card.soon { cursor: default; }
+    .card.soon .ico img { filter: saturate(.55); opacity: .85; }
+    .soon-tag { position: absolute; z-index: 2; top: 7px; right: 7px; padding: 2px 9px; border-radius: 999px; background: #4A3F3A; color: #FBF0D9; font-size: 11px; font-weight: 700; }
 
     .card-label { font-size: 17px; font-weight: 800; color: var(--roof-text); text-align: center; line-height: 1.3; margin-top: 2px; }
     .card-sub { font-size: 12px; color: var(--ink-soft); text-align: center; line-height: 1.5; }
@@ -61,7 +70,8 @@
       border-color: #4A3F3A;
       color: var(--ivory);
     }
-    .card.escape .ico { width: 56px; height: 56px; background: rgba(251,240,217,.12); flex-shrink: 0; }
+    .card.escape .ico { width: 56px; height: 56px; background: rgba(251,240,217,.12); flex-shrink: 0; align-items: center; }
+    .card.escape .ico::before, .card.escape .ico::after { display: none; }
     .card.escape .ico svg { opacity: .9; }
     .card.escape .card-label { color: var(--ivory); font-size: 17px; text-align: left; margin: 0; }
     .card.escape .card-sub { color: rgba(251,240,217,.78); text-align: left; }
@@ -90,25 +100,25 @@
     <div class="grid">
 
       <a class="card bingo" href="bingo.html">
-        <div class="ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/></svg></div>
+        <div class="ico"><span class="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/></svg></span><img src="images/box.png" alt=""></div>
         <div class="card-label">냥빙고</div>
-        <div class="card-sub">사진 한 장으로<br>AI 집사 판정</div>
+        <div class="card-sub">재밌는<br>빙고게임~</div>
       </a>
 
-      <a class="card dokan" href="collection.html">
-        <div class="ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg></div>
-        <div class="card-label">고양이 도감</div>
-        <div class="card-sub">QR로 개체 해금<br>몇 마리 만났어?</div>
+      <a class="card dokan soon" href="#" aria-disabled="true" tabindex="-1" onclick="return false">
+        <div class="ico"><span class="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span><span class="soon-tag">준비 중</span><img src="images/gacha-walk.png" alt=""></div>
+        <div class="card-label">냥도감</div>
+        <div class="card-sub">직접 고양이를<br>찾아보자!</div>
       </a>
 
       <a class="card gacha" href="gacha.html">
-        <div class="ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 8.5l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z"/></svg></div>
+        <div class="ico"><span class="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 8.5l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z"/></svg></span><img src="images/nap.png" alt=""></div>
         <div class="card-label">냥가챠</div>
         <div class="card-sub">카드 뽑고<br>수집하기</div>
       </a>
 
       <a class="card bti" href="https://roofcat.me/">
-        <div class="ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 9L6 3l5 3.5h2L18 3l1 6c1 6-3 10-7 10S4 15 5 9z"/><circle cx="9.5" cy="12" r=".8"/><circle cx="14.5" cy="12" r=".8"/></svg></div>
+        <div class="ico"><span class="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3F3A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.6 12 20 12 20z"/></svg></span><img src="images/hero-trio.png" alt=""></div>
         <div class="card-label">냥BTI</div>
         <div class="card-sub">나의 운명냥<br>찾아보기</div>
       </a>
