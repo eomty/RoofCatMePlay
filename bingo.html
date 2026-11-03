@@ -23,13 +23,21 @@
 
     /* 그리드 */
     .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:8px 0 0;width:100%;}
-    .cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:10px;border-radius:12px;background:#fff;border:1.5px solid var(--line);cursor:pointer;transition:transform .15s;-webkit-tap-highlight-color:transparent;overflow:hidden;}
-    .cell:active{transform:scale(.96);}
+    .cell{--bg:#EEF7FA;--bd:#8EC5D6;--t1:#8EC5D6;--t2:#5B98AD;position:relative;overflow:hidden;aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:16px 8px 12px;border-radius:14px;background:var(--bg);border:1.5px solid var(--bd);box-shadow:0 3px 0 var(--bd);cursor:pointer;transition:transform .12s,box-shadow .12s;-webkit-tap-highlight-color:transparent;}
+    .cell:nth-child(even){--bg:#FBF0D9;--bd:#E2C58A;--t1:#EBD3A2;--t2:#BF9F5C;}
+    /* 윗부분: 작은 기와 띠 */
+    .cell::before{content:"";position:absolute;left:0;right:0;top:0;height:9px;background-color:var(--t1);background-image:radial-gradient(circle 8px at 50% 0,var(--t1) 0,var(--t1) 5.4px,var(--t2) 5.9px,var(--t2) 7px,var(--t1) 7.5px);background-size:16px 8px;}
+    /* 아래 왼쪽: 사진 찍는 칸이라는 표시 */
+    .cell::after{content:"";position:absolute;left:7px;bottom:6px;width:20px;height:20px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234A3F3A' stroke-opacity='.38' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.5-2h7L17 8h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.2'/%3E%3C/svg%3E") center/contain no-repeat;}
+    .cell:active{transform:translateY(3px);box-shadow:0 0 0 var(--bd);}
     .cell:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
-    .cell-name{font-size:13.5px;line-height:1.4;font-weight:700;color:var(--ink);text-align:center;word-break:keep-all;}
-    .cell.done{background:#FFF3EA;border-color:#E4572E;cursor:default;}
-    .cell.done .cell-name{color:#8A2B16;}
-    .cell-check{position:absolute;right:6px;bottom:6px;width:24px;height:24px;border-radius:50%;background:var(--roof-btn);display:flex;align-items:center;justify-content:center;}
+    .cell-name{position:relative;font-size:13.5px;line-height:1.4;font-weight:700;color:var(--ink);text-align:center;word-break:keep-all;}
+    /* 완료: 기와색 + 발바닥 도장 */
+    .cell.done{--bg:#D14325;--bd:#B8321D;--t1:#B8321D;--t2:#E4572E;background:linear-gradient(180deg,#E4572E,#C9301B);cursor:default;}
+    .cell.done::after{left:auto;right:-8px;bottom:-8px;width:64px;height:64px;opacity:.2;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64' fill='white'%3E%3Cellipse cx='32' cy='42' rx='14' ry='11'/%3E%3Cellipse cx='13' cy='28' rx='6' ry='8' transform='rotate(-18 13 28)'/%3E%3Cellipse cx='25' cy='15' rx='6' ry='8.5' transform='rotate(-6 25 15)'/%3E%3Cellipse cx='39' cy='15' rx='6' ry='8.5' transform='rotate(6 39 15)'/%3E%3Cellipse cx='51' cy='28' rx='6' ry='8' transform='rotate(18 51 28)'/%3E%3C/svg%3E") center/contain no-repeat;}
+    .cell.done .cell-name{color:#fff;text-shadow:0 1px 2px rgba(80,20,10,.35);}
+    .cell-check{position:absolute;right:6px;bottom:6px;width:24px;height:24px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(80,20,10,.3);z-index:1;}
+    .cell-check svg{stroke:#C9301B;}
     @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
     .cell.just-done{animation:pop .4s ease;}
     @media (prefers-reduced-motion:reduce){.cell.just-done{animation:none;}}

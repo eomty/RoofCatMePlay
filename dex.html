@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>냥도감 — ROOF CAT ME PLAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="rcm-theme.css?v=15">
+  <style>
+    html{color-scheme:light;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#fff;color:var(--ink);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+    .wrap{width:100%;max-width:480px;margin:0 auto;}
+    button{font-family:inherit;}
+
+    /* 요약 */
+    .sum{padding:22px 20px 6px;display:flex;flex-direction:column;gap:12px;}
+    .sum-top{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+    .nick{font-size:14px;color:var(--ink-soft);}
+    .tk{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--ivory);border:1.5px solid var(--gold);font-size:13px;font-weight:800;color:#8A2B16;text-decoration:none;}
+    .meet{font-size:16px;color:var(--ink-soft);display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;}
+    .meet b{font-family:var(--font-display);font-weight:400;font-size:44px;line-height:1;color:var(--roof);}
+    .bar{height:10px;border-radius:5px;background:#F1E6D2;overflow:hidden;}
+    .bar-fill{height:100%;border-radius:5px;background:var(--roof);transition:width .6s ease;}
+    .ttl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .ttl .next{font-size:12.5px;color:var(--ink-soft);}
+
+    /* 섹션 제목 */
+    .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:26px 20px 12px;}
+    .sec-head h2{white-space:nowrap;}
+    .sec-head .hint{font-size:13px;color:var(--ink-soft);text-align:right;}
+
+    /* 이번 목표 */
+    .tgt{margin:0 20px;border:2px solid var(--gold);border-radius:16px;background:var(--ivory);overflow:hidden;}
+    .tgt .ph{position:relative;height:210px;background:#F0D9C4;display:flex;align-items:center;justify-content:center;}
+    .tgt .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+    .tgt .body{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 16px 18px;text-align:center;}
+    .tgt .lab{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--roof-text);}
+    .tgt .nm{font-family:var(--font-display);font-size:32px;line-height:1.1;color:var(--roof);overflow-wrap:anywhere;}
+    .tgt .help{font-size:13px;color:var(--ink-soft);line-height:1.55;word-break:keep-all;}
+    .chips{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;}
+    .chips span{font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;background:rgba(74,63,58,.08);color:#5B4F48;}
+    .acts{display:flex;flex-direction:column;gap:10px;padding:14px 20px 0;}
+    .rcm-btn .ic{margin-right:8px;flex:none;}
+    .acts .rcm-btn.ghost{height:48px;font-size:15px;}
+    .done-banner{margin:0 20px 14px;padding:12px 16px;border-radius:12px;background:#FFF3C4;border:1.5px solid var(--gold);font-size:14px;font-weight:800;color:#6E1A0E;text-align:center;line-height:1.5;word-break:keep-all;}
+
+    /* 내 도감 격자 */
+    .dgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 20px 36px;}
+    .tile{display:flex;flex-direction:column;align-items:center;gap:5px;padding:0;background:none;border:0;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent;}
+    .tile:active{transform:scale(.97);}
+    .tile .ph{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#F0D9C4;border:2px solid var(--roof);display:flex;align-items:center;justify-content:center;}
+    .tile .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+    .tile .no{font-size:11px;color:var(--ink-soft);font-weight:700;letter-spacing:.04em;}
+    .tile .tn{font-size:14px;font-weight:800;color:var(--roof-text);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .tile.off{cursor:default;}
+    .tile.off:active{transform:none;}
+    .tile.off .ph{background:#F4EFE8;border:1.5px dashed #CFC4B6;}
+    .tile.off .tn{color:#6F655D;}
+    .tile:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:12px;}
+
+    .back{display:block;text-align:center;font-size:13px;color:var(--ink-soft);padding:0 20px 20px;text-decoration:underline;}
+    .foot{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 20px 18px;}
+    .foot b{font-family:var(--font-display);font-weight:400;font-size:18px;color:var(--roof);}
+    .foot span{font-size:12px;color:var(--ink-soft);}
+
+    /* 아래에서 올라오는 시트 */
+    .dim{position:fixed;inset:0;background:rgba(40,28,22,.62);z-index:1000;display:none;align-items:flex-end;justify-content:center;}
+    .dim.open{display:flex;}
+    .panel:focus{outline:none;}
+    .panel{width:100%;max-width:480px;max-height:92vh;overflow:auto;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:sheetUp .25s ease both;}
+    @keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+    .pn-title{font-family:var(--font-display);font-weight:400;font-size:26px;line-height:1.25;color:var(--roof);text-align:center;word-break:keep-all;}
+    .pn-text{font-size:14.5px;line-height:1.65;color:var(--ink-soft);text-align:center;word-break:keep-all;}
+    .pn-text b{color:var(--roof-text);}
+    .panel .acts{padding:4px 0 0;}
+    .tips{list-style:none;display:flex;flex-direction:column;gap:10px;padding:4px 0;}
+    .tips li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.5;color:var(--ink);word-break:keep-all;}
+    .tips svg{flex:none;margin-top:2px;}
+    .skipchk{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--ink-soft);cursor:pointer;}
+    .skipchk input{width:18px;height:18px;accent-color:var(--roof-btn);}
+
+    /* 판정 중 / 결과 사진 */
+    .shot{position:relative;width:min(240px,70%);aspect-ratio:1;margin:0 auto;border-radius:14px;background:#F0D9C4;border:3px solid #fff;box-shadow:0 2px 12px rgba(74,63,58,.28);}
+    .shot img{width:100%;height:100%;object-fit:cover;display:block;border-radius:11px;}
+    .shot.tilt{transform:rotate(-3deg);}
+    .spin{width:34px;height:34px;margin:0 auto;border-radius:50%;border:4px solid #F1E6D2;border-top-color:var(--roof);animation:spin .9s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .stampok{position:absolute;right:-14px;bottom:12px;transform:rotate(-12deg);padding:6px 14px 4px;border:3px solid var(--roof);border-radius:10px;font-family:var(--font-display);font-size:22px;color:var(--roof);background:rgba(255,255,255,.88);animation:stampIn .45s cubic-bezier(.2,1.6,.4,1) both .15s;}
+    @keyframes stampIn{from{transform:rotate(-12deg) scale(2.4);opacity:0}to{transform:rotate(-12deg) scale(1);opacity:1}}
+    .rw{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+    .rw span{padding:5px 12px;border-radius:999px;background:var(--ivory);border:1.5px solid var(--gold);font-size:13px;font-weight:800;color:#8A2B16;}
+    .rw .tot{background:var(--roof-btn);border-color:var(--roof-btn);color:#fff;}
+    .newttl{align-self:center;padding:7px 16px;border-radius:999px;background:#FFF3C4;border:1.5px solid var(--gold);font-size:14px;font-weight:800;color:#6E1A0E;}
+    @media (prefers-reduced-motion:reduce){.stampok,.panel{animation:none}.spin{animation-duration:2.4s}}
+
+    /* 고양이 정보 */
+    .info-ph{position:relative;height:230px;margin:-24px -20px 0;border-radius:20px 20px 0 0;overflow:hidden;background:#F0D9C4;display:flex;align-items:center;justify-content:center;}
+    .info-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+    .info-no{text-align:center;font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--roof-text);}
+    .info-nm{font-family:var(--font-display);font-weight:400;font-size:32px;line-height:1.1;color:var(--roof);text-align:center;}
+    .facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .facts div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:12px;background:#F4EFE8;}
+    .facts small{font-size:12px;color:var(--ink-soft);}
+    .facts b{font-size:15px;color:var(--ink);}
+
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#4A3F3A;color:#FBF0D9;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:700;z-index:2000;transition:transform .4s,opacity .4s;opacity:0;white-space:nowrap;pointer-events:none;max-width:92vw;overflow:hidden;text-overflow:ellipsis;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  </style>
+</head>
+<body>
+
+<div class="rcm-hero"><h1 class="rcm-hero-title">냥도감</h1><img class="rcm-hero-cast walk" src="images/gacha-walk.png" alt="" width="360" height="450"></div>
+
+<main class="wrap">
+  <section class="sum">
+    <div class="sum-top">
+      <p class="nick" id="hdr-nick"></p>
+      <a class="tk" href="gacha.html" aria-label="가챠권, 냥가챠로 이동">가챠권 <span id="tk-n">0</span>장</a>
+    </div>
+    <p class="meet">지금까지 <b id="met-n">0</b>마리 만났어요 <span id="met-all" style="font-size:14px">/ 43마리</span></p>
+    <div class="bar"><div class="bar-fill" id="met-bar" style="width:0%"></div></div>
+    <div class="ttl"><span class="rcm-pill" id="ttl-now">지나가는 손님</span><span class="next" id="ttl-next"></span></div>
+  </section>
+
+  <div class="sec-head"><h2 class="rcm-h2" id="tgt-h">이번 목표</h2><span class="hint" id="tgt-hint">이 고양이를 찾아 찍어보세요</span></div>
+  <div id="done-banner" class="done-banner" hidden></div>
+  <section class="tgt" id="tgt" aria-live="polite"></section>
+  <div class="acts">
+    <button type="button" class="rcm-btn" id="btn-shoot"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg>찍으러 가기</button>
+    <button type="button" class="rcm-btn ghost" id="btn-skip">이 고양이 넘어가기</button>
+  </div>
+
+  <div class="sec-head"><h2 class="rcm-h2">내 도감</h2><span class="hint">만난 고양이를 눌러보세요</span></div>
+  <div class="dgrid" id="dgrid"></div>
+  <a class="back" href="index.html">← 메인으로</a>
+</main>
+
+<div class="foot"><b>ROOF_CAT_ME PLAY</b><span>루프캣미 매장에서 즐기는 미니게임</span></div>
+<div class="rcm-roof"></div>
+
+<input type="file" accept="image/*" capture="environment" id="photo-input" hidden>
+
+<div class="dim" id="dim"><div class="panel" id="panel" role="dialog" aria-modal="true" aria-live="polite"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqxMZf8xDfaQ1oAheXJAuYbWBBfZBkgvI",
+  authDomain: "roofcatmeplay.firebaseapp.com",
+  projectId: "roofcatmeplay",
+  storageBucket: "roofcatmeplay.firebasestorage.app",
+  messagingSenderId: "793320259272",
+  appId: "1:793320259272:web:7ba8355067b03edc2b2ffd"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ═══ 설정값 (여기만 고치면 됨) ═════════════════════════════════ */
+// 판정 서버 주소. 비워두면 임시 판정(항상 "맞음")으로 동작함
+const JUDGE_URL = '';
+// 가챠권 보상
+const R = { perCat:1, every:5, everyBonus:3, complete:10, repeat:1, repeatDaily:5 };
+// 칭호 (n = 만난 마리 수, 'ALL' = 전부)
+const TITLES = [
+  {n:0,     t:'지나가는 손님'},
+  {n:5,     t:'새내기 집사'},
+  {n:10,    t:'단골 집사'},
+  {n:20,    t:'베테랑 집사'},
+  {n:30,    t:'고양이 박사'},
+  {n:'ALL', t:'루프캣 마스터'},
+];
+/* ═════════════════════════════════════════════════════════ */
+
+// ── 고양이 명단: cats.json ──
+let _catsData;
+try{
+  _catsData = await (await fetch('cats.json?v=1',{cache:'no-cache'})).json();
+}catch(e){
+  document.body.innerHTML='<p style="padding:40px 20px;text-align:center;font-family:sans-serif;color:#4A3F3A">고양이 명단(cats.json)을 불러오지 못했어요.<br>새로고침해 주세요.</p>';
+  throw e;
+}
+const CATS  = _catsData.cats.slice().sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+const TOTAL = CATS.length;
+const NO    = Object.fromEntries(CATS.map((c,i)=>[c.slug,i+1]));
+const BY    = Object.fromEntries(CATS.map(c=>[c.slug,c]));
+const titleList = TITLES.map(x=>({n:x.n==='ALL'?TOTAL:x.n,t:x.t}));
+
+const ICON_CAT = '<svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="rgba(74,63,58,.38)" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 22 L12 7 L22 14 Q24 13.6 26 14 L36 7 L38 22 Q40 33 24 40 Q8 33 10 22Z"/><circle cx="18" cy="24" r="1.6"/><circle cx="30" cy="24" r="1.6"/><path d="M22 29 h4"/></svg>';
+const ICON_OK  = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D14325" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.4l2.8 2.8L16.2 9.6"/></svg>';
+const ICON_NO  = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6F655D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDate(s){return s?s.replace(/-/g,'.'):'';}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+let toastT;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+function imgOf(c){return '<img src="images/cats/'+c.slug+'.webp" alt="" loading="lazy" decoding="async" onerror="this.remove()">';}
+
+// ── 상태 ──
+let uid=null, user={}, dex={}, tickets=0, target=null;
+let busy=false, curB64=null, rejudged=false, curDataUrl='';
+
+const metCount = () => CATS.filter(c=>dex[c.slug]).length;
+function titleFor(n){let t=titleList[0];for(const x of titleList){if(n>=x.n)t=x;}return t;}
+function nextTitle(n){return titleList.find(x=>x.n>n)||null;}
+
+// ── 목표 고양이 (아직 못 만난 고양이 중 랜덤, 전부 만났으면 전체 중 랜덤) ──
+function pickTarget(excludeSlug){
+  const unmet = CATS.filter(c=>!dex[c.slug]);
+  let pool = unmet.length ? unmet : CATS;
+  if(pool.length>1 && excludeSlug) pool = pool.filter(c=>c.slug!==excludeSlug);
+  return pool[Math.floor(Math.random()*pool.length)].slug;
+}
+function loadTarget(){
+  const s = lsGet('rcm_dex_target_'+uid);
+  const valid = s && BY[s] && (metCount()>=TOTAL || !dex[s]);
+  target = valid ? s : pickTarget();
+  lsSet('rcm_dex_target_'+uid, target);
+}
+function setTarget(slug){target=slug;lsSet('rcm_dex_target_'+uid,slug);}
+
+// ── 화면 그리기 ──
+function renderAll(){
+  const n = metCount();
+  $('hdr-nick').textContent = user.nickname||'';
+  $('tk-n').textContent = tickets;
+  $('met-n').textContent = n;
+  $('met-all').textContent = '/ '+TOTAL+'마리';
+  $('met-bar').style.width = (n/TOTAL*100).toFixed(1)+'%';
+  $('ttl-now').textContent = titleFor(n).t;
+  const nx = nextTitle(n);
+  $('ttl-next').textContent = nx ? '다음 칭호 \''+nx.t+'\'까지 '+(nx.n-n)+'마리' : '최고 칭호를 달성했어요!';
+
+  const done = n>=TOTAL;
+  $('done-banner').hidden = !done;
+  if(done) $('done-banner').innerHTML = '도감을 완성했어요!<br>이제 고양이를 찍을 때마다 가챠권 '+R.repeat+'장 (하루 '+R.repeatDaily+'번까지)';
+  $('tgt-h').textContent = done ? '오늘의 고양이' : '이번 목표';
+  $('tgt-hint').textContent = done ? '찾아서 또 찍어보세요' : '이 고양이를 찾아 찍어보세요';
+
+  renderTarget();
+  renderGrid();
+}
+function renderTarget(){
+  const c = BY[target];
+  $('tgt').innerHTML = '<div class="rcm-tiles"></div>'+
+    '<div class="ph">'+ICON_CAT+imgOf(c)+'</div>'+
+    '<div class="body"><span class="lab">NO.'+String(NO[c.slug]).padStart(2,'0')+' · 찾아주세요</span>'+
+    '<div class="nm">'+esc(c.name)+'</div>'+
+    ((c.tags&&c.tags.length)?'<div class="chips">'+c.tags.map(t=>'<span>'+esc(t)+'</span>').join('')+'</div>':'')+
+    '<p class="help">오늘 출근하지 않았거나 찾기 어렵다면 넘어가도 돼요.</p></div>';
+}
+function renderGrid(){
+  const g = $('dgrid'); g.innerHTML='';
+  CATS.forEach(c=>{
+    const no = String(NO[c.slug]).padStart(2,'0');
+    const met = dex[c.slug];
+    const b = document.createElement('button');
+    b.type='button';
+    if(met){
+      b.className='tile';
+      b.setAttribute('aria-label','No.'+no+' '+c.name+' 정보 보기');
+      b.innerHTML='<div class="ph">'+ICON_CAT+imgOf(c)+'</div><span class="no">NO.'+no+'</span><span class="tn">'+esc(c.name)+'</span>';
+      b.addEventListener('click',()=>openInfo(c.slug));
+    }else{
+      b.className='tile off';
+      b.setAttribute('aria-label','No.'+no+' 아직 만나지 못한 고양이');
+      b.setAttribute('aria-disabled','true');
+      b.innerHTML='<div class="ph">'+ICON_CAT+'</div><span class="no">NO.'+no+'</span><span class="tn">???</span>';
+      b.addEventListener('click',()=>toast('아직 만나지 못한 고양이예요'));
+    }
+    g.appendChild(b);
+  });
+}
+
+// ── 시트 ──
+function openSheet(html, closable=true){
+  $('panel').innerHTML = html;
+  $('dim').classList.add('open');
+  $('dim').dataset.closable = closable ? '1':'';
+  $('panel').setAttribute('tabindex','-1'); $('panel').focus({preventScroll:true});
+}
+function closeSheet(){ $('dim').classList.remove('open'); $('panel').innerHTML=''; }
+$('dim').addEventListener('click',e=>{ if(e.target===$('dim') && $('dim').dataset.closable) closeSheet(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('dim').classList.contains('open') && $('dim').dataset.closable) closeSheet(); });
+function act(id,fn){ const el=$(id); if(el) el.addEventListener('click',fn); }
+
+// 촬영 안내
+function openGuide(){
+  if(lsGet('rcm_dex_guide_skip')==='1'){ $('photo-input').click(); return; }
+  const c = BY[target];
+  openSheet(
+    '<h3 class="pn-title">'+esc(c.name)+' 찍는 방법</h3>'+
+    '<ul class="tips">'+
+      '<li>'+ICON_OK+'<span>플래시는 끄고, 너무 가까이 가지 말고 <b>살짝 떨어져서</b> 찍어주세요</span></li>'+
+      '<li>'+ICON_OK+'<span>얼굴과 털 무늬가 <b>또렷하게</b> 보이게 한 마리만 담아주세요</span></li>'+
+      '<li>'+ICON_OK+'<span>다른 손님의 얼굴이 나오지 않게 조심해주세요</span></li>'+
+      '<li>'+ICON_NO+'<span>화면·인쇄물·옛날 사진을 다시 찍은 건 인정되지 않아요</span></li>'+
+    '</ul>'+
+    '<label class="skipchk"><input type="checkbox" id="g-skip"> 다음부터 이 안내 건너뛰기</label>'+
+    '<div class="acts"><button type="button" class="rcm-btn" id="g-go">촬영하기</button><button type="button" class="rcm-btn ghost" id="g-cancel">취소</button></div>'
+  );
+  act('g-go',()=>{ if($('g-skip').checked) lsSet('rcm_dex_guide_skip','1'); closeSheet(); $('photo-input').click(); });
+  act('g-cancel',closeSheet);
+}
+
+// ── 사진 → 압축 ──
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onerror=()=>reject(new Error('READ'));
+    r.onload=e=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('IMG'));
+      img.onload=()=>{
+        const MAX=1024;
+        let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+        if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+        const cv=document.createElement('canvas');
+        cv.width=w;cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(cv.toDataURL('image/jpeg',.82));
+      };
+      img.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+// ── 판정 ──────────────────────────────────────────────
+// 결과: 'MATCH' | 'NOT_MATCH' | 'NO_CAT' | 'FAKE'  (실패 시 예외)
+async function judge(slug, b64, strict){
+  if(!JUDGE_URL){
+    // 임시 판정 (서버 연결 전). ?mock=NOT_MATCH|NO_CAT|FAKE|REJUDGE|ERROR 로 각 화면 확인 가능
+    await new Promise(r=>setTimeout(r,1300));
+    const m=(new URLSearchParams(location.search).get('mock')||'MATCH').toUpperCase();
+    if(m==='ERROR') throw new Error('MOCK');
+    if(m==='REJUDGE') return strict?'MATCH':'NOT_MATCH';
+    return m;
+  }
+  const res = await fetch(JUDGE_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({mode:'dex', slug, image:b64, strict:!!strict})
+  });
+  if(!res.ok) throw new Error('JUDGE_HTTP');
+  const data = await res.json();
+  const r = String(data.result||'').trim().toUpperCase();
+  if(!['MATCH','NOT_MATCH','NO_CAT','FAKE'].includes(r)) throw new Error('JUDGE_BAD');
+  return r;
+}
+
+async function runJudge(strict){
+  if(busy) return;
+  busy = true;
+  const c = BY[target];
+  openSheet(
+    '<div class="shot"><img src="'+curDataUrl+'" alt="찍은 사진"></div>'+
+    '<div class="spin" role="progressbar" aria-label="판정 중"></div>'+
+    '<h3 class="pn-title">'+(strict?'한 번 더 꼼꼼히 살펴볼게요':'집사 눈으로 확인하는 중…')+'</h3>'+
+    '<p class="pn-text"><b>'+esc(c.name)+'</b>가 맞는지 살펴보고 있어요</p>', false);
+  let result;
+  try{ result = await judge(target, curB64, strict); }
+  catch(e){
+    busy=false;
+    openSheet(
+      '<h3 class="pn-title">연결이 불안정해요</h3><p class="pn-text">잠시 후 다시 시도해주세요. 찍은 사진은 그대로 있어요.</p>'+
+      '<div class="acts"><button type="button" class="rcm-btn" id="r-retry">다시 판정하기</button><button type="button" class="rcm-btn ghost" id="r-close">닫기</button></div>');
+    act('r-retry',()=>runJudge(strict)); act('r-close',closeSheet);
+    return;
+  }
+  if(result==='MATCH'){
+    let out;
+    try{ out = await register(target); }
+    catch(e){
+      busy=false;
+      openSheet(
+        '<h3 class="pn-title">등록에 실패했어요</h3><p class="pn-text">고양이는 맞게 찍었어요! 네트워크를 확인하고 다시 눌러주세요.</p>'+
+        '<div class="acts"><button type="button" class="rcm-btn" id="r-retry">다시 등록하기</button><button type="button" class="rcm-btn ghost" id="r-close">닫기</button></div>');
+      act('r-retry',()=>{ busy=true; register(target).then(showMatch).catch(()=>{busy=false;toast('등록에 실패했어요');}); });
+      act('r-close',closeSheet);
+      return;
+    }
+    showMatch(out);
+    return;
+  }
+  busy=false;
+  showFail(result, strict);
+}
+
+function failActions(allowRejudge){
+  return '<div class="acts"><button type="button" class="rcm-btn" id="r-again">다시 찍기</button>'+
+    (allowRejudge?'<button type="button" class="rcm-btn ghost" id="r-rejudge">억울해요 · 한 번 더 판정</button>':'')+
+    '<button type="button" class="rcm-btn ghost" id="r-skip">이 고양이 넘어가기</button></div>';
+}
+function bindFail(){
+  act('r-again',()=>{ closeSheet(); $('photo-input').click(); });
+  act('r-rejudge',()=>{ rejudged=true; runJudge(true); });
+  act('r-skip',()=>{ closeSheet(); doSkip(); });
+}
+function showFail(result, wasStrict){
+  const c = BY[target];
+  const shot = '<div class="shot"><img src="'+curDataUrl+'" alt="찍은 사진"></div>';
+  if(result==='NOT_MATCH'){
+    const again = wasStrict;
+    openSheet(shot+
+      '<h3 class="pn-title">'+(again?'다시 봐도 '+esc(c.name)+'가 아닌 것 같아요':'음, '+esc(c.name)+'가 아닌 것 같아요')+'</h3>'+
+      '<p class="pn-text">'+(again?'얼굴과 무늬가 잘 보이게 다시 찍어보거나, 다른 고양이로 넘어가 보세요.':'얼굴과 털 무늬가 잘 보이게 다시 찍어보세요. 억울하다면 한 번 더 판정해드릴게요.')+'</p>'+
+      failActions(!rejudged));
+  }else if(result==='NO_CAT'){
+    openSheet(shot+'<h3 class="pn-title">고양이가 안 보여요</h3><p class="pn-text">사진에 고양이가 또렷하게 나오도록 다시 찍어주세요.</p>'+failActions(false));
+  }else{
+    openSheet(shot+'<h3 class="pn-title">직접 찍은 사진이 아닌 것 같아요</h3><p class="pn-text">화면이나 인쇄물, 예전에 찍은 사진은 인정되지 않아요. 지금 눈앞의 고양이를 직접 찍어주세요.</p>'+failActions(false));
+  }
+  bindFail();
+}
+
+// ── 등록 + 보상 (한 번에 처리) ──
+async function register(slug){
+  const ref = doc(db,'users',uid);
+  const before = metCount();
+  let out;
+  await runTransaction(db, async tx=>{
+    const snap = await tx.get(ref);
+    if(!snap.exists()) throw new Error('NO_USER');
+    const d = snap.data();
+    const map = {...(d.dex||{})};
+    const e = map[slug];
+    const day = today();
+    let reward=0, parts=[], isNew=!e, daily=null;
+    if(isNew){
+      map[slug] = {first:day, n:1};
+      const n = CATS.filter(c=>map[c.slug]).length;
+      reward += R.perCat; parts.push(['새 고양이', R.perCat]);
+      if(n%R.every===0){ reward+=R.everyBonus; parts.push([n+'마리 달성', R.everyBonus]); }
+      if(n===TOTAL){ reward+=R.complete; parts.push(['도감 완성', R.complete]); }
+    }else{
+      map[slug] = {...e, n:(e.n||0)+1};
+      const used = (d.dexDaily && d.dexDaily.date===day) ? (d.dexDaily.n||0) : 0;
+      if(used<R.repeatDaily){ reward+=R.repeat; parts.push(['사진 확인', R.repeat]); daily={date:day,n:used+1}; }
+    }
+    const upd = {dex:map};
+    if(reward>0) upd.tickets = (d.tickets||0)+reward;
+    if(daily) upd.dexDaily = daily;
+    tx.update(ref, upd);
+    out = {slug, isNew, reward, parts, map, tickets:(d.tickets||0)+reward, capped:(!isNew && reward===0), usedToday:daily?daily.n:R.repeatDaily};
+  });
+  dex = out.map; tickets = out.tickets;
+  lsSet('rcm_gacha_tickets', String(tickets));
+  out.before = before; out.after = metCount();
+  return out;
+}
+
+function showMatch(o){
+  busy=false;
+  const c = BY[o.slug];
+  const n = o.after;
+  const t0 = titleFor(o.before), t1 = titleFor(n);
+  renderAll();
+  const nextBtn = '<button type="button" class="rcm-btn" id="m-next">다음 고양이 찾기</button>';
+  let body;
+  if(o.isNew){
+    body = '<div class="shot tilt"><img src="'+curDataUrl+'" alt="찍은 사진"><span class="stampok">등록 완료!</span></div>'+
+      '<h3 class="pn-title">'+esc(c.name)+' 발견!</h3>'+
+      '<p class="pn-text">NO.'+String(NO[c.slug]).padStart(2,'0')+' · 지금까지 <b>'+n+'마리</b> 만났어요</p>'+
+      '<div class="rw">'+o.parts.map(p=>'<span>'+esc(p[0])+' +'+p[1]+'</span>').join('')+'<span class="tot">가챠권 +'+o.reward+'장</span></div>'+
+      (t1.t!==t0.t?'<div class="newttl">새 칭호: '+esc(t1.t)+'</div>':'')+
+      (n>=TOTAL?'<p class="pn-text"><b>도감을 모두 채웠어요! 축하합니다 🎉</b></p>':'');
+  }else{
+    body = '<div class="shot tilt"><img src="'+curDataUrl+'" alt="찍은 사진"><span class="stampok">확인 완료!</span></div>'+
+      '<h3 class="pn-title">'+esc(c.name)+' 맞아요!</h3>'+
+      (o.reward>0
+        ? '<div class="rw"><span class="tot">가챠권 +'+o.reward+'장</span></div><p class="pn-text">오늘 '+o.usedToday+' / '+R.repeatDaily+'번째 보상이에요</p>'
+        : '<p class="pn-text">오늘 받을 수 있는 가챠권은 모두 받았어요. 내일 또 만나요!</p>');
+  }
+  openSheet(body+'<div class="acts">'+nextBtn+'<a class="rcm-btn ghost" href="gacha.html" style="height:48px;font-size:15px">가챠 하러 가기</a></div>');
+  act('m-next',()=>{ closeSheet(); setTarget(pickTarget(o.slug)); renderAll(); window.scrollTo({top:0,behavior:'smooth'}); });
+}
+
+// ── 고양이 정보 ──
+function openInfo(slug){
+  const c = BY[slug], e = dex[slug]||{};
+  openSheet(
+    '<div class="info-ph">'+ICON_CAT+imgOf(c)+'</div>'+
+    '<p class="info-no">NO.'+String(NO[slug]).padStart(2,'0')+'</p>'+
+    '<h3 class="info-nm">'+esc(c.name)+'</h3>'+
+    (c.desc?'<p class="pn-text">'+esc(c.desc)+'</p>':'')+
+    ((c.tags&&c.tags.length)?'<div class="chips">'+c.tags.map(t=>'<span>'+esc(t)+'</span>').join('')+'</div>':'')+
+    '<div class="facts"><div><small>처음 만난 날</small><b>'+esc(fmtDate(e.first)||'-')+'</b></div><div><small>만난 횟수</small><b>'+(e.n||1)+'번</b></div></div>'+
+    '<div class="acts"><button type="button" class="rcm-btn ghost" id="i-close">닫기</button></div>');
+  act('i-close',closeSheet);
+}
+
+// ── 넘어가기 ──
+function doSkip(){
+  setTarget(pickTarget(target));
+  renderAll();
+  toast('다른 고양이로 바꿨어요');
+}
+
+// ── 이벤트 ──
+$('btn-shoot').addEventListener('click',openGuide);
+$('btn-skip').addEventListener('click',doSkip);
+$('photo-input').addEventListener('change',async e=>{
+  const f = e.target.files && e.target.files[0];
+  e.target.value='';
+  if(!f || busy) return;
+  try{
+    curDataUrl = await compressImage(f);
+    curB64 = curDataUrl.split(',')[1];
+  }catch(err){ toast('사진을 읽지 못했어요. 다시 찍어주세요'); return; }
+  rejudged = false;
+  runJudge(false);
+});
+
+// ── 시작 ──
+onAuthStateChanged(auth, async u=>{
+  if(!u){ location.href='login.html'; return; }
+  uid = u.uid;
+  try{
+    const snap = await getDoc(doc(db,'users',uid));
+    user = snap.exists() ? snap.data() : {};
+  }catch(e){ user = {}; toast('정보를 불러오지 못했어요'); }
+  if(!user.nickname) user.nickname = lsGet('rcm_nickname')||u.displayName||'';
+  dex = user.dex||{};
+  tickets = user.tickets||0;
+  loadTarget();
+  renderAll();
+});
+</script>
+</body>
+</html>
