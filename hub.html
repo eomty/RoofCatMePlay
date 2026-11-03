@@ -112,13 +112,28 @@
         <div class="card-sub">나의 운명냥<br>찾아보기</div>
       </a>
 
-      <a class="card escape" href="https://eomty.github.io/RoofCatMeER">
+      <a class="card escape" href="https://eomty.github.io/RoofCatMeER" onclick="return goToEscape(event)">
         <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FBF0D9" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></div>
         <div>
           <div class="card-label">탐정X의 잠입수사</div>
           <div class="card-sub">루프캣미 방탈출</div>
         </div>
       </a>
+
+    <!-- 구글 연동 모달 -->
+    <div id="escapeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;">
+      <div style="background:#1e1c1a;border:1px solid #4a4742;border-radius:8px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.6);">
+        <div style="font-size:11px;letter-spacing:.2em;color:#d4a800;margin-bottom:12px;">루프캣미 방탈출</div>
+        <div style="font-size:18px;font-weight:700;color:#FBF0D9;margin-bottom:10px;">구글 계정 연동 필요</div>
+        <p style="font-size:13px;color:#aaa;line-height:1.6;margin-bottom:24px;">방탈출은 구글 로그인으로만 입장 가능합니다.<br>지금 구글 계정을 연동하면 바로 입장할 수 있어요.</p>
+        <button id="linkGoogleBtn" onclick="linkGoogleAndGo()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;border:none;border-radius:4px;background:#fff;color:#3c3c3c;font-size:14px;font-weight:500;cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+          Google 계정 연동하기
+        </button>
+        <div id="modalStatus" style="margin-top:14px;font-size:12px;color:#888;min-height:16px;"></div>
+        <button onclick="closeEscapeModal()" style="margin-top:16px;background:none;border:none;color:#666;font-size:12px;cursor:pointer;text-decoration:underline;">취소</button>
+      </div>
+    </div>
 
     </div>
 
@@ -129,7 +144,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -144,6 +159,49 @@ const firebaseConfig = {
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+let currentUser = null;
+
+// 방탈출 클릭: 구글 로그인 여부 확인
+window.goToEscape = function(e) {
+  if (!currentUser) return false;
+  const hasGoogle = currentUser.providerData.some(p => p.providerId === 'google.com');
+  if (hasGoogle) return true; // 링크 그대로 따라가기
+  e.preventDefault();
+  document.getElementById('escapeModal').style.display = 'flex';
+  return false;
+};
+
+window.closeEscapeModal = function() {
+  document.getElementById('escapeModal').style.display = 'none';
+  document.getElementById('modalStatus').textContent = '';
+  const btn = document.getElementById('linkGoogleBtn');
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg> Google 계정 연동하기`;
+};
+
+window.linkGoogleAndGo = async function() {
+  const btn = document.getElementById('linkGoogleBtn');
+  const status = document.getElementById('modalStatus');
+  btn.disabled = true;
+  btn.textContent = '연동 중...';
+  status.textContent = '';
+  try {
+    const provider = new GoogleAuthProvider();
+    await linkWithPopup(auth.currentUser, provider);
+    status.textContent = '연동 완료! 방탈출로 이동합니다...';
+    setTimeout(() => { location.href = 'https://eomty.github.io/RoofCatMeER'; }, 800);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Google 계정 연동하기';
+    if (e.code === 'auth/credential-already-in-use') {
+      status.textContent = '이미 다른 계정에 연동된 구글 계정입니다.';
+    } else if (e.code === 'auth/popup-closed-by-user') {
+      status.textContent = '팝업이 닫혔습니다. 다시 시도해주세요.';
+    } else {
+      status.textContent = '연동에 실패했습니다. 다시 시도해주세요.';
+    }
+  }
+};
 
 // 가챠권 표시 (캐시값 먼저, Firestore 값으로 갱신)
 function showTickets(n){
@@ -156,6 +214,7 @@ onAuthStateChanged(auth, async user => {
     location.href = 'login.html';
     return;
   }
+  currentUser = user;
 
   // Firestore에서 유저 데이터 로드
   try{
