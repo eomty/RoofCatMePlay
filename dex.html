@@ -216,15 +216,18 @@ function titleFor(n){let t=titleList[0];for(const x of titleList){if(n>=x.n)t=x;
 function nextTitle(n){return titleList.find(x=>x.n>n)||null;}
 
 // ── 목표 고양이 (아직 못 만난 고양이 중 랜덤, 전부 만났으면 전체 중 랜덤) ──
+// 레퍼런스 사진이 아직 없는 고양이는 랜덤 목표에서 제외 (사진이 생기면 이 목록에서 빼기)
+const NO_PICK = ['meonji'];
 function pickTarget(excludeSlug){
-  const unmet = CATS.filter(c=>!dex[c.slug]);
-  let pool = unmet.length ? unmet : CATS;
+  const pickable = CATS.filter(c=>!NO_PICK.includes(c.slug));
+  const unmet = pickable.filter(c=>!dex[c.slug]);
+  let pool = unmet.length ? unmet : pickable;
   if(pool.length>1 && excludeSlug) pool = pool.filter(c=>c.slug!==excludeSlug);
   return pool[Math.floor(Math.random()*pool.length)].slug;
 }
 function loadTarget(){
   const s = lsGet('rcm_dex_target_'+uid);
-  const valid = s && BY[s] && (metCount()>=TOTAL || !dex[s]);
+  const valid = s && BY[s] && !NO_PICK.includes(s) && (metCount()>=TOTAL || !dex[s]);
   target = valid ? s : pickTarget();
   lsSet('rcm_dex_target_'+uid, target);
 }
