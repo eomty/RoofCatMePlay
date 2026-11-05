@@ -380,7 +380,11 @@ function compressImage(file){
 
 // ── 판정 ──────────────────────────────────────────────
 // 결과: 'MATCH' | 'NOT_MATCH' | 'NO_CAT' | 'FAKE'  (실패 시 예외)
+let lastOther = null; // 서버가 "다른 고양이로 보인다"고 알려준 경우 그 고양이
+// '샤인' → '샤인이', '모아' → '모아' (받침 있으면 이 붙이기)
+function nick(n){ const ch=n.charCodeAt(n.length-1); return (ch>=0xAC00 && ch<=0xD7A3 && (ch-0xAC00)%28!==0) ? n+'이' : n; }
 async function judge(slug, b64, strict){
+  lastOther = null;
   if(!JUDGE_URL){
     // 임시 판정 (서버 연결 전). ?mock=NOT_MATCH|NO_CAT|FAKE|REJUDGE|ERROR 로 각 화면 확인 가능
     await new Promise(r=>setTimeout(r,1300));
@@ -398,6 +402,7 @@ async function judge(slug, b64, strict){
   const data = await res.json();
   const r = String(data.result||'').trim().toUpperCase();
   if(!['MATCH','NOT_MATCH','NO_CAT','FAKE'].includes(r)) throw new Error('JUDGE_BAD');
+  if(r==='NOT_MATCH' && data.other && BY[data.other.slug] && data.other.slug!==slug) lastOther = BY[data.other.slug];
   return r;
 }
 
@@ -452,7 +457,13 @@ function bindFail(){
 function showFail(result, wasStrict){
   const c = BY[target];
   const shot = '<div class="shot"><img src="'+curDataUrl+'" alt="찍은 사진"></div>';
-  if(result==='NOT_MATCH'){
+  if(result==='NOT_MATCH' && lastOther){
+    // 닮은 다른 고양이로 보일 때: "호떡이 대신 샤인이를 찍었어요~"
+    openSheet(shot+
+      '<h3 class="pn-title">'+esc(nick(c.name))+' 대신 '+esc(nick(lastOther.name))+'를 찍었어요~</h3>'+
+      '<p class="pn-text">찍은 고양이는 <b>'+esc(lastOther.name)+'</b>(으)로 보여요. 이번 목표인 '+esc(c.name)+'를 찾아서 다시 찍어보세요.'+(wasStrict||rejudged?'':' 억울하다면 한 번 더 판정해드릴게요.')+'</p>'+
+      failActions(!rejudged));
+  }else if(result==='NOT_MATCH'){
     const again = wasStrict;
     openSheet(shot+
       '<h3 class="pn-title">'+(again?'다시 봐도 '+esc(c.name)+'가 아닌 것 같아요':'음, '+esc(c.name)+'가 아닌 것 같아요')+'</h3>'+
