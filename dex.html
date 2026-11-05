@@ -288,10 +288,13 @@ function renderAll(){
   renderTarget();
   renderGrid();
 }
+// 목표 카드에서 얼굴이 잘리는 사진만 따로 위치 지정 (기본은 CSS의 위쪽 22%)
+const FOCUS = { kumi:'50% 78%' };
 function renderTarget(){
   const c = BY[target];
+  const tImg = FOCUS[c.slug] ? imgOf(c).replace('<img ','<img style="object-position:'+FOCUS[c.slug]+'" ') : imgOf(c);
   $('tgt').innerHTML = '<div class="rcm-tiles"></div>'+
-    '<div class="ph">'+ICON_CAT+imgOf(c)+'</div>'+
+    '<div class="ph">'+ICON_CAT+tImg+'</div>'+
     '<div class="body"><span class="lab">NO.'+String(NO[c.slug]).padStart(2,'0')+' · 찾아주세요</span>'+
     '<div class="nm">'+esc(c.name)+'</div>'+
     ((c.tags&&c.tags.length)?'<div class="chips">'+c.tags.map(t=>'<span>'+esc(t)+'</span>').join('')+'</div>':'')+
