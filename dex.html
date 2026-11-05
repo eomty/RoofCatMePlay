@@ -220,20 +220,49 @@ const metCount = () => CATS.filter(c=>dex[c.slug]).length;
 function titleFor(n){let t=titleList[0];for(const x of titleList){if(n>=x.n)t=x;}return t;}
 function nextTitle(n){return titleList.find(x=>x.n>n)||null;}
 
-// ── 목표 고양이 (아직 못 만난 고양이 중 랜덤, 전부 만났으면 전체 중 랜덤) ──
-// 레퍼런스 사진이 아직 없는 고양이는 랜덤 목표에서 제외 (사진이 생기면 이 목록에서 빼기)
+// ── 목표 고양이: 순서표(덱) 방식 ──
+// 처음에 못 만난 고양이를 한 번 섞어 순서표를 만들고, 그 순서대로 한 마리씩 보여준다.
+// 넘어간 고양이는 순서표를 한 바퀴 다 돈 뒤에야 다시 나온다. 전부 만났으면 전체를 섞어 돈다.
+// 레퍼런스 사진이 아직 없는 고양이는 목표에서 제외 (사진이 생기면 이 목록에서 빼기)
 const NO_PICK = ['meonji'];
+let deck = [];
+function deckKey(){ return 'rcm_dex_deck_'+uid; }
+function pickableCats(){ return CATS.filter(c=>!NO_PICK.includes(c.slug)); }
+function allMet(){ return pickableCats().every(c=>dex[c.slug]); }
+function deckOk(s){ return BY[s] && !NO_PICK.includes(s) && (allMet() || !dex[s]); }
+function shuffled(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function saveDeck(){
+  lsSet(deckKey(), JSON.stringify(deck));
+  // 계정에도 저장 (실패해도 게임에는 영향 없음 — 기기 저장이 대신함)
+  try{ if(uid) updateDoc(doc(db,'users',uid),{dexDeck:deck}).catch(()=>{}); }catch(e){}
+}
+function loadDeck(){
+  let d = Array.isArray(user.dexDeck) ? user.dexDeck : null;
+  if(!d){ try{ d = JSON.parse(lsGet(deckKey())||'null'); }catch(e){ d = null; } }
+  deck = Array.isArray(d) ? d.filter(deckOk) : [];
+}
+function refillDeck(last){
+  const pool = pickableCats().filter(c=>allMet() || !dex[c.slug]).map(c=>c.slug);
+  deck = shuffled(pool);
+  if(deck.length>1 && deck[0]===last){ const j=1+Math.floor(Math.random()*(deck.length-1)); [deck[0],deck[j]]=[deck[j],deck[0]]; }
+}
 function pickTarget(excludeSlug){
-  const pickable = CATS.filter(c=>!NO_PICK.includes(c.slug));
-  const unmet = pickable.filter(c=>!dex[c.slug]);
-  let pool = unmet.length ? unmet : pickable;
-  if(pool.length>1 && excludeSlug) pool = pool.filter(c=>c.slug!==excludeSlug);
-  return pool[Math.floor(Math.random()*pool.length)].slug;
+  deck = deck.filter(s=>deckOk(s) && s!==excludeSlug);
+  if(!deck.length) refillDeck(excludeSlug);
+  const slug = deck.shift();
+  saveDeck();
+  return slug;
 }
 function loadTarget(){
+  loadDeck();
   const s = lsGet('rcm_dex_target_'+uid);
-  const valid = s && BY[s] && !NO_PICK.includes(s) && (metCount()>=TOTAL || !dex[s]);
-  target = valid ? s : pickTarget();
+  const valid = s && deckOk(s);
+  if(valid){ deck = deck.filter(x=>x!==s); target = s; saveDeck(); }
+  else target = pickTarget();
   lsSet('rcm_dex_target_'+uid, target);
 }
 function setTarget(slug){target=slug;lsSet('rcm_dex_target_'+uid,slug);}
@@ -527,7 +556,7 @@ function openReset(){
   act('x-go',async()=>{
     try{
       await updateDoc(doc(db,'users',uid),{dex:deleteField(), dexDaily:deleteField()});
-      dex = {};
+      dex = {}; deck = [];
       setTarget(pickTarget());
       closeSheet(); renderAll(); window.scrollTo({top:0,behavior:'smooth'});
       toast('도감을 초기화했어요');
