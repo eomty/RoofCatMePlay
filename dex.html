@@ -381,6 +381,16 @@ function compressImage(file){
 // ── 판정 ──────────────────────────────────────────────
 // 결과: 'MATCH' | 'NOT_MATCH' | 'NO_CAT' | 'FAKE'  (실패 시 예외)
 let lastOther = null; // 서버가 "다른 고양이로 보인다"고 알려준 경우 그 고양이
+// 조사 붙이기: jo('호떡','이/가') → '이', jo('모아','이/가') → '가'
+function jo(n,t){
+  const ch=n.charCodeAt(n.length-1);
+  const hang = ch>=0xAC00 && ch<=0xD7A3;
+  const jong = hang && (ch-0xAC00)%28!==0;
+  const rieul = hang && (ch-0xAC00)%28===8;
+  if(t==='으로/로') return (jong && !rieul) ? '으로' : '로';
+  const [a,b] = t.split('/');
+  return jong ? a : b;
+}
 // '샤인' → '샤인이', '모아' → '모아' (받침 있으면 이 붙이기)
 function nick(n){ const ch=n.charCodeAt(n.length-1); return (ch>=0xAC00 && ch<=0xD7A3 && (ch-0xAC00)%28!==0) ? n+'이' : n; }
 async function judge(slug, b64, strict){
@@ -393,11 +403,17 @@ async function judge(slug, b64, strict){
     if(m==='REJUDGE') return strict?'MATCH':'NOT_MATCH';
     return m;
   }
-  const res = await fetch(JUDGE_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({mode:'dex', slug, image:b64, strict:!!strict})
-  });
+  const ctrl = new AbortController();
+  const tmo = setTimeout(()=>ctrl.abort(), 35000); // 서버는 최대 30초 안에 답한다
+  let res;
+  try{
+    res = await fetch(JUDGE_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode:'dex', slug, image:b64, strict:!!strict}),
+      signal:ctrl.signal
+    });
+  } finally { clearTimeout(tmo); }
   if(!res.ok) throw new Error('JUDGE_HTTP');
   const data = await res.json();
   const r = String(data.result||'').trim().toUpperCase();
@@ -414,7 +430,7 @@ async function runJudge(strict){
     '<div class="shot"><img src="'+curDataUrl+'" alt="찍은 사진"></div>'+
     '<div class="spin" role="progressbar" aria-label="판정 중"></div>'+
     '<h3 class="pn-title">'+(strict?'한 번 더 꼼꼼히 살펴볼게요':'집사 눈으로 확인하는 중…')+'</h3>'+
-    '<p class="pn-text"><b>'+esc(c.name)+'</b>가 맞는지 살펴보고 있어요</p>', false);
+    '<p class="pn-text"><b>'+esc(c.name)+'</b>'+jo(c.name,'이/가')+' 맞는지 살펴보고 있어요<br><small style="color:#6F655D">최대 30초까지 걸릴 수 있어요</small></p>', false);
   let result;
   try{ result = await judge(target, curB64, strict); }
   catch(e){
@@ -461,12 +477,12 @@ function showFail(result, wasStrict){
     // 닮은 다른 고양이로 보일 때: "호떡이 대신 샤인이를 찍었어요~"
     openSheet(shot+
       '<h3 class="pn-title">'+esc(nick(c.name))+' 대신 '+esc(nick(lastOther.name))+'를 찍었어요~</h3>'+
-      '<p class="pn-text">찍은 고양이는 <b>'+esc(lastOther.name)+'</b>(으)로 보여요. 이번 목표인 '+esc(c.name)+'를 찾아서 다시 찍어보세요.'+(wasStrict||rejudged?'':' 억울하다면 한 번 더 판정해드릴게요.')+'</p>'+
+      '<p class="pn-text">찍은 고양이는 <b>'+esc(lastOther.name)+'</b>'+jo(lastOther.name,'으로/로')+' 보여요. 이번 목표인 '+esc(c.name)+jo(c.name,'을/를')+' 찾아서 다시 찍어보세요.'+(wasStrict||rejudged?'':' 억울하다면 한 번 더 판정해드릴게요.')+'</p>'+
       failActions(!rejudged));
   }else if(result==='NOT_MATCH'){
     const again = wasStrict;
     openSheet(shot+
-      '<h3 class="pn-title">'+(again?'다시 봐도 '+esc(c.name)+'가 아닌 것 같아요':'음, '+esc(c.name)+'가 아닌 것 같아요')+'</h3>'+
+      '<h3 class="pn-title">'+(again?'다시 봐도 '+esc(c.name)+jo(c.name,'이/가')+' 아닌 것 같아요':'음, '+esc(c.name)+jo(c.name,'이/가')+' 아닌 것 같아요')+'</h3>'+
       '<p class="pn-text">'+(again?'얼굴과 무늬가 잘 보이게 다시 찍어보거나, 다른 고양이로 넘어가 보세요.':'얼굴과 털 무늬가 잘 보이게 다시 찍어보세요. 억울하다면 한 번 더 판정해드릴게요.')+'</p>'+
       failActions(!rejudged));
   }else if(result==='NO_CAT'){
