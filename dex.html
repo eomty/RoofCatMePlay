@@ -62,6 +62,8 @@
     .tile:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:12px;}
 
     .back{display:block;text-align:center;font-size:13px;color:var(--ink-soft);padding:0 20px 20px;text-decoration:underline;}
+    .test-reset{display:block;margin:0 auto 20px;padding:6px 12px;background:none;border:0;font-size:12px;color:#9A8F86;text-decoration:underline;cursor:pointer;}
+    .test-reset[hidden]{display:none;}
     .foot{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 20px 18px;}
     .foot b{font-family:var(--font-display);font-weight:400;font-size:18px;color:var(--roof);}
     .foot span{font-size:12px;color:var(--ink-soft);}
@@ -136,6 +138,7 @@
   <div class="sec-head"><h2 class="rcm-h2">내 도감</h2><span class="hint">만난 고양이를 눌러보세요</span></div>
   <div class="dgrid" id="dgrid"></div>
   <a class="back" href="index.html">← 메인으로</a>
+  <button type="button" class="test-reset" id="btn-reset" hidden>🧪 도감 초기화 (테스트용)</button>
 </main>
 
 <div class="foot"><b>ROOF_CAT_ME PLAY</b><span>루프캣미 매장에서 즐기는 미니게임</span></div>
@@ -149,7 +152,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, runTransaction, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqxMZf8xDfaQ1oAheXJAuYbWBBfZBkgvI",
@@ -166,6 +169,8 @@ const db   = getFirestore(app);
 /* ═══ 설정값 (여기만 고치면 됨) ═════════════════════════════════ */
 // 판정 서버 주소. 비워두면 임시 판정(항상 "맞음")으로 동작함
 const JUDGE_URL = 'https://rcm-dex-judge.eom732.workers.dev';
+// 테스트용 도감 초기화 버튼 표시 (오픈 전에 false로)
+const TEST_RESET = true;
 // 가챠권 보상
 const R = { perCat:1, every:5, everyBonus:3, complete:10, repeat:1, repeatDaily:5 };
 // 칭호 (n = 만난 마리 수, 'ALL' = 전부)
@@ -511,6 +516,25 @@ function doSkip(){
   renderAll();
   toast('다른 고양이로 바꿨어요');
 }
+
+// ── 테스트용: 냥도감만 초기화 (가챠권은 유지) ──
+function openReset(){
+  openSheet(
+    '<h3 class="pn-title">도감을 초기화할까요?</h3>'+
+    '<p class="pn-text">만난 고양이 기록이 모두 지워져요.<br><b>가챠권은 그대로</b> 남아요.</p>'+
+    '<div class="acts"><button type="button" class="rcm-btn" id="x-go">초기화하기</button><button type="button" class="rcm-btn ghost" id="x-cancel">취소</button></div>');
+  act('x-cancel',closeSheet);
+  act('x-go',async()=>{
+    try{
+      await updateDoc(doc(db,'users',uid),{dex:deleteField(), dexDaily:deleteField()});
+      dex = {};
+      setTarget(pickTarget());
+      closeSheet(); renderAll(); window.scrollTo({top:0,behavior:'smooth'});
+      toast('도감을 초기화했어요');
+    }catch(e){ toast('초기화에 실패했어요'); }
+  });
+}
+if(TEST_RESET){ $('btn-reset').hidden=false; $('btn-reset').addEventListener('click',openReset); }
 
 // ── 이벤트 ──
 $('btn-shoot').addEventListener('click',openGuide);
