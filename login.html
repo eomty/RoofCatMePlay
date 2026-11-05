@@ -42,6 +42,10 @@
 
     .error-msg{font-size:13px;color:var(--roof-text);text-align:center;min-height:16px;white-space:pre-line;}
     .loading{text-align:center;color:var(--ink-soft);font-size:13px;display:none;}
+    .inapp-note{background:#FFF4D6;border:1.5px solid #E8C766;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:var(--ink);margin-bottom:12px;word-break:keep-all;}
+    .inapp-note[hidden]{display:none;}
+    .inapp-note b{color:var(--roof-text);}
+    .inapp-note button{margin-top:8px;width:100%;height:42px;border:none;border-radius:10px;background:var(--roof-btn);color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;}
   </style>
 </head>
 <body>
@@ -54,6 +58,11 @@
 
 <div class="page">
 <div class="card">
+  <div class="inapp-note" id="inapp-note" hidden>
+    <b>이 앱 안에서는 Google 로그인이 안 돼요.</b><br>
+    링크를 복사해서 Safari나 Chrome에서 열어주세요. 이메일 로그인은 여기서도 할 수 있어요.
+    <button type="button" onclick="copyLoginLink()">링크 복사</button>
+  </div>
   <div class="tabs">
     <button class="tab active" onclick="switchTab('login')">로그인</button>
     <button class="tab" onclick="switchTab('signup')">회원가입</button>
@@ -242,7 +251,21 @@ window.doSignup = async function(){
   } finally{ setLoading(false); }
 };
 
+// 앱 안 브라우저(네이버 웍스, 카톡 등)에서는 구글이 로그인을 막으므로 안내만 보여준다
+const IN_APP = /NAVER|WORKS|KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent)
+  || (/iPhone|iPad|iPod/.test(navigator.userAgent) && !/Safari\//.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent));
+if(IN_APP){ const n=document.getElementById('inapp-note'); if(n) n.hidden=false; }
+window.copyLoginLink = async function(){
+  const url = location.href;
+  try{ await navigator.clipboard.writeText(url); alert('링크를 복사했어요. Safari나 Chrome에 붙여넣어 열어주세요.'); }
+  catch(e){ window.prompt('아래 링크를 복사해서 Safari나 Chrome에서 열어주세요.', url); }
+};
+
 window.doGoogleLogin = async function(){
+  if(IN_APP){
+    const n=document.getElementById('inapp-note'); if(n){ n.hidden=false; n.scrollIntoView({behavior:'smooth',block:'center'}); }
+    return;
+  }
   if(isLoading) return;
   setLoading(true);
   try{
